@@ -1,0 +1,19 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "192.168.8.30",
+            "port": 33060,
+            "driver": "MySQL",
+            "name": "HungryEats Database",
+            "database": "HungryEats",
+            "username": "hungryeats",
+            "password": "2001002023713385201",
+            "connectionTimeout": 30
+        }
+    ]
+}
