@@ -1,20 +1,16 @@
 import { StyleSheet, View, TouchableOpacity, Text , Image, FlatList} from "react-native";
 import { useContext, useEffect, useState } from "react";
-import { StoreContext } from "../Context_API/store_context";
-
+import { StoreContext } from "../contextApi/store_context";
 import {SERVER_IP} from '@env'
 
-const drink = require('../assets/images/drink.png');
 
 export default function Drink({Drink_name}){
-    
-    const { public_StoreName, setPublic_Store_Name} = useContext(StoreContext);
-    const [drink_list, setDrink_list] = useState([])
+    const { public_StoreName, setPublic_Store_Name}             = useContext(StoreContext);
+    const [drink_list, setDrink_list]                           = useState([])
 
     function Handle_Add_Drink(drik_name, drink_price){
         Drink_name(drik_name, drink_price)
     }
-
 
     const renderItem = ({item}) => (
         <TouchableOpacity style={styles.Container}  onPress={()=> Handle_Add_Drink(item.Drink_name, item.Drink_price)}>
@@ -28,6 +24,7 @@ export default function Drink({Drink_name}){
                         <Text style={{fontSize:14, textAlign:'center', fontWeight:'bold',color:'#FFFFFF'}}>+</Text>
                     </TouchableOpacity>
                 </View>
+
                 <Text style={{fontSize:12, fontWeight:'medium', marginLeft:5, color:'#FFFFFF', paddingBottom:10, flex:0.5}}>{item.Drink_price}Kr</Text>
         </TouchableOpacity>
     )
@@ -70,7 +67,6 @@ export default function Drink({Drink_name}){
            />
         </>
     )
-    
 }
 
 const styles = StyleSheet.create({
@@ -83,13 +79,11 @@ const styles = StyleSheet.create({
         justifyContent:'space-between',
         borderRadius:10,
         marginLeft:15,
-        shadowColor: '#000000', // Color of the shadow
-        shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
-        shadowOpacity: 0.3, // Opacity of the shadow
-        shadowRadius: 10, // Blur radius of the shadow
+        shadowColor: '#000000', 
+        shadowOffset: { width: 0, height: 5 }, 
+        shadowOpacity: 0.3, 
+        shadowRadius: 10, 
         elevation: 10
-
-
     },
 
     image_Container:{

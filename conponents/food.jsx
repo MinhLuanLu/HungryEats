@@ -1,21 +1,21 @@
 import { StyleSheet,View, Text, TouchableOpacity, Image } from "react-native";
 import { useState, useEffect, useContext } from "react";
-import { UserContext } from "../Context_API/user_context";
-import { StoreContext } from "../Context_API/store_context";
-import Food_Order from '../conponents/modal/food_order';
-
-const favorite = require('../assets/icons/favorite.png')
-const favorite_active = require('../assets/icons/favorite_active.png')
-const sushi = require('../assets/images/sushi.png')
+import { UserContext } from "../contextApi/user_context";
+import { StoreContext } from "../contextApi/store_context";
+import Food_Order from "../screens/storeDetail/foodOrder/food_order";
 import {SERVER_IP} from '@env'
+
+const favorite                                      = require('../assets/icons/favorite.png')
+const favorite_active                               = require('../assets/icons/favorite_active.png')
+const sushi                                         = require('../assets/images/sushi.png')
 
 export default function Food({item, socketIO}){
 
-    const [facvorite_button, setFacvorite_button] = useState(false)
-    const { public_StoreName, setPublic_Store_Name } = useContext(StoreContext);
-    const {publicEmail, setPuclicEmail} = useContext(UserContext)
+    const { public_StoreName, setPublic_Store_Name }                = useContext(StoreContext);
+    const {publicEmail, setPuclicEmail}                             = useContext(UserContext)
 
-    const [display_order_food, setDisplay_Order_Food] = useState(false)
+    const [display_order_food, setDisplay_Order_Food]               = useState(false)
+    const [facvorite_button, setFacvorite_button]                   = useState(false)
 
 
     function handle_Favorite(food_id){
@@ -63,59 +63,53 @@ export default function Food({item, socketIO}){
                 console.error(error)
             })
         }
-    
-
-        
+       
     return(
         <>  
-            {item.Quantity != 0
-            ?
-            <View>
-                <TouchableOpacity style={styles.food_box} onPress={()=> {setDisplay_Order_Food(true)}}>
-                    <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
-                        <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
-                    </View>
-                    <View style={{flex:1.3, paddingLeft:5}}>
-                        <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
-                        <View style={{height:20, overflow:'hidden'}}>
-                            <Text style={{fontSize:14}}>{item.Food_description}</Text>
+            {item.Quantity != 0 ?
+                <View>
+                    <TouchableOpacity style={styles.food_box} onPress={()=> {setDisplay_Order_Food(true)}}>
+                        <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
+                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                         </View>
-                        <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
-                        <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
-                            <View style={{flex:1, marginLeft:5}}>
-                                <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                        
+                        <View style={{flex:1.3, paddingLeft:5}}>
+                            <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
+                            <View style={{height:20, overflow:'hidden'}}>
+                                <Text style={{fontSize:14}}>{item.Food_description}</Text>
                             </View>
-                            <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                            <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
+                            <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
+                                <View style={{flex:1, marginLeft:5}}>
+                                    <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                                </View>
+                                <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                            </View>
                         </View>
-                    </View>
-                </TouchableOpacity>
-                <Food_Order socketIO={socketIO} display_food_order={display_order_food} onclose={()=> setDisplay_Order_Food(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description}/>
+                    </TouchableOpacity>
+                    <Food_Order socketIO={socketIO} display_food_order={display_order_food} onclose={()=> setDisplay_Order_Food(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description}/>
                 </View>
-            :
-            <View>
-                <TouchableOpacity style={[styles.food_box_2]}>
-                    <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
-                        <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
-                    </View>
-                    <View style={{flex:1.3, paddingLeft:5}}>
-                        <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
-                        <View style={{height:20, overflow:'hidden'}}>
-                            <Text style={{fontSize:14}}>{item.Food_description}</Text>
+                :
+                <View>
+                    <TouchableOpacity style={[styles.food_box_2]}>
+                        <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
+                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                         </View>
-                        <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
-                        <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
-                            <View style={{flex:1, marginLeft:5}}>
-                                <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                        <View style={{flex:1.3, paddingLeft:5}}>
+                            <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
+                            <View style={{height:20, overflow:'hidden'}}>
+                                <Text style={{fontSize:14}}>{item.Food_description}</Text>
                             </View>
-                            <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                            <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
+                            <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
+                                <View style={{flex:1, marginLeft:5}}>
+                                    <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                                </View>
+                                <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                            </View>
                         </View>
-                    </View>
-                </TouchableOpacity>
-            </View>
-            
-
-    
-
+                    </TouchableOpacity>
+                </View>
             }
         </>
     );
@@ -130,10 +124,10 @@ const styles = StyleSheet.create({
         width:130,
         marginBottom:30,
         borderRadius:10,
-        shadowColor: '#000000', // Color of the shadow
-        shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
-        shadowOpacity: 0.3, // Opacity of the shadow
-        shadowRadius: 10, // Blur radius of the shadow
+        shadowColor: '#000000', 
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3, 
+        shadowRadius: 10, 
         elevation: 10
 
     },

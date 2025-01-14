@@ -1,17 +1,15 @@
 import { StyleSheet,Text,View, TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
-import Food_List from "./modal/food_list";
+import Food_List from "./food_list";
 
 export default function Menu({item, socketIO, display_payment}){
 
     const [display_food_list, setDisplay_food_list] = useState(false)
 
-    
-
     function Handle_choose_Menu(){
-        
         setDisplay_food_list(true)
     }   
+
     return(
         <>
             <TouchableOpacity style={styles.menu} onPress={()=> Handle_choose_Menu()}>
@@ -19,7 +17,6 @@ export default function Menu({item, socketIO, display_payment}){
                     <Text style={styles.menu_Name}>{item.Menu_name}</Text>
                 </View>
             </TouchableOpacity>
-          
             <Food_List socketIO={socketIO} onclose={()=> setDisplay_food_list(false)} display_food_list={display_food_list} menu_name={item.Menu_name} menu_description={item.Menu_description} menu_id={item.Menu_id} display_payment={()=> display_payment()}/>
         </>
     )

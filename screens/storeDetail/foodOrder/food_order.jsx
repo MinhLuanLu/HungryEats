@@ -1,19 +1,16 @@
 import { useState, useEffect} from "react";
 import { StyleSheet, View, Text, Modal, TouchableOpacity , Image, SafeAreaView, Platform} from "react-native";
 import { useContext } from "react";
-import { UserContext } from "../../Context_API/user_context";
-import { StoreContext } from "../../Context_API/store_context";
+import { UserContext } from "../../../contextApi/user_context";
+import { StoreContext } from "../../../contextApi/store_context";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { StatusBar } from "expo-status-bar";
+import Drink from "../../../conponents/drinks";
 
-import Drink from "../drinks";
-
-const down_arrow = require('../../assets/icons/down_arrow.png')
-const left_arrow = require('../../assets/icons/left_arrow.png')
-
+const down_arrow = require('../../../assets/icons/down_arrow.png')
+const left_arrow = require('../../../assets/icons/left_arrow.png')
 
 export default function Food_Order({display_food_order, onclose, food_name, food_description, price, socketIO}){
-
 
     const { public_StoreName, setPublic_Store_Name} = useContext(StoreContext)
     const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
@@ -27,66 +24,46 @@ export default function Food_Order({display_food_order, onclose, food_name, food
     const [detected_remove_click, setDetected_Remove_Click] = useState(1)
     
     const [datetime, setDate] = useState(new Date())
-
     const [pickup_Time, setPickup_Time] = useState(null)
     const [open, setOpen] = useState(false);
 
-    const [name_drink, setName_drink] = useState()
-    const [drink_price, setDrink_Price] = useState()
     const [drink_list, setDrink_List] = useState([])
 
     const {public_Store_Order_List, setPublic_Store_Order_List} = useContext(StoreContext)
-    const [order_detail, setOrder_Detail] = useState([])
 
 
-    const formatDate = (dateObj) => {
-        const day = dateObj.getDate().toString().padStart(2, "0");
-        const month = (dateObj.getMonth() + 1).toString().padStart(2, "0");
-        const year = dateObj.getFullYear();
-        return `${day}-${month}-${year}`;
-      };
-
-      const formatTime = (timeObj) => {
+    const formatTime = (timeObj) => {
         const hours = timeObj.getHours().toString().padStart(2, "0"); // Ensure two digits
         const minutes = timeObj.getMinutes().toString().padStart(2, "0"); // Ensure two digits
         return `${hours}:${minutes}`; // 24-hour format
       };
       
+    function Handle_Portion_Count_Add(){
+        setPortion_Quantity(portion_Quantity + 1);
+        setDetected_Add_Click(detected_add_click + 1)
+    }
 
-
-      function Handle_Portion_Count_Add(){
-            setPortion_Quantity(portion_Quantity + 1);
-            setDetected_Add_Click(detected_add_click + 1)
-      }
-
-      function Handle_Portion_Count_Remove(){
+    function Handle_Portion_Count_Remove(){
         if(portion_Quantity > 1){
             setPortion_Quantity(portion_Quantity - 1)
             setDetected_Remove_Click(detected_remove_click - 1)
         }
-      }
-
+    }
 
     useEffect(()=>{
-
         setTotal_price(price * portion_Quantity)
-
     },[detected_add_click])
     
-
     useEffect(()=>{
-        setTotal_price(total_price - price)
-        
+        setTotal_price(total_price - price)    
     },[detected_remove_click])
 
     useEffect(()=>{
         setTotal_price(price * portion_Quantity)
     },[])
 
-
     function Handle_Get_Drink(drink_name, drink_price){
-        setTotal_price(total_price + drink_price) // Add drink price to total price
-
+        setTotal_price(total_price + drink_price) // Add drink price to total price of order
         let drink_Quantity = 0
         let add_quantity = drink_Quantity + 1
         let list = {"Drink_name": drink_name, "Drink_price": drink_price, "Drink_quantity": add_quantity}
@@ -116,22 +93,19 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                 "Store_name": public_StoreName,
                 "Order_detail": newStoreOrderList
             }
-
             if(public_Cart_list.length > 0){
                 for(let i = 0; i< public_Cart_list.length; i++){
                     if(public_Cart_list[i]["Store_name"] === public_StoreName){
-                        console.log('order is same store name')
+                        console.info('orders have the same store name')
                         setPublic_Cart_List((prevPublic_Cart_List) =>
                             prevPublic_Cart_List.filter(item => item["Store_name"] !== public_StoreName)
                         );
-
                         setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
-                        setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])
-                        
+                        setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])    
                     }else{
                         setPublic_Store_Order_List([])
                         if(public_Store_Order_List.length ===0){
-                            console.log('order not same store name')
+                            console.info('orders dont have same store name')
                             setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
                             setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])
                         }
@@ -139,7 +113,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                 }
             }
             else{
-                console.log('add to public cart list')
+                console.info('add order to public cart list')
                 setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
                 setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])
             }
@@ -148,10 +122,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
             setPortion_Quantity(1)
             setDrink_List([])
             setDrink_Qauntity(0)
-            onclose()
-
-            
-        
+            onclose()  
         }
     }
 
@@ -164,8 +135,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                 transparent={true}
                 hardwareAccelerated={true}
             >
-                <View style={styles.Container}>
-                    
+                <View style={styles.Container}>   
                     <View style={{justifyContent:'center',backgroundColor:'#D7D7D7', height:50}}>
                         <TouchableOpacity onPress={()=> {onclose(); setDrink_List([])}} style={{backgroundColor:'#F8F8F8', width:35, height:35, borderRadius:40, justifyContent:'center', marginLeft:10}}>
                             <Image style={{width:18, height:18, alignSelf:'center'}} resizeMode="cover" source={left_arrow}/>
@@ -179,7 +149,6 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                                 <Text style={{fontSize:20, fontWeight:'bold', textDecorationLine:'underline'}}>{food_name}</Text>
                                 <Text style={{fontSize:16, fontWeight:'semibold'}}>{food_description}</Text>
                             </View>
-
 
                             <TouchableOpacity onPress={()=> setOpen(true)} style={{height:40, backgroundColor:'#008080', width:'90%', alignSelf:'center', justifyContent:'center', borderRadius:5, display:'flex', flexDirection:'row', alignItems:'center'}}>
                                 <Text style={{textAlign:'center', color:'#FFFFFF', fontSize:15, fontWeight:500}}>Select time to pick up</Text>
@@ -198,8 +167,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                             
                             {pickup_Time != null && <Text style={{textAlign:'center', fontSize:16, fontWeight:500}}>PickUp Time: {pickup_Time}</Text>}
 
-                            <View>
-                                
+                            <View>     
                                 <Text style={{fontSize:15, fontWeight:500,paddingBottom:10,width:'85%',alignSelf:'center'}}>Portion</Text>
                                 <View style={styles.portion_container}>
                                     <TouchableOpacity onPress={()=> Handle_Portion_Count_Remove()} style={{width:40, height:40, backgroundColor:'#008080', borderRadius:10, justifyContent:'center'}}>
@@ -218,7 +186,6 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                         </View>
                     </View>
                     
-                    
                     <View style={styles.middle_Layer}>
                         <Text style={{marginLeft:15, fontSize:20, fontWeight:'semibold', marginBottom:10}}>Drinks</Text>
                         <View style={{marginTop:5, width:'100%', height:150}}>
@@ -227,7 +194,6 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                     </View>
 
                     <View style={styles.bottom_Layer}>
-                        
                         <View style={styles.price_Container}>
                             <Text style={{fontSize:16, fontWeight:'semibold', color:'#808080'}}>Total price</Text>
                             <Text  style={{fontSize:36, fontWeight:'semibold'}}>{total_price}<Text style={{fontSize:24, fontWeight:'semibold',color:'#000000'}}>Kr</Text></Text>

@@ -3,13 +3,12 @@ import { createContext, useState } from "react";
 export const StoreContext = createContext({})
 
 export const StoreProvider = ({children}) =>{
-    const [public_StoreName, setPublic_Store_Name] = useState('')
-    const [public_Address, setPublic_Address] = useState('')
-    const [public_Store_Status, setPublic_Store_Status] = useState(null)
-    const [public_Phone_Number, setPublic_Phone_Number] = useState('')
-    const [public_store_image, setPublic_store_image] = useState("")
-
-    const [public_Store_Order_List, setPublic_Store_Order_List] = useState([])
+    const [public_StoreName, setPublic_Store_Name]                      = useState('')
+    const [public_Address, setPublic_Address]                           = useState('')
+    const [public_Store_Status, setPublic_Store_Status]                 = useState(null)
+    const [public_Phone_Number, setPublic_Phone_Number]                 = useState('')
+    const [public_store_image, setPublic_store_image]                   = useState("")
+    const [public_Store_Order_List, setPublic_Store_Order_List]         = useState([])
 
     return(
         <StoreContext.Provider value={{

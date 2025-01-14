@@ -1,27 +1,26 @@
+import "react-native-gesture-handler";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View , Platform, SafeAreaView, TouchableOpacity} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StoreProvider } from './Context_API/store_context';
-import { UserProvider } from './Context_API/user_context';
-import Home from './screens/home';
-import Store_Detail from './conponents/modal/store_detail';
-import Launch_Screen from './screens/launch_screen';
-import Register from './screens/register';
-import Login from './screens/login';
+import { NavigationContainer } from "@react-navigation/native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { StoreProvider } from './contextApi/store_context';
+import { UserProvider } from './contextApi/user_context';
+import Home from './screens/home/home';
+import Store_Detail from "./screens/storeDetail/store_detail";
+import Launch_Screen from "./screens/launchScreen/launchScreen";
+import Register from "./screens/register/register";
+import Login from './screens/login/login';
+import Account from "./screens/account/account";
+import PaymentHistory from "./screens/paymentHistory/paymentHistory";
 
 export default function App() {
-  const Stack = createNativeStackNavigator();
 
-  
-  return (
-    <SafeAreaView style={styles.container}>
-      
-    <UserProvider>
-    <StoreProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
 
+  const StackNav=()=>{
+    const Stack = createNativeStackNavigator();
+    return(
+      <Stack.Navigator>
           <Stack.Screen
             name='launch_screen'
             component={Launch_Screen}
@@ -74,11 +73,42 @@ export default function App() {
               headerShown: false,
             }}
           />
-        
+
+          <Stack.Screen
+            name='Account'
+            component={Account}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: 'Account',
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name='paymentHistory'
+            component={PaymentHistory}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: '',
+              headerShown: false,
+            }}
+          />
+
         </Stack.Navigator>
-      </NavigationContainer>
-    </StoreProvider>
-    </UserProvider>
+    )
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>   
+      <UserProvider>
+      <StoreProvider>
+
+        <NavigationContainer>
+          <StackNav/>
+        </NavigationContainer>
+
+      </StoreProvider>
+      </UserProvider>
     </SafeAreaView>
   );
 }

@@ -3,12 +3,12 @@ import { useEffect , useState} from "react";
 
 import {SERVER_IP} from'@env'
 
-const down_arrow = require('../assets/icons/down_arrow.png')
+const down_arrow = require('../../../assets/icons/down_arrow.png')
 
-export default function Order_Status({ display_Order_Status, order_status_list, socketIO, onclose, email}) {
+export default function Order_Status({ display_Order_Status, order_status_list, socketIO, onclose, email, defineTab}) {
   
-  const [tab, setTab] = useState(false)
-  const [order_history, setOrder_history] = useState([])
+  const [tab, setTab]                                 = useState(false)
+  const [order_history, setOrder_history]             = useState([])
 
   useEffect(()=>{
     async function Handel_Get_Order_History(data) {
@@ -42,14 +42,17 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
       "Email": email
     }
 
-   
-    if(tab){
+    if(tab || defineTab == true){
       Handel_Get_Order_History(data)
-    }
-    
+    } 
   },[tab])
-  
 
+
+  useEffect(()=>{
+    setTab(defineTab)
+  },[defineTab])
+
+  
   return (
     <Modal
       visible={display_Order_Status}
@@ -61,14 +64,13 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
         <TouchableWithoutFeedback>
           <View style={styles.top_Layer}>
 
-            <TouchableWithoutFeedback onPress={()=> onclose()}>
+            <TouchableWithoutFeedback onPress={()=> {onclose(), setTab(false)}}>
               <View style={{width:35, height:35, backgroundColor:'#d7d7d7', borderRadius:40, justifyContent:'center', alignItems:'center', position:'absolute', left:15, top:20}}>
                 <Image style={{width:25, height:25}} resizeMode="cover" source={down_arrow}/>
               </View>
             </TouchableWithoutFeedback>
             
             <View style={{height:35, width:'90%',backgroundColor:'#333333', marginBottom:10, borderRadius:40, alignItems:'center', justifyContent:'center'}}>
-            
               <View style={{height:25, width:'98%', borderRadius:40,display:'flex', flexDirection:'row', alignItems:'center' }}>
                 <TouchableWithoutFeedback onPress={()=> setTab(false)}>
                   <View style={{backgroundColor: !tab ? '#d7d7d7' : '#333333', width:'50%',borderRadius:40, height:29, justifyContent:'center'}}>
@@ -82,16 +84,16 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
                   </View>
                 </TouchableWithoutFeedback>
               </View>
-
             </View>
           </View>
         </TouchableWithoutFeedback>
-        { !tab 
-          ?
+        { !tab ?
           <ScrollView style={styles.bottom_layer}>
             {order_status_list.map((item, index) => (
               <View key={item.Order_id} style={styles.order_Container}>
-                <View style={styles.image_Conatiner}></View>
+                <View style={styles.image_Conatiner}>
+                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                </View>
                 <View style={styles.order_detail}>
               
                     <Text style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{item.Order_id}. {item.Food_name} ({item.Food_quantity}x)</Text>
@@ -115,13 +117,15 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
               </View>
             ))}
           </ScrollView>
-          :
+        :
           <ScrollView style={styles.bottom_layer}>
             {order_history.map((item, index)=>(
               <View key={item.Order_id} style={styles.order_Container}>
-                <View style={styles.image_Conatiner}></View>
+                <View style={styles.image_Conatiner}>
+                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                </View>
+
                 <View style={styles.order_detail}>
-              
                     <Text style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{item.Order_id}. {item.Food_name} ({item.Food_quantity}x)</Text>
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
                       {item.Order_status === "Accept"
@@ -138,12 +142,11 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
                     <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}}>
                       <Text style={{textAlign:'center', color:'#d7d7d7'}}>View Order</Text>
                     </TouchableOpacity>
-                  
                 </View>
-            </View>
+              </View>
             ))}
           </ScrollView>
-          }
+        }
       </View>
     </Modal>
   );

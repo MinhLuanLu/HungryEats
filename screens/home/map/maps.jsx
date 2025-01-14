@@ -1,43 +1,40 @@
-import { StyleSheet , View, Text, TouchableOpacity, Button} from "react-native";
+import { StyleSheet , View} from "react-native";
 import { useEffect, useState } from "react";
 import MapView, { Callout, Marker,  PROVIDER_GOOGLE } from 'react-native-maps';
-import LottieView from "lottie-react-native";
-import { UserContext } from "../Context_API/user_context";
+
 
 import * as Location from 'expo-location';
 import { useRef } from "react";
 import { useContext } from "react";
-import { StoreContext } from "../Context_API/store_context";
-import Search from "./search";
-import Loading from "./loading";
-import Store_Description from "./store_description";
-
-
-const marker_Icon_open = require('../assets/icons/location_open_icon.png')
-const marker_Icon_close = require('../assets/icons/location_close.png')
-
+import { StoreContext } from "../../../contextApi/store_context";
+import Search from "../../../conponents/search"
+import Loading from "../../../conponents/loading";
+import Store_Description from "../storeDescription/storeDescription";
 import {SERVER_IP} from '@env'
 
-export default function Maps({socketIO, display_store_detail, display_Payment}){
 
-    const [location, setLocation] = useState(null)
-    const [latitude, setLatitude] = useState(null);
-    const [longitude, setLongitude] = useState(null)
-
-    const [marker_list, setMarker_list] = useState([])
-    const mapRef = useRef(null);
+const marker_Icon_open = require('../../../assets/icons/location_open_icon.png')
+const marker_Icon_close = require('../../../assets/icons/location_close.png')
 
 
-    const { public_StoreName, setPublic_Store_Name } = useContext(StoreContext);
-    const { public_Address, setPublic_Address } = useContext(StoreContext);
-    const { public_Store_Status, setPublic_Store_Status} = useContext(StoreContext);
-    const {  public_Phone_Number, setPublic_Phone_Number} = useContext(StoreContext);
-    const {public_store_image, setPublic_store_image} = useContext(StoreContext)
+export default function Maps({socketIO, display_store_detail, display_Payment, display_sideBar}){
 
-    const [store_Description, setStore_Description] = useState()
+    const mapRef                                                  = useRef(null);
+    const [location, setLocation]                                 = useState(null)
+    const [latitude, setLatitude]                                 = useState(null);
+    const [longitude, setLongitude]                               = useState(null)
+    const [marker_list, setMarker_list]                           = useState([])
 
-    const [display_tabBar, setDisplay_TabBar] = useState(false)
+    const { public_StoreName, setPublic_Store_Name }              = useContext(StoreContext);
+    const { public_Address, setPublic_Address }                   = useContext(StoreContext);
+    const { public_Store_Status, setPublic_Store_Status}          = useContext(StoreContext);
+    const {  public_Phone_Number, setPublic_Phone_Number}         = useContext(StoreContext);
+    const {public_store_image, setPublic_store_image}             = useContext(StoreContext)
 
+    const [store_Description, setStore_Description]               = useState()
+    const [display_tabBar, setDisplay_TabBar]                     = useState(false)
+
+    // Handle fetching necessary data that is used in the map.
     useEffect(() => {
         async function getCurrentLocation() {
           
@@ -51,12 +48,10 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
             accuracy: Location.Accuracy.High,
           });
           
-/////////////////////////////////////////////////////
           if(getlocation){     
             setLocation(getlocation)
           }
         }
-/////////////////////////////////////////////////////////
 
         async function handle_Store_List() {
             await fetch(`${SERVER_IP}/Store_list/api`,{
@@ -70,7 +65,6 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
                 return res.json().then(data=>{
                   if(data){
                     setMarker_list(data.store_list)
-
                   }
                 })
               }
@@ -79,18 +73,16 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
               }
             })
             .catch(error=>{
-              console.log(error)
+              console.debug(error)
             })
           }
     
         getCurrentLocation();
         handle_Store_List()
-
-        
       }, []);
 
       
-
+    // Handle listening to get the location.
     useEffect(()=>{
         if(location != null){
             console.log('get new location')
@@ -102,8 +94,7 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
           setDisplay_TabBar(true)
         }else{
           setDisplay_TabBar(false)
-        }
-        
+        }      
     },[location])
 
 
@@ -114,20 +105,18 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
       setStore_Description(store_description)
       setPublic_store_image(store_image)
       
-      /// Handle update store Status live when click on the marker
-
+      /// Handle update store Status on socketio 
       socketIO.current.emit('Store_status', {Store_name: Name})
-      
       socketIO.current.on('Store_status', (data)=>{
         setPublic_Store_Status(data['Status'])
         
       })
     }
 
-    /// Handle update store Status live when store close or open
+    /// Handle update storeStatus [close or open]
     if(socketIO.current){
       socketIO.current.on('store_list', (store_list)=>{
-        console.log('Update stores Status successfully..')
+        console.info('Update stores Status successfully..')
         setMarker_list(store_list)
       })
     }
@@ -135,7 +124,7 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
 
     if(location == null || marker_list.length === 0) return <Loading/>
     
-
+    // Handle Map style
     const Map_Style_Light = [
       {
         "elementType": "geometry",
@@ -481,9 +470,11 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
 
     return(
         <View style={styles.Container}>
+
           <View style={styles.search_Container} >
-            <Search display_Payment={display_Payment}/>
+            <Search display_Payment={display_Payment} display_sideBar={()=> display_sideBar()}/>
           </View>
+
           <MapView 
             ref={mapRef}
             style={styles.map}
@@ -527,12 +518,10 @@ export default function Maps({socketIO, display_store_detail, display_Payment}){
 
           </MapView>
                 
-          
             <View style={{position:'absolute', bottom:30, width:'100%'}}>
               <Store_Description store_status={public_Store_Status} display_store_detail={()=> display_store_detail()} store_description={store_Description}/>
             </View>
 
-          
         </View>
     );
 }

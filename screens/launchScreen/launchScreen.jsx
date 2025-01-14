@@ -1,14 +1,24 @@
 import { StyleSheet,View,Text, TouchableOpacity, Image } from "react-native";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
+import { UserContext } from "../../contextApi/user_context";
 import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
-const background = require('../assets/images/launch_image_background.png')
-
-import {SERVER_IP} from '@env'
+import { useFocusEffect } from "@react-navigation/native";
+const background = require('../../assets/images/launch_image_background.png')
 
 
 export default function Launch_Screen(){
     const navigate = useNavigation()
+    const {public_Order_Status, setPublic_Order_Status}         = useContext(UserContext)
+
+    
+        useFocusEffect(
+            useCallback(() => {
+              setPublic_Order_Status([])
+            }, []) 
+          );
+    
+    
 
     return(
         <View style={styles.Container}>
@@ -21,7 +31,7 @@ export default function Launch_Screen(){
                     <Text style={{fontSize:16, textAlign:'center', paddingTop:5}}>Ours food is ready for you, You will get what {'\n'}you want in no time.</Text>
                     <LottieView
                         autoPlay
-                        source={require('../assets/lottie/food.json')}
+                        source={require('../../assets/lottie/food.json')}
                         style={{width:60, height:70, alignSelf:'center'}}
                     />
                 </View>

@@ -1,29 +1,31 @@
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, TouchableWithoutFeedback } from "react-native";
-import { useState, useContext, useEffect } from "react";
-import { UserContext } from "../Context_API/user_context";
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, TouchableWithoutFeedback, BackHandler } from "react-native";
+import { useState, useContext, useEffect, useCallback } from "react";
+import { UserContext } from "../../contextApi/user_context";
 import {SERVER_IP} from '@env'
 import { useNavigation } from "@react-navigation/native";
 
-const app_logo = require('../assets/images/app_logo.png')
-const google = require('../assets/icons/google.png')
-const facebook = require('../assets/icons/facebook.png')
-const apple = require('../assets/icons/apple.png')
+const app_logo                                                  = require('../../assets/images/app_logo.png')
+const google                                                    = require('../../assets/icons/google.png')
+const facebook                                                  = require('../../assets/icons/facebook.png')
+const apple                                                     = require('../../assets/icons/apple.png')
 
 export default function Login(){
 
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const navigate = useNavigation()
+    const [email, setEmail]                                     = useState("")
+    const [password, setPassword]                               = useState("")
+    const navigate                                              = useNavigation()
+    const [insertEmailAble, setInsertEmailAble] = useState(false)
+    const [insertPassAble, setInsertPassAble] = useState(false)
 
-    const {public_Username, setPublic_Username} = useContext(UserContext)
-    const { publicEmail, setPuclicEmail} = useContext(UserContext)
+    const {public_Username, setPublic_Username}                 = useContext(UserContext)
+    const { publicEmail, setPuclicEmail}                        = useContext(UserContext)
+    const {public_Order_Status, setPublic_Order_Status}         = useContext(UserContext)
 
     function Handle_Login_Button(){
         let data = {
             "Email": email,
             "Password": password
         }
-
         if(email == "" || password == ""){
             alert('Emty email or Password')
         }else{
@@ -57,15 +59,18 @@ export default function Login(){
             }
         })
         .catch(error=>{
-            console.error(error)
+            console.debug(error)
         })
-
     }
 
     useEffect(()=>{
         if(publicEmail != ""){
             setEmail(publicEmail)
         }
+
+        BackHandler.addEventListener('hardwareBackPress', () => {
+            setPublic_Order_Status([])
+        })
     },[])
 
     return(
@@ -80,12 +85,20 @@ export default function Login(){
                     <Text>Email</Text>
                     <TextInput placeholder="Your email" style={styles.text_Input}
                          onChangeText={text=>{setEmail(text)}}
-                         value={email}
+                         value={publicEmail != "" ? publicEmail : email}
+                         onFocus={()=> setInsertEmailAble(true)}
+                         onBlur={()=> setTimeout(() => {
+                            setInsertEmailAble(false)
+                        }, 100)}
                     />
                     <Text>Password</Text>
                     <TextInput placeholder="Your password" style={styles.text_Input}
                         onChangeText={text=>{setPassword(text)}}
                         value={password}
+                        onFocus={()=> setInsertPassAble(true)}
+                        onBlur={()=> setTimeout(() => {
+                            setInsertPassAble(false)
+                        }, 100)}
                     />
                 </View>
 
@@ -101,19 +114,21 @@ export default function Login(){
                     <Text style={{textAlign:'center', fontSize:16, textDecorationLine:'underline'}}>Register</Text>
                 </TouchableOpacity>
             </View>
-            <View style={styles.bottom_Layer}>
-                <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65, borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
-                    <Image resizeMode="cover" style={{width:37, height:37}} source={google}/>
-                </TouchableOpacity>
+            { !insertEmailAble && !insertPassAble &&
+                <View style={styles.bottom_Layer}>
+                    <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65, borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
+                        <Image resizeMode="cover" style={{width:37, height:37}} source={google}/>
+                    </TouchableOpacity>
 
-                <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65, borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
-                    <Image resizeMode="cover" style={{width:40, height:40}} source={apple}/>
-                </TouchableOpacity>
+                    <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65, borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
+                        <Image resizeMode="cover" style={{width:40, height:40}} source={apple}/>
+                    </TouchableOpacity>
 
-                <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65,borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
-                    <Image resizeMode="cover" style={{width:40, height:40}} source={facebook}/>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity style={{backgroundColor:'#d7d7d7', width:65, height:65,borderRadius:60, marginLeft:15, marginRight:15, justifyContent:'center', alignItems:'center'}}>
+                        <Image resizeMode="cover" style={{width:40, height:40}} source={facebook}/>
+                    </TouchableOpacity>
+                </View>
+            }
         </View>
     );
 }

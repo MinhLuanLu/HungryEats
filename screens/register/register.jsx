@@ -1,16 +1,16 @@
 import { StyleSheet, View, Text, TextInput, TouchableOpacity , Image} from "react-native";
 import { useState, useEffect } from "react";
 import {SERVER_IP} from '@env'
-const google = require('../assets/icons/google.png')
-const apple = require('../assets/icons/apple.png')
-const facebook = require('../assets/icons/facebook.png')
+const google                                                    = require('../../assets/icons/google.png')
+const apple                                                     = require('../../assets/icons/apple.png')
+const facebook                                                  = require('../../assets/icons/facebook.png')
 
 export default function Register(){
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [confirm_password, setConfirm_Password] = useState('')
-    const [username, setUsername] = useState('')
-    const [accept_term_condition, setAccept_Term_Condition] = useState(false)
+    const [email, setEmail]                                     = useState('')
+    const [password, setPassword]                               = useState('')
+    const [confirm_password, setConfirm_Password]               = useState('')
+    const [username, setUsername]                               = useState('')
+    const [accept_term_condition, setAccept_Term_Condition]     = useState(false)
 
 
     async function Handle_Continue_Button(){
@@ -37,7 +37,7 @@ export default function Register(){
                 if(res.ok){
                     return res.json().then(data=>{
                         if(data){
-                            console.log(data)
+                            console.info(data)
                         }
                     })
                 }
@@ -46,12 +46,11 @@ export default function Register(){
                 }
             })
             .catch(error=>{
-                console.error(error)
+                console.debug(error)
             })
         }
     }
     
-
     return(
         <View style={styles.Conatiner}>
             <View style={styles.middle_layer}>

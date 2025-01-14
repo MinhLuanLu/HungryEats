@@ -1,20 +1,18 @@
 import { StyleSheet, View, Text, TouchableOpacity, Modal, FlatList, Image,  } from "react-native";
 import LottieView from "lottie-react-native";
-import { UserContext } from "../../Context_API/user_context";
+import { UserContext } from "../contextApi/user_context";
 import { useContext } from "react";
 import { useState, useEffect } from "react";
 import {SERVER_IP} from '@env';
-import Food from "../food";
+import Food from "./food";
 
 
 
 export default function Food_List({display_food_list, menu_name, menu_description,menu_id, onclose, socketIO, display_payment}){
 
-    const [food_list, setFood_List] = useState([])
-    const [no_food_list, setno_food_list] = useState('')
-
-    const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
-
+    const [food_list, setFood_List]                         = useState([])
+    const [no_food_list, setno_food_list]                   = useState('')
+    const {public_Cart_list, setPublic_Cart_List}           = useContext(UserContext)
 
     const renderItem =({item}) =>(
         <Food item={item} socketIO={socketIO}/>
@@ -33,7 +31,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                 if(res.ok){
                     return res.json().then(data=>{
                         if(data){
-                            console.log(data.message);
+                            console.info(data.message);
                             setFood_List(data.food_list)
                             if (data.food_list.length === 0) {
                                 setno_food_list("Menu has no Food yet");
@@ -46,20 +44,18 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                 }
             })
             .catch(error=>{
-                console.error(error)
+                console.debug(error)
             })
         }
-
 
         let data = {
             "Menu_id": menu_id,
             "Menu_name": menu_name
         }
-
         if(menu_id && menu_name){
             Handle_Get_Food_List(data)
         }
-        
+
     },[display_food_list])
 
 
@@ -98,7 +94,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                     <TouchableOpacity style={styles.cart_Container} onPress={()=> display_payment()}>
                         <LottieView
                             autoPlay
-                            source={require('../../assets/lottie/cart.json')}
+                            source={require('../assets/lottie/cart.json')}
                             style={{width:'100%', height:'100%'}}
                         />
                         <View style={{backgroundColor:'#008080', width:22, borderRadius:10, position:'absolute', right:-8,top:0}}>
@@ -108,9 +104,8 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                             <Text style={{fontSize:13,color:'#008080', textAlign:'center', fontWeight:500}}>Cart</Text>
                         </View>
                     </TouchableOpacity>
-                                }
+                }
             </View>
-
         </Modal>
     );
 }

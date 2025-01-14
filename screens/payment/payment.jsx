@@ -1,32 +1,30 @@
 import { StyleSheet, View,Text, TouchableOpacity, Modal, FlatList,Image, TouchableWithoutFeedback} from "react-native";
-import { UserContext } from "../../Context_API/user_context";
+import { UserContext } from "../../contextApi/user_context";
 import { useContext, useEffect, useState } from "react";
-import { StoreContext } from "../../Context_API/store_context";
+import { StoreContext } from "../../contextApi/store_context";
 import LottieView from "lottie-react-native";
-import Loading from "../loading";
 
-const down_arrow = require('../../assets/icons/down_arrow.png')
-const bin_icon = require('../../assets/icons/bin_icon.png')
-const googlepay_icon = require('../../assets/icons/googlepay_icon.png')
-const mobilepay_icon = require('../../assets/icons/mobilepay_icon.png')
-const applepay_icon = require('../../assets/icons/applepay_icon.png')
-const card_payment = require('../../assets/icons/card_payment.png')
+const down_arrow                    = require('../../assets/icons/down_arrow.png')
+const bin_icon                      = require('../../assets/icons/bin_icon.png')
+const googlepay_icon                = require('../../assets/icons/googlepay_icon.png')
+const mobilepay_icon                = require('../../assets/icons/mobilepay_icon.png')
+const applepay_icon                 = require('../../assets/icons/applepay_icon.png')
+const card_payment                  = require('../../assets/icons/card_payment.png')
 
 
 export default function Payment({display_Payment, onclose, socketIO, order_confirm, order_to_fasle, setOrder_Comfirm_to_null}){
 
 
-    const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
-    const {public_Username, setPublic_Username} = useContext(UserContext)
-    const [total_order_price, setTotal_order_price] = useState(null)
-    const [total_order_price_list, setTotal_order_price_list] = useState([])
-    const { publicEmail, setPuclicEmail} = useContext(UserContext)
+    const {public_Cart_list, setPublic_Cart_List}                       = useContext(UserContext)
+    const {public_Username, setPublic_Username}                         = useContext(UserContext)
+    const { publicEmail, setPuclicEmail}                                = useContext(UserContext)
+    const {public_Store_Order_List, setPublic_Store_Order_List}         = useContext(StoreContext)
 
-    const {public_Store_Order_List, setPublic_Store_Order_List} = useContext(StoreContext)
-    
+    const [total_order_price, setTotal_order_price]                     = useState(null)
+    const [total_order_price_list, setTotal_order_price_list]           = useState([])
 
-    const render_Food_Item = ({ item }) =>(
-        
+
+    const render_Food_Item = ({ item }) =>(    
         <TouchableOpacity style={{paddingBottom:2, backgroundColor:'#C0C0C0', marginBottom:5, height:'auto', minHeight:80, paddingLeft:10, borderRadius:5,shadowColor: '#FFFFFF',
             shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
             shadowOpacity: 0.3,
@@ -38,6 +36,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             marginTop:5
             }}>    
             <Text style={{color:'#000000', fontSize:17, fontWeight:500}}>{item.Store_name}</Text>
+
             {item.Order_detail.map((food, foodIndex) => (
                 <View key={foodIndex} style={styles.item}>
                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
@@ -54,6 +53,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                     <Text>Total price:<Text style={{fontSize:15, fontWeight:500}}> {food.Total_price} Kr</Text></Text>
                 </View>
             ))}   
+            
             <TouchableWithoutFeedback onPress={()=> alert('delete')}>
                 <Image resizeMode="cover" style={{width:15, height:20, position:'absolute', bottom:5, right:10}} source={bin_icon}/>
             </TouchableWithoutFeedback>
@@ -61,7 +61,6 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
     )
 
     useEffect(()=>{
-        
         for(let i = 0; i < public_Cart_list.length; i++){
             let order_detail = public_Cart_list[i]["Order_detail"]
             for(let j = 0; j < order_detail.length; j++){
@@ -76,10 +75,8 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
         }else{
             setTotal_order_price(total_order_price_list[0])
         }
-
     },[display_Payment, public_Cart_list])
     
-
 
     function Handle_Order_Button() {
         if(public_Cart_list.length > 0){
@@ -88,9 +85,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             setPublic_Cart_List([])
             setTotal_order_price(0)
             setPublic_Store_Order_List([])
-        }
-        
-        
+        }  
     }
 
     if(order_confirm == true){
@@ -108,36 +103,36 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
         >
             <View style={styles.Container}>
                 <View style={styles.top_Layer}>
-            
                         <View style={{flex:1, width:'90%', alignSelf:'center'}}>
                             <TouchableOpacity style={{backgroundColor:'#F8F8F8', width:40, height:40, justifyContent:'center', borderRadius:30, marginTop:15}} onPress={()=> {onclose(), setTotal_order_price_list([]), setTotal_order_price(0)}}>
                                 <Image resizeMode="cover" style={{width:20, height:20, alignSelf:'center'}} source={down_arrow}/>
                             </TouchableOpacity>
-                        {public_Cart_list.length > 0      
-                            ?<View style={{marginTop:10}}>
-                                <Text style={{fontSize:20, fontWeight:400, color:'#000000'}}>Current Order</Text>
 
-                                <View style={styles.order_info_Container}>
-                                    <View style={{borderBottomWidth:0.5, flex:1}}>
-                                        <FlatList
-                                            data={public_Cart_list}
-                                            renderItem={render_Food_Item}
-                                        />
+                            {public_Cart_list.length > 0      
+                                ?<View style={{marginTop:10}}>
+                                    <Text style={{fontSize:20, fontWeight:400, color:'#000000'}}>Current Order</Text>
+
+                                    <View style={styles.order_info_Container}>
+                                        <View style={{borderBottomWidth:0.5, flex:1}}>
+                                            <FlatList
+                                                data={public_Cart_list}
+                                                renderItem={render_Food_Item}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                            :<View style={{width:'100%', height:'100%', justifyContent:'center'}}>
-                                <Text style={{textAlign:'center', fontSize:20, color:'#000000', fontWeight:500}}>Cart is Emty..</Text>
-                            </View>
-                        }
+                                :<View style={{width:'100%', height:'100%', justifyContent:'center'}}>
+                                    <Text style={{textAlign:'center', fontSize:20, color:'#000000', fontWeight:500}}>Cart is Emty..</Text>
+                                </View>
+                            }
                         </View>
                 </View>
-
 
                 <View style={styles.middle_Layer}>
                     <View style={{flex:1}}>
                         <Text style={{fontSize:18, fontWeight:500,width:'90%', alignSelf:'center'}}>Payment Method</Text>
                     </View>
+
                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:2}}>
                         <TouchableOpacity style={styles.payment_box}>
                             <Image resizeMode="cover" style={{width:'70%', height:'70%', alignSelf:'center'}} source={googlepay_icon} />
@@ -157,7 +152,6 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                     </View>
                 </View>
 
-
                 <View style={styles.bottom_Layer}>
                     <View style={styles.price_Container}>
                         <Text style={{fontSize:18, fontWeight:'semibold', color:'#3C2F2F'}}>Total</Text>
@@ -170,7 +164,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                 </View>
             </View>
 
-            {   order_confirm == false  && (
+            { order_confirm == false  && (
                 <View style={{width:'100%', height:'100%', position:'absolute', justifyContent:'center', zIndex:999}}>
                     <LottieView
                         autoPlay
@@ -180,7 +174,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                 </View>
             )}
 
-            {   order_confirm == true && (
+            { order_confirm == true && (
                 <View style={{width:'100%', height:'100%', position:'absolute', justifyContent:'center', zIndex:999}}>
                     <LottieView
                         autoPlay

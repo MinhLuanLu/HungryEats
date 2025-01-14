@@ -1,18 +1,18 @@
 import { useEffect, useState, useContext } from "react";
-import { StyleSheet,Text, View, Image, TouchableOpacity, TextInput, FlatList, ScrollView} from "react-native";
-import { UserContext } from "../Context_API/user_context";
+import { StyleSheet,Text, View, Image, TouchableOpacity, TextInput, FlatList,TouchableWithoutFeedback} from "react-native";
+import { UserContext } from "../contextApi/user_context";
+import { useNavigation } from "@react-navigation/native";
 
-const marker_Icon = require('../assets/icons/location_open_icon.png')
+const marker_Icon = require('../assets/icons/tabbar_icon.png')
 const cart = require('../assets/icons/cart.png')
  
 import {SERVER_IP} from '@env'
 
-export default function Search({display_Payment}){
-    
-    const [search_value, setSearch_value] = useState('')
-    const [search_Result, setSearch_Result] = useState([])
-
-    const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
+export default function Search({display_Payment, display_sideBar}){
+    const navigate = useNavigation()
+    const [search_value, setSearch_value]                   = useState('')
+    const [search_Result, setSearch_Result]                 = useState([])
+    const {public_Cart_list, setPublic_Cart_List}           = useContext(UserContext)
 
     const renderItem  = ({item }) =>(
         <View style={styles.result_list_Container}>
@@ -23,7 +23,7 @@ export default function Search({display_Payment}){
 
     useEffect(()=>{
         if (!isNaN(search_value) && search_value.trim() !== ''){
-            //console.log('Serach Value is Number')
+            //console.log('Search Value is Number')
             if(search_value.length > 1){
                 setTimeout(()=>{
                     HandleSearch({"PostCode": Number(search_value)})
@@ -31,7 +31,7 @@ export default function Search({display_Payment}){
             }
      
         }else{
-            //console.log('Serach Value is a string')
+            //console.log('Search Value is a string')
             setTimeout(()=>{
                 HandleSearch({"SearchName": search_value})
             },200)
@@ -39,7 +39,7 @@ export default function Search({display_Payment}){
 
     /// Clear the List when Input is Emty
       if(search_value == ''){
-        console.log('clear search list')
+        console.info('Clear searching list successfully..')
         setSearch_Result([])
       }
 
@@ -48,7 +48,7 @@ export default function Search({display_Payment}){
 
     useEffect(()=>{
         if(search_value != '' && search_Result.length === 0){
-            console.log('no result')
+            console.info('no result')
         }
     },[search_value, search_Result])
 
@@ -65,7 +65,7 @@ export default function Search({display_Payment}){
             if(res.ok){
                 return res.json().then(data=>{
                     if(data){
-                        console.log(data.message)
+                        console.info(data.message)
                         setSearch_Result(data.result)
                     }
                 })
@@ -75,18 +75,18 @@ export default function Search({display_Payment}){
             }
         })
         .catch(error=>{
-            console.error(error)
+            console.debug(error)
         })
     }
-
-
-
 
 
     return(
         <View style={styles.Container}>
             <View style={styles.left_Section}>
-                <Image style={styles.marker_Icon} source={marker_Icon}/>
+                <TouchableWithoutFeedback onPress={()=> display_sideBar()}>
+                    <Image style={styles.tabbarIcon} source={marker_Icon}/>
+                </TouchableWithoutFeedback>
+
                 <TextInput style={styles.search_input} placeholder="Search, name, postcode" value={search_value} onChangeText={text => setSearch_value(text)}/>
                 <View style={styles.search_container}>
                     {search_value != '' && search_Result.length === 0 && <Text style={{fontWeight:'500', paddingLeft:10}}>No result</Text>}
@@ -99,15 +99,15 @@ export default function Search({display_Payment}){
                         />
                     </View>
                 </View>
-
             </View>
+            
             <View style={styles.right_Section}>
                 <TouchableOpacity style={styles.icon_Container} onPress={()=> display_Payment()}>
                     <Image style={styles.cart_icon} source={cart}/>
                     { public_Cart_list.length != 0 &&
-                    <View style={{backgroundColor:'#008080', width:18, height:18,borderRadius:10, position:'absolute', right:-8, top:-5}}>
-                        <Text style={{fontSize:12,color:'#FFFFFF', textAlign:'center'}}>{public_Cart_list.length}</Text>
-                    </View>
+                        <View style={{backgroundColor:'#008080', width:18, height:18,borderRadius:10, position:'absolute', right:-8, top:-5}}>
+                            <Text style={{fontSize:12,color:'#FFFFFF', textAlign:'center'}}>{public_Cart_list.length}</Text>
+                        </View>
                     }
                 </TouchableOpacity>
             </View>
@@ -138,10 +138,10 @@ const styles = StyleSheet.create({
     },
 
 
-    marker_Icon:{
-        width:24,
+    tabbarIcon:{
+        width:20,
         height:24,
-        marginLeft:10
+        marginLeft:15
     },
 
     search_input:{

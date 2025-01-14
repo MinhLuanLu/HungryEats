@@ -1,10 +1,10 @@
 import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity, Modal, FlatList} from "react-native";
 import { useContext, useEffect, useState } from "react";
-import { StoreContext } from "../../Context_API/store_context";
-import { UserContext } from "../../Context_API/user_context";
+import { StoreContext } from "../../contextApi/store_context";
+import { UserContext } from "../../contextApi/user_context";
 import LottieView from "lottie-react-native";
-import Menu from "../menu";
-import Food from "../food";
+import Menu from "../../conponents/menu";
+import Food from "../../conponents/food";
 import {SERVER_IP} from '@env'
 
 const left_arrow = require('../../assets/icons/left_arrow.png')
