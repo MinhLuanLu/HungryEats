@@ -4,7 +4,7 @@ import { StoreContext } from "../contextApi/store_context";
 import {SERVER_IP} from '@env'
 
 
-export default function Drink({Drink_name}){
+export default function Drink({Drink_name, food_id}){
     const { public_StoreName, setPublic_Store_Name}             = useContext(StoreContext);
     const [drink_list, setDrink_list]                           = useState([])
 
@@ -32,16 +32,18 @@ export default function Drink({Drink_name}){
     useEffect(()=>{
         async function Handle_Get_Dink() {
             await fetch(`${SERVER_IP}/drink/api`,{
-                method: 'GET',
+                method: 'POST',
                 headers:{
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({"Store_name": public_StoreName})
             })
             .then(res =>{
                 if(res.ok){
                     return res.json().then(data =>{
                         if(data){
                             setDrink_list(data.drink_list)
+                            console.info(data.message)
                         }
                     })
                 }

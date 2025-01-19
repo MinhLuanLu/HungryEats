@@ -1,74 +1,17 @@
 import { StyleSheet,View, Text, TouchableOpacity, Image } from "react-native";
 import { useState, useEffect, useContext } from "react";
-import { UserContext } from "../contextApi/user_context";
-import { StoreContext } from "../contextApi/store_context";
-import Food_Order from "../screens/storeDetail/foodOrder/food_order";
+import AddToCart from "../screens/storeDetail/addTocart/addToCart";
 import {SERVER_IP} from '@env'
-
-const favorite                                      = require('../assets/icons/favorite.png')
-const favorite_active                               = require('../assets/icons/favorite_active.png')
-const sushi                                         = require('../assets/images/sushi.png')
 
 export default function Food({item, socketIO}){
 
-    const { public_StoreName, setPublic_Store_Name }                = useContext(StoreContext);
-    const {publicEmail, setPuclicEmail}                             = useContext(UserContext)
-
-    const [display_order_food, setDisplay_Order_Food]               = useState(false)
-    const [facvorite_button, setFacvorite_button]                   = useState(false)
-
-
-    function handle_Favorite(food_id){
-
-        if(!facvorite_button){
-            setFacvorite_button(true)
-        }
-        if(facvorite_button){ 
-            setFacvorite_button(false)
-        }
-
-        let data = {
-            "Email": publicEmail,
-            "Food_id": food_id,
-            "Request": false
-        }
-        Handle_Get_Food_favorite(data)
-        
-    }
-
-    
-    async function Handle_Get_Food_favorite(data){
-        
-            await fetch(`${SERVER_IP}/food_favorite/api`,{
-                method:'POST',
-                headers:{
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res=>{
-                if(res.ok){
-                    return res.json().then(data=>{
-                        if(data){
-                            console.log(data.message)
-                            setFacvorite_button(data.Result)
-                        }
-                    })
-                }
-                if(res === 400){
-                    return res.json()
-                }
-            })
-            .catch(error=>{
-                console.error(error)
-            })
-        }
-       
+    const [display_addToCart, setDisplay_AddToCart] = useState(false)
+   
     return(
         <>  
             {item.Quantity != 0 ?
                 <View>
-                    <TouchableOpacity style={styles.food_box} onPress={()=> {setDisplay_Order_Food(true)}}>
+                    <TouchableOpacity style={styles.food_box} onPress={()=> {setDisplay_AddToCart(true)}}>
                         <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
                             <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                         </View>
@@ -87,7 +30,7 @@ export default function Food({item, socketIO}){
                             </View>
                         </View>
                     </TouchableOpacity>
-                    <Food_Order socketIO={socketIO} display_food_order={display_order_food} onclose={()=> setDisplay_Order_Food(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description}/>
+                    <AddToCart socketIO={socketIO} display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description}/>
                 </View>
                 :
                 <View>

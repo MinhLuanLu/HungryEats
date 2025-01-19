@@ -4,13 +4,14 @@ import { useContext } from "react";
 import { UserContext } from "../../../contextApi/user_context";
 import { StoreContext } from "../../../contextApi/store_context";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import SelectTime from "../../../conponents/selectTime";
 import { StatusBar } from "expo-status-bar";
 import Drink from "../../../conponents/drinks";
 
 const down_arrow = require('../../../assets/icons/down_arrow.png')
 const left_arrow = require('../../../assets/icons/left_arrow.png')
 
-export default function Food_Order({display_food_order, onclose, food_name, food_description, price, socketIO}){
+export default function AddToCart({display_addToCart, onclose, food_name, food_description, price, socketIO}){
 
     const { public_StoreName, setPublic_Store_Name} = useContext(StoreContext)
     const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
@@ -24,12 +25,29 @@ export default function Food_Order({display_food_order, onclose, food_name, food
     const [detected_remove_click, setDetected_Remove_Click] = useState(1)
     
     const [datetime, setDate] = useState(new Date())
-    const [pickup_Time, setPickup_Time] = useState(null)
-    const [open, setOpen] = useState(false);
+    const {pickup_Time, setPickup_Time} = useContext(UserContext)
+    const [openSelectTime, setOpenSelectTime] = useState(false);
+    const [currentTime, setCurrentTime] = useState(null)
 
     const [drink_list, setDrink_List] = useState([])
-
+    
     const {public_Store_Order_List, setPublic_Store_Order_List} = useContext(StoreContext)
+
+    useEffect(() => {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const isPM = hours >= 12;
+    
+        // Convert to 12-hour format and set values
+        setCurrentTime(`${hours < 10 &&'0'}${hours % 12 || 12}:${minutes < 10 ? `0${minutes}` : minutes}`); // Converts 0 to 12 for midnight
+        
+
+        // check if there is pickup time set if yes so use the pickup time so user dont have to select the pickup tim mutiple time
+        if(pickup_Time != null){
+            setCurrentTime(pickup_Time)
+        }
+    }, []); // Runs once when the component mounts
 
 
     const formatTime = (timeObj) => {
@@ -126,10 +144,16 @@ export default function Food_Order({display_food_order, onclose, food_name, food
         }
     }
 
+    function Handle_GetPickupTime(getPickupTime){
+        setPickup_Time(getPickupTime)
+        setCurrentTime(getPickupTime)
+    }
+
+   
     return(
         <SafeAreaView style={styles.Container}>
             <Modal
-                visible={display_food_order}
+                visible={display_addToCart}
                 animationType="slide"
                 statusBarTranslucent={true}
                 transparent={true}
@@ -150,25 +174,13 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                                 <Text style={{fontSize:16, fontWeight:'semibold'}}>{food_description}</Text>
                             </View>
 
-                            <TouchableOpacity onPress={()=> setOpen(true)} style={{height:40, backgroundColor:'#008080', width:'90%', alignSelf:'center', justifyContent:'center', borderRadius:5, display:'flex', flexDirection:'row', alignItems:'center'}}>
-                                <Text style={{textAlign:'center', color:'#FFFFFF', fontSize:15, fontWeight:500}}>Select time to pick up</Text>
-                                <Image style={{width:18, height:18, marginLeft:3}} resizeMode="cover" source={down_arrow}/>
-                                <DateTimePickerModal
-                                    isVisible={open}
-                                    mode="time"
-                                    locale="en_GB"
-                                    date={datetime}
-                                    buttonTextColorIOS="grey"
-                                    onConfirm={(selectedDate)=>{ setPickup_Time(formatTime(selectedDate)), setOpen(false)}}
-                                    onCancel={()=> setOpen(false)}
-                                    isDarkModeEnabled={true}
-                                />
+                            <TouchableOpacity onPress={()=> setOpenSelectTime(true)} style={{borderWidth:0.3, width:'50%', alignSelf:'center', borderRadius:5}}>
+                                <Text style={{fontSize:30, fontWeight:500, textAlign:'center'}}>{currentTime}</Text>
+                                {pickup_Time == null ? <Text style={{textAlign:'center'}}>Select pickup time</Text> : <Text style={{textAlign:'center'}}>Pickup time</Text>}
                             </TouchableOpacity>
-                            
-                            {pickup_Time != null && <Text style={{textAlign:'center', fontSize:16, fontWeight:500}}>PickUp Time: {pickup_Time}</Text>}
 
                             <View>     
-                                <Text style={{fontSize:15, fontWeight:500,paddingBottom:10,width:'85%',alignSelf:'center'}}>Portion</Text>
+                                <Text style={{fontSize:15, fontWeight:500,paddingBottom:10,width:'100%',textAlign:'center'}}>Portion</Text>
                                 <View style={styles.portion_container}>
                                     <TouchableOpacity onPress={()=> Handle_Portion_Count_Remove()} style={{width:40, height:40, backgroundColor:'#008080', borderRadius:10, justifyContent:'center'}}>
                                         <Text style={{color:'#FFFFFF', fontSize:30, textAlign:'center'}}>-</Text>
@@ -189,7 +201,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                     <View style={styles.middle_Layer}>
                         <Text style={{marginLeft:15, fontSize:20, fontWeight:'semibold', marginBottom:10}}>Drinks</Text>
                         <View style={{marginTop:5, width:'100%', height:150}}>
-                            <Drink  Drink_name={Handle_Get_Drink}/>
+                            <Drink  Drink_name={Handle_Get_Drink} />
                         </View>
                     </View>
 
@@ -206,6 +218,7 @@ export default function Food_Order({display_food_order, onclose, food_name, food
                     </View>
                 </View>
             </Modal>
+            <SelectTime displaySelectTime={openSelectTime} onclose={()=> setOpenSelectTime(false)} getPickupTime={Handle_GetPickupTime}/>
         </SafeAreaView>
 
     );
@@ -243,7 +256,7 @@ const styles = StyleSheet.create({
     portion_container:{
         display:'flex', 
         flexDirection:'row', 
-        width:'80%',  
+        width:'50%',  
         alignSelf:'center',
         justifyContent:'space-between',
         marginBottom:10

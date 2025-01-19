@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Animated , StatusBar,Platform,TouchableWithoutFeedback, SafeAreaView, Image} from 'react-native';
+import { View, Text, Modal, TouchableOpacity, StyleSheet, Animated , StatusBar,Platform,TouchableWithoutFeedback, SafeAreaView, Image, Switch} from 'react-native';
 import { Easing } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -7,6 +7,11 @@ const activity = require('../../assets/icons/activity.png')
 const history  = require('../../assets/icons/history.png')
 const account  = require('../../assets/icons/account.png')
 const payment  = require('../../assets/icons/payment.png')
+
+const logoutIconWhite = require('../../assets/icons/logoutIconWhite.png')
+const favoriteIconWhite =  require('../../assets/icons/favoriteIconWhite.png')
+const feedbackIconWhite = require('../../assets/icons/feedbackIconWhite.png')
+
 
 export default function SideBar({ display_sideBar, onclose, displayOrderStatus, displayOrderStatusHistory }) {
   const [slideAnim] = useState(new Animated.Value(-300)); // Initial position off-screen to the left
@@ -52,6 +57,11 @@ export default function SideBar({ display_sideBar, onclose, displayOrderStatus, 
               },
             ]}
           >
+            <View style={{marginTop:20, display:'flex', flexDirection:'row', alignItems:'center', borderBottomWidth:0.5, borderColor:'#8f8f8f', height:75}}>
+              <TouchableOpacity style={{width:60, height:60, backgroundColor:'#000', borderRadius:70, marginLeft:10, marginRight:15}} onPress={()=> navigate.navigate('Account')}></TouchableOpacity>
+              <Text style={{fontSize:16, fontWeight:500}}>Minh Luan Lu</Text>
+            </View>
+
             <View style={styles.topLayer}>
               <View style={{display:'flex', flexDirection:'row', width:'100%'}}>
                 <TouchableOpacity style={styles.containerButton} onPress={()=> displayOrderStatus()}>
@@ -79,7 +89,34 @@ export default function SideBar({ display_sideBar, onclose, displayOrderStatus, 
             </View>
             
             <View style={styles.bottomLayer}>
-              <Text>bottom</Text>
+              <TouchableOpacity style={styles.selectionContainer}>
+                <View style={{backgroundColor:'#008080', width:30, height:30, justifyContent:'center', alignItems:'center', borderRadius:30, marginLeft:15, marginRight:10}}>
+                  <Image resizeMode='cover' style={styles.selectionIcon} source={favoriteIconWhite}/>
+                </View>
+                <Text style={styles.selectionText}>Favorite</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.selectionContainer}>
+                <View style={{backgroundColor:'#008080', width:30, height:30, justifyContent:'center', alignItems:'center', borderRadius:30, marginLeft:15, marginRight:10}}>
+                  <Image resizeMode='cover' style={styles.selectionIcon} source={feedbackIconWhite}/>
+                </View>
+                <Text style={styles.selectionText}>App Feedback</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.selectionContainer} onPress={()=> navigate.navigate('launch_screen')}>
+                <View style={{backgroundColor:'#008080', width:30, height:30, justifyContent:'center', alignItems:'center', borderRadius:30, marginLeft:15, marginRight:10}}>
+                  <Image resizeMode='cover' style={styles.selectionIcon} source={logoutIconWhite}/>
+                </View>
+                <Text style={styles.selectionText}>Logout</Text>
+              </TouchableOpacity>
+
+              <View style={[styles.selectionContainer, {display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginLeft:25}]}>
+                <Text style={styles.selectionText}>Theme</Text>
+                <Switch
+                  style={{marginRight:15}}
+                  trackColor={{false: '#767577', true: '#81b0ff'}}
+                />
+              </View>
             </View>
             
           </Animated.View>
@@ -125,15 +162,23 @@ const styles = StyleSheet.create({
   },
 
   containerButton:{
-    backgroundColor:'#8f8f8f', 
+    backgroundColor:'#d8d8d8', 
     height:80, 
     flex:1, 
     borderRadius:5,
     marginRight:5, 
     marginLeft:5,
     justifyContent:'center',
-    alignItems:'center'
+    alignItems:'center',
+    borderWidth:1,
+    borderColor:'#fff',
+    shadowColor: '#000000', // Color of the shadow
+    shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
+    shadowOpacity: 0.3, // Opacity of the shadow
+    shadowRadius: 20, // Blur radius of the shadow
+    elevation: 10
   },
+
 
   icon:{
     width:30,
@@ -149,7 +194,37 @@ const styles = StyleSheet.create({
 
   bottomLayer:{
     flex:2,
-    backgroundColor:'green' //////
+    backgroundColor:'#d7d7d7', //////
+    alignSelf:'center',
+    width:'100%',
+    display:'flex',
+    flexDirection:'column',
+    justifyContent:'flex-start',
+    marginTop:10
+  },
+
+  selectionContainer:{
+    backgroundColor:'#d7d7d7',
+    height:50,
+    borderBottomWidth:0.5,
+    borderTopWidth:0.3,
+    borderColor:'#8f8f8f',
+    justifyContent:'center',
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'flex-start',
+    alignItems:'center'
+
+  },
+
+  selectionText:{
+    fontSize:16,
+    fontWeight:500
+  },
+
+  selectionIcon:{
+    width:15,
+    height:15,
   },
   
   modalText: {
