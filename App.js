@@ -13,6 +13,7 @@ import Register from "./screens/register/register";
 import Login from './screens/login/login';
 import Account from "./screens/account/account";
 import PaymentHistory from "./screens/paymentHistory/paymentHistory";
+import popUpMessage from "./conponents/popUpMessage";
 
 export default function App() {
 

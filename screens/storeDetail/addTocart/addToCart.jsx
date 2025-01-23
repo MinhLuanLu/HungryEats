@@ -3,30 +3,28 @@ import { StyleSheet, View, Text, Modal, TouchableOpacity , Image, SafeAreaView, 
 import { useContext } from "react";
 import { UserContext } from "../../../contextApi/user_context";
 import { StoreContext } from "../../../contextApi/store_context";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import SelectTime from "../../../conponents/selectTime";
 import { StatusBar } from "expo-status-bar";
 import Drink from "../../../conponents/drinks";
+import PopUpMessage from "../../../conponents/popUpMessage";
 
-const down_arrow = require('../../../assets/icons/down_arrow.png')
 const left_arrow = require('../../../assets/icons/left_arrow.png')
 
-export default function AddToCart({display_addToCart, onclose, food_name, food_description, price, socketIO}){
+export default function AddToCart({display_addToCart, onclose, food_name, food_description, price, socketIO, food_id}){
 
     const { public_StoreName, setPublic_Store_Name} = useContext(StoreContext)
     const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
-    const {public_Username, setPublic_Username} = useContext(UserContext)
-    const { publicEmail, setPuclicEmail} = useContext(UserContext)
+    
 
     const [total_price, setTotal_price] = useState(price)
     const [portion_Quantity, setPortion_Quantity] = useState(1)
-    const [drink_Qauntity, setDrink_Qauntity] = useState(1)
     const [detected_add_click, setDetected_Add_Click] = useState(1)
     const [detected_remove_click, setDetected_Remove_Click] = useState(1)
     
     const [datetime, setDate] = useState(new Date())
     const {pickup_Time, setPickup_Time} = useContext(UserContext)
     const [openSelectTime, setOpenSelectTime] = useState(false);
+    const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false)
     const [currentTime, setCurrentTime] = useState(null)
 
     const [drink_list, setDrink_List] = useState([])
@@ -40,7 +38,7 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
         const isPM = hours >= 12;
     
         // Convert to 12-hour format and set values
-        setCurrentTime(`${hours < 10 &&'0'}${hours % 12 || 12}:${minutes < 10 ? `0${minutes}` : minutes}`); // Converts 0 to 12 for midnight
+        setCurrentTime(`${hours < 10 ? '0' : ""}${hours % 12 || 12}:${minutes < 10 ? `0${minutes}` : minutes}`); // Converts 0 to 12 for midnight
         
 
         // check if there is pickup time set if yes so use the pickup time so user dont have to select the pickup tim mutiple time
@@ -90,57 +88,48 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
     }
 
 
+
     function Handle_Add_Button() {
         if(pickup_Time == null){
             alert('Select Time to Pickup the food')
         } 
         else{
-            let order_detail = {
-                "Food_name": food_name, 
-                "Food_price": price,
-                "Food_quantity": portion_Quantity,
-                "Total_price": total_price,
-                "Drink": drink_list,
-                "Order_at": formatTime(datetime),
-                "Pickup_time": pickup_Time,
-                "Sender_info": {"Sender_username": public_Username, "Sender_email": publicEmail}
-            }
-
-            const newStoreOrderList = [...public_Store_Order_List, order_detail];
-            let data1 = {
+            let orderDetail = {
                 "Store_name": public_StoreName,
-                "Order_detail": newStoreOrderList
+                "Total_price": total_price,
+                "Food_item": {
+                    "Food_name": food_name,
+                    "Food_quantity": portion_Quantity,
+                    "Drink": drink_list,
+                    "Food_id":food_id
+                }
+                
             }
-            if(public_Cart_list.length > 0){
-                for(let i = 0; i< public_Cart_list.length; i++){
-                    if(public_Cart_list[i]["Store_name"] === public_StoreName){
-                        console.info('orders have the same store name')
-                        setPublic_Cart_List((prevPublic_Cart_List) =>
-                            prevPublic_Cart_List.filter(item => item["Store_name"] !== public_StoreName)
-                        );
-                        setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
-                        setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])    
+           
+            if(public_Cart_list.length != 0){
+                for(const item of public_Cart_list){
+                    const Store_name = item.Store_name;
+                    if(Store_name != public_StoreName){
+                        alert("You must finsh yor order")
+                        onclose()
+                        break;
                     }else{
-                        setPublic_Store_Order_List([])
-                        if(public_Store_Order_List.length ===0){
-                            console.info('orders dont have same store name')
-                            setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
-                            setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])
-                        }
+                        setDisplayPopUpMessage(true)
+                        setPublic_Cart_List((prevOrder)=> [...prevOrder, orderDetail])
+                        break;
                     }
                 }
-            }
-            else{
-                console.info('add order to public cart list')
-                setPublic_Store_Order_List((prevpublic_Store_Order_List)=> [...prevpublic_Store_Order_List, order_detail])
-                setPublic_Cart_List((prevPublic_Cart_List) => [...prevPublic_Cart_List, data1])
+            }else{
+                setDisplayPopUpMessage(true)
+                setPublic_Cart_List((prevOrder)=> [...prevOrder, orderDetail])
             }
 
             setTotal_price(price)
             setPortion_Quantity(1)
             setDrink_List([])
-            setDrink_Qauntity(0)
-            onclose()  
+            setDisplayPopUpMessage(true)
+            onclose() 
+            
         }
     }
 
@@ -148,6 +137,14 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
         setPickup_Time(getPickupTime)
         setCurrentTime(getPickupTime)
     }
+
+    useEffect(()=>{
+        if(displayPopUpMessage){
+            setTimeout(()=>{
+                setDisplayPopUpMessage(false)
+            },1000)
+        }
+    },[displayPopUpMessage])
 
    
     return(
@@ -219,6 +216,7 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
                 </View>
             </Modal>
             <SelectTime displaySelectTime={openSelectTime} onclose={()=> setOpenSelectTime(false)} getPickupTime={Handle_GetPickupTime}/>
+            <PopUpMessage displayPopUpMessage={displayPopUpMessage} onclose={()=> setDisplayPopUpMessage(false)} title={"Add to Cart"} message={`${food_name} from ${public_StoreName} added to cart`}/>
         </SafeAreaView>
 
     );

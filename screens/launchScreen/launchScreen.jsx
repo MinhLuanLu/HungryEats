@@ -28,7 +28,7 @@ export default function Launch_Screen(){
             <View style={styles.bottom_Layer}>
                 <View>
                     <Text style={{fontWeight:'bold', fontSize:38, textAlign:'center', paddingTop:10}}>Fast & easy food {'\n'} for you</Text>
-                    <Text style={{fontSize:16, textAlign:'center', paddingTop:5}}>Ours food is ready for you, You will get what {'\n'}you want in no time.</Text>
+                    <Text style={{fontSize:16, textAlign:'center', paddingTop:5}}>Our food is ready for you. {'\n'} You will get what you want in no time.</Text>
                     <LottieView
                         autoPlay
                         source={require('../../assets/lottie/food.json')}
@@ -38,7 +38,7 @@ export default function Launch_Screen(){
 
                 <View style={styles.button_Container}>
                     <TouchableOpacity style={styles.start_Button} onPress={()=> navigate.navigate('login')}>
-                        <Text style={{fontSize:22, fontWeight:'300', color:'#FFFFFF', textAlign:'center'}}>Get Started</Text>
+                        <Text style={{fontSize:22, fontWeight:'300', color:'#FFFFFF', textAlign:'center'}}>Get started</Text>
                     </TouchableOpacity>
                 </View>
             </View>

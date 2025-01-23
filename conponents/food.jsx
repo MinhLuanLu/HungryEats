@@ -30,7 +30,7 @@ export default function Food({item, socketIO}){
                             </View>
                         </View>
                     </TouchableOpacity>
-                    <AddToCart socketIO={socketIO} display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description}/>
+                    <AddToCart socketIO={socketIO} display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description} food_id={item.Food_id}/>
                 </View>
                 :
                 <View>

@@ -18,7 +18,7 @@ export default function SelectTime({displaySelectTime, onclose, getPickupTime}){
         const isPM = hours >= 12;
     
         // Convert to 12-hour format and set values
-        setSelectedHour(`${hours < 10 && 0}${hours % 12 || 12}`); // Converts 0 to 12 for midnight
+        setSelectedHour(`${hours < 10 ? 0 : ""}${hours % 12 || 12}`); // Converts 0 to 12 for midnight
         setSelectedMinus(minutes < 10 ? `0${minutes}` : minutes);
         setPeriod(isPM ? 'PM' : 'AM');
       }, []); // Runs once when the component mounts
@@ -130,6 +130,7 @@ export default function SelectTime({displaySelectTime, onclose, getPickupTime}){
                     </View>
                 </View>
             </View>
+            
         </Modal>
     );
 }
