@@ -257,6 +257,10 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             { order_confirm == true && (
                 <PopUpMessage displayPopUpMessage={true} title={"Order Success!"} message={`Your order has been sent to store and waitting to accept.`} onclose={()=> onclose()}/>
             )}
+
+            { order_confirm === "failed" && (
+                <PopUpMessage displayPopUpMessage={true} title={"Order Failed!"} message={`Your order failed to be sent to the store. Please try again later!`} onclose={()=> onclose()}/>
+            )}
         
         </Modal>
     )
