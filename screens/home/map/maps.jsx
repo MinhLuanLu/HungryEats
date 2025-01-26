@@ -105,12 +105,13 @@ export default function Maps({socketIO, display_store_detail, display_Payment, d
       setStore_Description(store_description)
       setPublic_store_image(store_image)
       
-      /// Handle update store Status on socketio 
+      // ================== Handle update store Status on socketio check if store is open/close so the store description will show up or not ========================= //
       socketIO.current.emit('Store_status', {Store_name: Name})
       socketIO.current.on('Store_status', (data)=>{
         setPublic_Store_Status(data['Status'])
         
-      })
+      });
+      // ==================================================================================== //
     }
 
     /// Handle update storeStatus [close or open]

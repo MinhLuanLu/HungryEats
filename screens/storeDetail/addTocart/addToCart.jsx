@@ -38,7 +38,7 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
         const isPM = hours >= 12;
     
         // Convert to 12-hour format and set values
-        setCurrentTime(`${hours < 10 ? '0' : ""}${hours % 12 || 12}:${minutes < 10 ? `0${minutes}` : minutes}`); // Converts 0 to 12 for midnight
+        setCurrentTime(`${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? `0${minutes}` : minutes}`); // Converts 0 to 12 for midnight
         
 
         // check if there is pickup time set if yes so use the pickup time so user dont have to select the pickup tim mutiple time

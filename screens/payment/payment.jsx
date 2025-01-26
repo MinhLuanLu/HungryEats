@@ -14,7 +14,7 @@ const applepay_icon                 = require('../../assets/icons/applepay_icon.
 const card_payment                  = require('../../assets/icons/card_payment.png')
 
 
-export default function Payment({display_Payment, onclose, socketIO, order_confirm, order_to_fasle, setOrder_Comfirm_to_null}){
+export default function Payment({display_Payment, onclose, socketIO, order_confirm, order_to_fasle, setOrder_Comfirm_to_null, setOrder_Confirm_to_failed}){
 
 
     const {public_Cart_list, setPublic_Cart_List}                       = useContext(UserContext)
@@ -44,22 +44,16 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             alignSelf:'center',
             marginTop:5
             }}>    
-            <Text style={{color:'#000000', fontSize:17, fontWeight:500}}>storename</Text>
-
-            
-                <View key={foodIndex} style={styles.item}>
+                <View  style={styles.item}>
                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                        <Text style={{flex:2, color:'#008080', fontWeight:500}}>foodname <Text style={{color:'#333333', fontWeight:500, fontSize:13}}>(Food quantityx)</Text></Text>
-                        <Text style={{flex:1, fontSize:15, fontWeight:500}}>foodPriceKr</Text>
+                        <Text style={{flex:2, color:'#008080', fontWeight:500}}>{item.Food_item.Food_name} <Text style={{color:'#333333', fontWeight:500, fontSize:13}}>{item.Food_item.Food_quantity}(x)</Text></Text>
                     </View>
-
-                    {food.Drink.map((drink, drinkIndex) => (
-                        <View key={drinkIndex} style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                            <Text style={{flex:2}}>- Cola (1x)</Text>
-                            <Text style={{flex:1}}>120 Kr</Text>
-                        </View>
+                    
+                    {item.Food_item.Drink.map((drink, index) => (
+                        <Text key={index}>{drink.Drink_name} {drink.Drink_quantity}(x)</Text>
                     ))}
-                    <Text>Total price:<Text style={{fontSize:15, fontWeight:500}}>total price Kr</Text></Text>
+
+                    <Text>Total price:<Text style={{fontSize:15, fontWeight:500}}> {item.Total_price}Kr</Text></Text>
                 </View>
             
             
@@ -152,19 +146,34 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
        }
        setSum_Price("")
        ////////// clear all them after order comfirm////////
-       setPublic_Cart_List([])
+        setPublic_Cart_List([])
         setDrink_List([])
         setFoodname_List([])
         setStore_name("")
         setTotal_Price([])
+        order_to_fasle()
     }
 
+    // ============== Handle check the order is sending to store successfully or not ==================== //
     if(order_confirm == true){
         setTimeout(() => {
         setOrder_Comfirm_to_null()
         onclose()
-        }, 3000);
+        }, 5000);
     }
+
+    if(order_confirm == false){
+        setTimeout(()=>{
+            setOrder_Confirm_to_failed()
+        },20000);
+    }
+
+    if(order_confirm == "failed"){
+        setTimeout(()=>{
+            setOrder_Comfirm_to_null()
+        },5000);
+    }
+    // ================================================================================== //
 
     return(
         <Modal
@@ -184,9 +193,10 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
 
                                     <View style={styles.order_info_Container}>
                                         <View style={{borderBottomWidth:0.5, flex:1}}>
+                                            <Text style={{color:'#000000', fontSize:17, fontWeight:500}}>{store_name}</Text>
                                             <FlatList
-                                                //data={public_Cart_list}
-                                                //renderItem={render_Food_Item}
+                                                data={public_Cart_list}
+                                                renderItem={render_Food_Item}
                                             />
                                         </View>
                                     </View>
@@ -233,7 +243,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                     </TouchableOpacity>
                 </View>
             </View>
-        { /*
+        
             { order_confirm == false  && (
                 <View style={{width:'100%', height:'100%', position:'absolute', justifyContent:'center', zIndex:999}}>
                     <LottieView
@@ -245,9 +255,9 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             )}
 
             { order_confirm == true && (
-                <PopUpMessage displayPopUpMessage={true} title={"Order Success!"} message={`Your order has been sent to store and waitting to accept.`}/>
+                <PopUpMessage displayPopUpMessage={true} title={"Order Success!"} message={`Your order has been sent to store and waitting to accept.`} onclose={()=> onclose()}/>
             )}
-        */}
+        
         </Modal>
     )
 }

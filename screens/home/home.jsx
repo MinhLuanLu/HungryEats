@@ -62,7 +62,8 @@ export default function Home(){
             });
 
             socketIO.current.on('sending_order_status',(order)=>{
-                setPublic_Order_Status(order)
+                setPublic_Order_Status((prevOrder) => [...prevOrder, order[0]])
+                //console.log(order)
             })
 
             /// Get update order Status from on socketio [Accept or Waitting]
@@ -74,7 +75,8 @@ export default function Home(){
             socketIO.current.on('confirm_received_order', (data)=>{
                 setTimeout(() => {
                     setOrder_Comfirm(true)
-                }, 4000);
+                }, 5000);
+                
             })
 
             /// Get Update food qauntity on socketio
@@ -122,7 +124,7 @@ export default function Home(){
             }
             setTimeout(()=>{
                 Handle_Get_Order_status(data)
-            },5000)
+            },3000)
         },[])
 
     
@@ -133,7 +135,7 @@ export default function Home(){
                 <Store_Detail display_store_detail={display_store_detail} onclose={()=>{setDisplay_store_detail(false)}} socketIO={socketIO} display_payment={()=> setDisplay_Payment(true)} update_food_quantity={update_food_quantity}/>
             </View>
             
-            <Payment display_Payment={display_Payment} onclose={()=> setDisplay_Payment(false)} socketIO={socketIO} order_confirm={order_confirm} order_to_fasle={()=> setOrder_Comfirm(false)} setOrder_Comfirm_to_null={()=> setOrder_Comfirm(null)}/>
+            <Payment display_Payment={display_Payment} onclose={()=> setDisplay_Payment(false)} socketIO={socketIO} order_confirm={order_confirm} order_to_fasle={()=> setOrder_Comfirm(false)} setOrder_Comfirm_to_null={()=> setOrder_Comfirm(null)} setOrder_Confirm_to_failed={()=> setOrder_Comfirm("failed")}/>
             
             {/*Handle display order status*/}
             <View style={{position:'absolute', top:100, right:15}}>

@@ -92,11 +92,14 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
             {order_status_list.map((item, index) => (
               <View key={item.Order_id} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
-                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover"/>
                 </View>
                 <View style={styles.order_detail}>
               
-                    <Text style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{item.Order_id}. {item.Food_name} ({item.Food_quantity}x)</Text>
+                    {JSON.parse(item.Food_item).map((food, id) =>(
+                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
+                    ))}
+                    
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
                       {item.Order_status === "Accept"
                         ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
@@ -126,7 +129,10 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
                 </View>
 
                 <View style={styles.order_detail}>
-                    <Text style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{item.Order_id}. {item.Food_name} ({item.Food_quantity}x)</Text>
+                    {JSON.parse(item.Food_item).map((food, id) =>(
+                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
+                    ))}
+                    
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
                       {item.Order_status === "Accept"
                         ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
