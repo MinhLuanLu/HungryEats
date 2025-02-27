@@ -9,14 +9,13 @@ const background = require('../../assets/images/launch_image_background.png')
 
 export default function Launch_Screen(){
     const navigate = useNavigation()
-    const {public_Order_Status, setPublic_Order_Status}         = useContext(UserContext)
+    const {public_PendingOrder, setPublic_PendingOrder}         = useContext(UserContext)
 
-    
-        useFocusEffect(
-            useCallback(() => {
-              setPublic_Order_Status([])
-            }, []) 
-          );
+    useFocusEffect(
+        useCallback(() => {
+            setPublic_PendingOrder([])
+        }, []) 
+    );
     
     
 

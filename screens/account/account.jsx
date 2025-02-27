@@ -14,7 +14,7 @@ const leftArrow = require('../../assets/icons/left_arrow.png')
 const Account = () =>{
 
     const navigate = useNavigation()
-    const {publicEmail, setPuclicEmail}                     = useContext(UserContext)
+    const {publicEmail, setPublicEmail}                     = useContext(UserContext)
     const {public_Username, setPublic_Username}             = useContext(UserContext)
     const [inputActive, setInputActive]                     = useState(false)
     const [editable, setEdiTable]                           = useState(false)
@@ -43,33 +43,36 @@ const Account = () =>{
             <View style={styles.bottomLayer}>
                 <View style={{flex:1, marginTop:30}}>
                     <Text style={styles.inputInfoText}>Email</Text>
-                    <TextInput  style={styles.inputInfo} 
-                                placeholder={publicEmail} 
-                                editable={editable} 
-                                onFocus={()=> setInputActive(true)} 
-                                onBlur={()=> setInputActive(false)}
-                                value={email}
-                                onChangeText={text => setEmail(text)}
+                    <TextInput  
+                        style={styles.inputInfo} 
+                        placeholder={publicEmail} 
+                        editable={editable} 
+                        onFocus={()=> setInputActive(true)} 
+                        onBlur={()=> setInputActive(false)}
+                        value={email}
+                        onChangeText={text => setEmail(text)}
                     />
 
                     <Text style={styles.inputInfoText}>Username</Text>
-                    <TextInput  style={styles.inputInfo} 
-                                placeholder={public_Username} 
-                                editable={editable} 
-                                onFocus={()=> setInputActive(true)} 
-                                onBlur={()=> setInputActive(false)} 
-                                value={username}
-                                onChangeText={text => setUsername(text)}
+                    <TextInput  
+                        style={styles.inputInfo} 
+                        placeholder={public_Username} 
+                        editable={editable} 
+                        onFocus={()=> setInputActive(true)} 
+                        onBlur={()=> setInputActive(false)} 
+                        value={username}
+                        onChangeText={text => setUsername(text)}
                     />
 
                     <Text style={styles.inputInfoText}>Password</Text>
-                    <TextInput  style={styles.inputInfo} 
-                                placeholder={!editable ? "**************" : "New Password"} 
-                                editable={editable} 
-                                onFocus={()=> setInputActive(true)} 
-                                onBlur={()=> setInputActive(false)}
-                                value={password}
-                                onChangeText={text => setPassword(text)}
+                    <TextInput  
+                        style={styles.inputInfo} 
+                        placeholder={!editable ? "**************" : "New Password"} 
+                        editable={editable} 
+                        onFocus={()=> setInputActive(true)} 
+                        onBlur={()=> setInputActive(false)}
+                        value={password}
+                        onChangeText={text => setPassword(text)}
                     />
                 </View>
                 { !inputActive &&

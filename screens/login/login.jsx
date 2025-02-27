@@ -1,7 +1,9 @@
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, TouchableWithoutFeedback, BackHandler } from "react-native";
 import { useState, useContext, useEffect, useCallback } from "react";
 import { UserContext } from "../../contextApi/user_context";
-import {SERVER_IP} from '@env'
+import {SERVER_IP} from '@env';
+import axios from "axios";
+import AUTHENTICATION from "../../config";
 import { useNavigation } from "@react-navigation/native";
 
 const app_logo                                                  = require('../../assets/images/app_logo.png')
@@ -18,58 +20,40 @@ export default function Login(){
     const [insertPassAble, setInsertPassAble] = useState(false)
 
     const {public_Username, setPublic_Username}                 = useContext(UserContext)
-    const { publicEmail, setPuclicEmail}                        = useContext(UserContext)
-    const {public_Order_Status, setPublic_Order_Status}         = useContext(UserContext)
+    const { publicEmail, setPublicEmail}                        = useContext(UserContext)
+    const {public_PendingOrder, setPublic_PendingOrder}         = useContext(UserContext)
 
-    function Handle_Login_Button(){
-        let data = {
-            "Email": email,
-            "Password": password
-        }
+
+    async function HandleLogin() {
         if(email == "" || password == ""){
             alert('Emty email or Password')
-        }else{
-            Handle_login(data)
         }
-    }
-
-    async function Handle_login(data){
-        await fetch(`${SERVER_IP}/login/api`,{
-            method:'POST',
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res=>{
-            if(res.ok){
-                return res.json().then(data=>{
-                    if(data){   
-                        
-                        if(data.User_info[0]['Role'] == "User"){
-                            setPublic_Username(data.User_info[0]["Username"])
-                            setPuclicEmail(data.User_info[0]["Email"])
-                            navigate.navigate("Home")
-                        }
-                    }
-                })
+        else{   
+            const Login = await axios.post(`${SERVER_IP}/login/api`,{
+                Email: email,
+                Password: password
+            })
+            if(Login?.data?.success){
+                console.log(Login?.data?.message)
+                const [User] = Login?.data?.data;
+                if(User?.Role == AUTHENTICATION.USER){
+                    setPublic_Username(User?.Username);
+                    setPublicEmail(User?.Email);
+                    navigate.navigate("Home")
+                }
             }
-            if(res === 400){
-                return res.json()
+            if(Login.status === 404){
+                Login?.data?.message
             }
-        })
-        .catch(error=>{
-            console.debug(error)
-        })
+        }
     }
 
     useEffect(()=>{
-        if(publicEmail != ""){
+        if(publicEmail){
             setEmail(publicEmail)
-        }
-
+        };
         BackHandler.addEventListener('hardwareBackPress', () => {
-            setPublic_Order_Status([])
+            setPublic_PendingOrder([])
         })
     },[])
 
@@ -106,7 +90,7 @@ export default function Login(){
                     <Text style={{width:'95%', alignSelf:'center', fontSize:15, textDecorationLine:'underline', fontWeight:400, marginBottom:15}}>forgot password</Text>
                 </TouchableWithoutFeedback>
 
-                <TouchableOpacity style={styles.login_button} onPress={()=> Handle_Login_Button()}>
+                <TouchableOpacity style={styles.login_button} onPress={()=> HandleLogin()}>
                     <Text style={{fontSize:18, fontWeight:500, color:'#FFFFFF', textAlign:'center'}}>Login</Text>
                 </TouchableOpacity>
 

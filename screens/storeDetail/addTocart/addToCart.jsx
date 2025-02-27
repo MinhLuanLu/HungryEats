@@ -88,7 +88,6 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
     }
 
 
-
     function Handle_Add_Button() {
         if(pickup_Time == null){
             alert('Select Time to Pickup the food')
@@ -97,7 +96,8 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
             let orderDetail = {
                 "Store_name": public_StoreName,
                 "Total_price": total_price,
-                "Food_item": {
+                "Food_item": 
+                    {
                     "Food_name": food_name,
                     "Food_quantity": portion_Quantity,
                     "Drink": drink_list,
@@ -119,7 +119,8 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
                         break;
                     }
                 }
-            }else{
+            }
+            else{
                 setDisplayPopUpMessage(true)
                 setPublic_Cart_List((prevOrder)=> [...prevOrder, orderDetail])
             }
@@ -215,8 +216,17 @@ export default function AddToCart({display_addToCart, onclose, food_name, food_d
                     </View>
                 </View>
             </Modal>
-            <SelectTime displaySelectTime={openSelectTime} onclose={()=> setOpenSelectTime(false)} getPickupTime={Handle_GetPickupTime}/>
-            <PopUpMessage displayPopUpMessage={displayPopUpMessage} onclose={()=> setDisplayPopUpMessage(false)} title={"Add to Cart"} message={`${food_name} from ${public_StoreName} added to cart`}/>
+            <SelectTime 
+                displaySelectTime={openSelectTime} 
+                onclose={()=> setOpenSelectTime(false)} 
+                getPickupTime={Handle_GetPickupTime}
+            />
+            <PopUpMessage 
+                displayPopUpMessage={displayPopUpMessage} 
+                onclose={()=> setDisplayPopUpMessage(false)} 
+                title={"Add to Cart"} 
+                message={`${food_name} from ${public_StoreName} added to cart`}
+            />
         </SafeAreaView>
 
     );

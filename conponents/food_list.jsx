@@ -20,7 +20,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
 
     useEffect(()=>{
         async function Handle_Get_Food_List(data) {
-            await fetch(`${SERVER_IP}/food_list/api`,{
+            await fetch(`${SERVER_IP}/foodList/api`,{
                 method:'POST',
                 headers:{
                     'Content-Type': 'application/json'
@@ -30,10 +30,10 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
             .then(res=>{
                 if(res.ok){
                     return res.json().then(data=>{
-                        if(data){
-                            console.info(data.message);
-                            setFood_List(data.food_list)
-                            if (data.food_list.length === 0) {
+                        if(data.success){
+                            console.info(data?.message);
+                            setFood_List(data?.data)
+                            if (data?.data.length === 0) {
                                 setno_food_list("Menu has no Food yet");
                             }                            
                         }

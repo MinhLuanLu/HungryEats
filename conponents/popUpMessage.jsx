@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 const checkedIcon = require('../assets/icons/checkedIcon.png')
 
-export default function({displayPopUpMessage, title, message, onclose}){
+export default function PopUpMessage ({displayPopUpMessage, title, message, onclose}){
 
     return(
         <Modal
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:'transparent'
+        backgroundColor:'transparent',
     },
 
     messageContainer:{
@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.3, 
         shadowRadius: 10, 
-        elevation: 10
+        elevation: 10,
+        borderRadius:5
     },
 
     iconContainer:{

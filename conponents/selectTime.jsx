@@ -15,14 +15,11 @@ export default function SelectTime({displaySelectTime, onclose, getPickupTime}){
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
-        const isPM = hours >= 12;
     
-        // Convert to 12-hour format and set values
-        setSelectedHour(`${hours < 10 ? 0 : ""}${hours % 12 || 12}`); // Converts 0 to 12 for midnight
-        setSelectedMinus(minutes < 10 ? `0${minutes}` : minutes);
-        setPeriod(isPM ? 'PM' : 'AM');
-      }, []); // Runs once when the component mounts
-
+        // Set the hour and minutes in 24-hour format
+        setSelectedHour(`${hours < 10 ? '0' : ''}${hours}`); 
+        setSelectedMinus(minutes < 10 ? `0${minutes}` : minutes); 
+    }, []); 
 
     const hourData = [
         {key:'00', value:'00'},

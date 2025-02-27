@@ -5,15 +5,15 @@ export const UserContext = createContext({})
 export const UserProvider = ({children}) =>{
     const [public_Username, setPublic_Username]                 = useState('')
     const [public_Cart_list, setPublic_Cart_List]               = useState([])
-    const [publicEmail, setPuclicEmail]                         = useState("")
-    const [public_Order_Status, setPublic_Order_Status]         = useState([])
+    const [publicEmail, setPublicEmail]                         = useState("")
+    const [public_PendingOrder, setPublic_PendingOrder]         = useState([])
     const [pickup_Time, setPickup_Time]                         = useState(null)
     return(
         <UserContext.Provider value={{
             public_Username, setPublic_Username,
-            publicEmail, setPuclicEmail,
+            publicEmail, setPublicEmail,
             public_Cart_list, setPublic_Cart_List,
-            public_Order_Status, setPublic_Order_Status,
+            public_PendingOrder, setPublic_PendingOrder,
             pickup_Time, setPickup_Time
         }}>
             {children}

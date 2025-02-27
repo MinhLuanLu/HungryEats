@@ -1,49 +1,29 @@
 import { StyleSheet, View, Modal, TouchableWithoutFeedback, ScrollView, TouchableOpacity , Text, Image} from "react-native";
+import LottieView from "lottie-react-native";
 import { useEffect , useState} from "react";
-
+import axios from "axios";
 import {SERVER_IP} from'@env'
 
 const down_arrow = require('../../../assets/icons/down_arrow.png')
 
-export default function Order_Status({ display_Order_Status, order_status_list, socketIO, onclose, email, defineTab}) {
+export default function PendingOrders({ display_Pending_Order, order_status_list, socketIO, onclose, email, defineTab}) {
   
   const [tab, setTab]                                 = useState(false)
   const [order_history, setOrder_history]             = useState([])
 
   useEffect(()=>{
-    async function Handel_Get_Order_History(data) {
-      await fetch(`${SERVER_IP}/order_history/api`,{
-        method:'POST',
-        headers:{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+    async function Handel_Get_Order_History() {
+      const orderHistory = await axios.post(`${SERVER_IP}/orderHistory/api`,{
+        Email: email
       })
-      .then(res=>{
-        if(res.ok){
-          return res.json().then(data=>{
-            if(data){
-              console.log(data.message)
-              setOrder_history(data.Order_history)
-
-            }
-          })
-        }
-        if(res === 400){
-          return res.json()
-        }
-      })
-      .catch(error=>{
-        console.error(error)
-      })
+      if(orderHistory?.data?.success){
+        console.log(orderHistory?.data?.message);
+        setOrder_history(orderHistory?.data?.data)
+      }
     }
-
-    let data = {
-      "Email": email
-    }
-
+    
     if(tab || defineTab == true){
-      Handel_Get_Order_History(data)
+      Handel_Get_Order_History()
     } 
   },[tab])
 
@@ -55,7 +35,7 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
   
   return (
     <Modal
-      visible={display_Order_Status}
+      visible={display_Pending_Order}
       animationType="slide"
       hardwareAccelerated={true}
     >
@@ -92,7 +72,11 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
             {order_status_list.map((item, index) => (
               <View key={item.Order_id} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
-                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover"/>
+                    <LottieView
+                      autoPlay
+                      source={require('../../../assets/lottie/food.json')}
+                      style={{width:100, height:70, alignSelf:'center'}}
+                    />
                 </View>
                 <View style={styles.order_detail}>
               
@@ -125,7 +109,7 @@ export default function Order_Status({ display_Order_Status, order_status_list, 
             {order_history.map((item, index)=>(
               <View key={item.Order_id} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
-                  <Image style={{width:'100%', height:'100%'}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                  <Image style={{width:'60%', height:'60%'}} resizeMode="cover" source={require('../../../assets/icons/history.png')}/>
                 </View>
 
                 <View style={styles.order_detail}>
@@ -197,6 +181,8 @@ const styles = StyleSheet.create({
     backgroundColor:'#FFFFFF',
     marginLeft:15,
     borderRadius:10,
+    justifyContent:'center',
+    alignItems:'center'
     
   },
 

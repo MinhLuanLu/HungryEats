@@ -41,9 +41,9 @@ export default function Drink({Drink_name, food_id}){
             .then(res =>{
                 if(res.ok){
                     return res.json().then(data =>{
-                        if(data){
-                            setDrink_list(data.drink_list)
-                            console.info(data.message)
+                        if(data.success){
+                            setDrink_list(data?.data)
+                            console.info(data?.message)
                         }
                     })
                 }

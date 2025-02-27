@@ -13,7 +13,7 @@ const favoriteIconWhite =  require('../../assets/icons/favoriteIconWhite.png')
 const feedbackIconWhite = require('../../assets/icons/feedbackIconWhite.png')
 
 
-export default function SideBar({ display_sideBar, onclose, displayOrderStatus, displayOrderStatusHistory }) {
+export default function SideBar({ display_sideBar, onclose, display_Pending_Order, displayOrderHistory }) {
   const [slideAnim] = useState(new Animated.Value(-300)); // Initial position off-screen to the left
   const navigate = useNavigation()
 
@@ -64,12 +64,12 @@ export default function SideBar({ display_sideBar, onclose, displayOrderStatus, 
 
             <View style={styles.topLayer}>
               <View style={{display:'flex', flexDirection:'row', width:'100%'}}>
-                <TouchableOpacity style={styles.containerButton} onPress={()=> displayOrderStatus()}>
+                <TouchableOpacity style={styles.containerButton} onPress={()=> display_Pending_Order()}>
                   <Image resizeMode='cover' style={styles.icon} source={activity}/>
                   <Text style={styles.containerButtonText}>Activity</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.containerButton} onPress={()=> displayOrderStatusHistory()}>
+                <TouchableOpacity style={styles.containerButton} onPress={()=> displayOrderHistory()}>
                   <Image resizeMode='cover' style={styles.icon} source={history}/>
                   <Text style={styles.containerButtonText}>History</Text>
                 </TouchableOpacity>

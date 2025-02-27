@@ -1,10 +1,11 @@
-import { StyleSheet, View,Text, TouchableOpacity, Modal, FlatList,Image, TouchableWithoutFeedback} from "react-native";
+import { StyleSheet, View,Text, TouchableOpacity, Modal, FlatList,Image, TouchableWithoutFeedback, TextInput} from "react-native";
 import { UserContext } from "../../contextApi/user_context";
+import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { StoreContext } from "../../contextApi/store_context";
 import popUpMessage from "../../conponents/popUpMessage";
 import LottieView from "lottie-react-native";
 import PopUpMessage from "../../conponents/popUpMessage";
+import {SERVER_IP} from '@env';
 
 const down_arrow                    = require('../../assets/icons/down_arrow.png')
 const bin_icon                      = require('../../assets/icons/bin_icon.png')
@@ -14,14 +15,12 @@ const applepay_icon                 = require('../../assets/icons/applepay_icon.
 const card_payment                  = require('../../assets/icons/card_payment.png')
 
 
-export default function Payment({display_Payment, onclose, socketIO, order_confirm, order_to_fasle, setOrder_Comfirm_to_null, setOrder_Confirm_to_failed}){
+export default function Payment({display_Payment, onclose, socketIO, store_id}){
 
 
     const {public_Cart_list, setPublic_Cart_List}                       = useContext(UserContext)
-    const { publicEmail, setPuclicEmail}                                = useContext(UserContext)
+    const { publicEmail, setPublicEmail}                                = useContext(UserContext)
     const {pickup_Time, setPickup_Time} = useContext(UserContext)
-   
-    const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false)
 
     const [foodname_list, setFoodname_List] = useState([]);
     const [drink_list, setDrink_List] = useState([]);
@@ -32,30 +31,42 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
     const [drink_quantity, setDrinkQuantity] = useState([])
     const [food_id, setFood_id] = useState([]);
 
+    const [order_confirm, setOrder_Comfirm] = useState(null);
+    const [discountCode, setDiscountCode] = useState("");
+    const [insertCode, setInsertCode] = useState(false);
+
+
 
     const render_Food_Item = ({ item }) =>(    
-        <TouchableOpacity style={{paddingBottom:2, backgroundColor:'#C0C0C0', marginBottom:5, height:'auto', minHeight:80, paddingLeft:10, borderRadius:5,shadowColor: '#FFFFFF',
-            shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
-            shadowOpacity: 0.3,
-            shadowRadius: 10, 
-            elevation: 10,
-            overflow:'hidden',
-            width:'97%',
-            alignSelf:'center',
-            marginTop:5
+        <TouchableOpacity 
+            style={{
+                paddingBottom:2, 
+                backgroundColor:'#C0C0C0', 
+                marginBottom:5, height:'auto', 
+                minHeight:80, 
+                paddingLeft:10, 
+                borderRadius:5,
+                shadowColor: '#FFFFFF',
+                shadowOffset: { width: 0, height: 5 }, // Offset of the shadow
+                shadowOpacity: 0.3,
+                shadowRadius: 10, 
+                elevation: 10,
+                overflow:'hidden',
+                width:'97%',
+                alignSelf:'center',
+                marginTop:5
             }}>    
-                <View  style={styles.item}>
-                    <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                        <Text style={{flex:2, color:'#008080', fontWeight:500}}>{item.Food_item.Food_name} <Text style={{color:'#333333', fontWeight:500, fontSize:13}}>{item.Food_item.Food_quantity}(x)</Text></Text>
-                    </View>
-                    
-                    {item.Food_item.Drink.map((drink, index) => (
-                        <Text key={index}>{drink.Drink_name} {drink.Drink_quantity}(x)</Text>
-                    ))}
-
-                    <Text>Total price:<Text style={{fontSize:15, fontWeight:500}}> {item.Total_price}Kr</Text></Text>
+            <View  style={styles.item}>
+                <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
+                    <Text style={{flex:2, color:'#008080', fontWeight:500}}>{item.Food_item.Food_name} <Text style={{color:'#333333', fontWeight:500, fontSize:13}}>{item.Food_item.Food_quantity}(x)</Text></Text>
                 </View>
-            
+                
+                {item.Food_item.Drink.map((drink, index) => (
+                    <Text key={index}>{drink.Drink_name} {drink.Drink_quantity}(x)</Text>
+                ))}
+
+                <Text>Total price:<Text style={{fontSize:15, fontWeight:500}}> {item.Total_price}Kr</Text></Text>
+            </View>
             
             <TouchableWithoutFeedback onPress={()=> alert('delete')}>
                 <Image resizeMode="cover" style={{width:15, height:20, position:'absolute', bottom:5, right:10}} source={bin_icon}/>
@@ -140,7 +151,8 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
        }
 
        if(public_Cart_list.length != 0){
-            socketIO.current.emit('sending_order',order_detail)
+            socketIO.current.emit('processOrder',order_detail);
+            setOrder_Comfirm(false)
        }else{
         alert("Your cart is emty")
        }
@@ -151,29 +163,44 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
         setFoodname_List([])
         setStore_name("")
         setTotal_Price([])
-        order_to_fasle()
     }
 
     // ============== Handle check the order is sending to store successfully or not ==================== //
     if(order_confirm == true){
         setTimeout(() => {
-        setOrder_Comfirm_to_null()
+        setOrder_Comfirm(null)
         onclose()
-        }, 5000);
+        }, 3000);
     }
 
     if(order_confirm == false){
-        setTimeout(()=>{
-            setOrder_Confirm_to_failed()
-        },20000);
+        setTimeout(() => {
+        setOrder_Comfirm(true)
+        onclose()
+        }, 3000);
     }
 
-    if(order_confirm == "failed"){
-        setTimeout(()=>{
-            setOrder_Comfirm_to_null()
-        },5000);
+    async function HandleApplyButton(){
+        try{
+            const applyCode = await axios.post(`${SERVER_IP}/discountcode/api`,{
+                Email: publicEmail,
+                Store_id: store_id,
+                Discount_code: discountCode
+            });
+            if(applyCode?.data?.success){
+                console.info(applyCode?.data?.message)
+                const discountValue = applyCode?.data?.data?.Discount_value;
+                const discountPrice = (Number(discountValue)/100) * sum_price;
+                const newPrice = sum_price - discountPrice;
+                setSum_Price(newPrice.toFixed());
+                setDiscountCode(`Applied successfully ${discountCode}`)
+            }
+        }
+        catch(error){
+            console.info(error)
+        }
     }
-    // ================================================================================== //
+
 
     return(
         <Modal
@@ -181,7 +208,9 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
             animationType="slide"
         >
             <View style={styles.Container}>
+            
                 <View style={styles.top_Layer}>
+                    { !insertCode &&
                         <View style={{flex:1, width:'90%', alignSelf:'center'}}>
                             <TouchableOpacity style={{backgroundColor:'#F8F8F8', width:40, height:40, justifyContent:'center', borderRadius:30, marginTop:15}} onPress={()=> {onclose()}}>
                                 <Image resizeMode="cover" style={{width:20, height:20, alignSelf:'center'}} source={down_arrow}/>
@@ -192,7 +221,7 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                                     <Text style={{fontSize:20, fontWeight:400, color:'#000000'}}>Current Order</Text>
 
                                     <View style={styles.order_info_Container}>
-                                        <View style={{borderBottomWidth:0.5, flex:1}}>
+                                        <View style={{flex:1}}>
                                             <Text style={{color:'#000000', fontSize:17, fontWeight:500}}>{store_name}</Text>
                                             <FlatList
                                                 data={public_Cart_list}
@@ -206,32 +235,49 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                                 </View>
                             }
                         </View>
+                    }
                 </View>
-
-                <View style={styles.middle_Layer}>
-                    <View style={{flex:1}}>
-                        <Text style={{fontSize:18, fontWeight:500,width:'90%', alignSelf:'center'}}>Payment Method</Text>
-                    </View>
-
-                    <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:2}}>
-                        <TouchableOpacity style={styles.payment_box}>
-                            <Image resizeMode="cover" style={{width:'70%', height:'70%', alignSelf:'center'}} source={googlepay_icon} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.payment_box}>
-                            <Image resizeMode="cover" style={{width:'80%', height:'50%', alignSelf:'center'}} source={mobilepay_icon} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.payment_box}>
-                            <Image resizeMode="cover" style={{width:'60%', height:'60%', alignSelf:'center'}} source={applepay_icon} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.payment_box}>
-                            <Image resizeMode="cover" style={{width:'60%', height:'60%', alignSelf:'center'}} source={card_payment} />
-                        </TouchableOpacity>
-                    </View>
+                
+                <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', borderWidth:0.5, width:'80%', alignSelf:'center', borderRadius:3, marginBottom:15}}>
+                            <TextInput
+                                style={styles.discountInput}
+                                placeholder="Code"
+                                value={discountCode}
+                                onChangeText={text => setDiscountCode(text)}
+                                onFocus={()=> setInsertCode(true)}
+                                onBlur={()=> setInsertCode(false)}
+                            /> 
+                            <TouchableOpacity style={styles.applyButton} onPress={()=> HandleApplyButton()}>
+                                <Text style={{fontSize:15, fontWeight:500, textAlign:'center', color:'#FFFFFF'}}>Apply</Text>
+                            </TouchableOpacity>
                 </View>
+                
+                { !insertCode &&
+                    <View style={styles.middle_Layer}>
+                        
+                        <View style={{flex:1}}>
+                            <Text style={{fontSize:18, fontWeight:500,width:'90%', alignSelf:'center'}}>Payment Method</Text>
+                        </View>
 
+                        <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:2}}>
+                            <TouchableOpacity style={styles.payment_box}>
+                                <Image resizeMode="cover" style={{width:'70%', height:'70%', alignSelf:'center'}} source={googlepay_icon} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.payment_box}>
+                                <Image resizeMode="cover" style={{width:'80%', height:'50%', alignSelf:'center'}} source={mobilepay_icon} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.payment_box}>
+                                <Image resizeMode="cover" style={{width:'60%', height:'60%', alignSelf:'center'}} source={applepay_icon} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.payment_box}>
+                                <Image resizeMode="cover" style={{width:'60%', height:'60%', alignSelf:'center'}} source={card_payment} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                }
                 <View style={styles.bottom_Layer}>
                     <View style={styles.price_Container}>
                         <Text style={{fontSize:18, fontWeight:'semibold', color:'#3C2F2F'}}>Total</Text>
@@ -258,9 +304,6 @@ export default function Payment({display_Payment, onclose, socketIO, order_confi
                 <PopUpMessage displayPopUpMessage={true} title={"Order Success!"} message={`Your order has been sent to store and waitting to accept.`} onclose={()=> onclose()}/>
             )}
 
-            { order_confirm === "failed" && (
-                <PopUpMessage displayPopUpMessage={true} title={"Order Failed!"} message={`Your order failed to be sent to the store. Please try again later!`} onclose={()=> onclose()}/>
-            )}
         
         </Modal>
     )
@@ -286,7 +329,7 @@ const styles = StyleSheet.create({
         display:'flex',
         flexDirection:'column',
         alignItems:'center',
-        justifyContent:'center'
+        justifyContent:'center',
     },
 
     bottom_Layer:{
@@ -337,6 +380,19 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3, // Opacity of the shadow
         shadowRadius: 10, // Blur radius of the shadow
         elevation: 10
+    },
+
+    discountInput:{
+        width:'75%',
+        height:45,
+        paddingLeft:10
+    },
+    applyButton:{
+        backgroundColor:'#008080',
+        width:'25%',
+        height:45,
+        justifyContent:'center',
+        borderLeftWidth:0.5
     }
 
 

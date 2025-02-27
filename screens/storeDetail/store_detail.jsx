@@ -14,15 +14,14 @@ const addressIcon = require('../../assets/icons/location_open_icon.png')
 const telefon_number = require('../../assets/icons/telephone_icon.png')
 
 
-export default function Store_Detail({display_store_detail, onclose, socketIO, display_payment, update_food_quantity}){
+export default function Store_Detail({display_store_detail, onclose, socketIO, display_payment, update_food_quantity, store_id}){
 
     const { public_StoreName, setPublic_Store_Name } = useContext(StoreContext);
     const { public_Address, setPublic_Address } = useContext(StoreContext);
     const {  public_Phone_Number, setPublic_Phone_Number} = useContext(StoreContext);
     const {public_store_image, setPublic_store_image} = useContext(StoreContext)
 
-    const {publicEmail, setPuclicEmail} = useContext(UserContext)
-
+    const {publicEmail, setPublicEmail} = useContext(UserContext)
     const {public_Cart_list, setPublic_Cart_List} = useContext(UserContext)
 
     const [menu, setMenu] = useState([])
@@ -54,9 +53,9 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
             .then(res=>{
                 if(res.ok){
                   return res.json().then(data=>{
-                    if(data){
-                      console.log(data.message)
-                      setMenu(data.menu)
+                    if(data.success){
+                      console.log(data?.message)
+                      setMenu(data?.data)
                       setEmty_menu('')
 
                       if(data.menu.length == 0){
@@ -76,7 +75,7 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
         }    
     
         if(public_StoreName != ''){
-            Handle_Get_Menu({"Store_Name": public_StoreName})
+            Handle_Get_Menu({"Store_name": public_StoreName, "Store_id": store_id})
         }
         
     },[public_StoreName])
@@ -101,7 +100,7 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
     
     async function Handle_Get_favorite(data){
     
-        await fetch(`${SERVER_IP}/store_favorite/api`,{
+        await fetch(`${SERVER_IP}/storeFavorite/api`,{
             method:'POST',
             headers:{
                 'Content-Type': 'application/json'
@@ -111,9 +110,9 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
         .then(res=>{
             if(res.ok){
                 return res.json().then(data=>{
-                    if(data){
-                        console.log(data.message)
-                        setStore_Favorite(data.Result)
+                    if(data.success){
+                        console.log(data?.message)
+                        setStore_Favorite(data?.data)
                     }
                 })
             }
@@ -130,7 +129,7 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
 
     useEffect(()=>{
         async function Handle_Get_Food_List(data) {
-            await fetch(`${SERVER_IP}/food_list/api`,{
+            await fetch(`${SERVER_IP}/foodList/api`,{
                 method:'POST',
                 headers:{
                     'Content-Type': 'application/json'
@@ -140,9 +139,9 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
             .then(res=>{
                 if(res.ok){
                     return res.json().then(data=>{
-                        if(data){
-                            console.log(data.message);
-                            setFood_list(data.food_list)                           
+                        if(data.success){
+                            console.log(data?.message);
+                            setFood_list(data?.data)                           
                         }
                     })
                 }
@@ -155,8 +154,8 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
             })
         }
         let data = {
-            "Request": "Get_Food_List",
-            "Store_Name": public_StoreName
+            "Request": true,
+            "Store_name": public_StoreName
         }
 
         Handle_Get_Food_List(data)
@@ -236,12 +235,12 @@ export default function Store_Detail({display_store_detail, onclose, socketIO, d
 
                             <View style={styles.food_Container}>
                                 <FlatList
-                                        data={food_list}
-                                        renderItem={renderFood}
-                                        keyExtractor={item => item.Food_id.toString()}
-                                        numColumns={2}
-                                        columnWrapperStyle={{justifyContent:'space-between'}}
-                                        contentContainerStyle={{paddingLeft:5}}
+                                    data={food_list}
+                                    renderItem={renderFood}
+                                    keyExtractor={item => item.Food_id.toString()}
+                                    numColumns={2}
+                                    columnWrapperStyle={{justifyContent:'space-between'}}
+                                    contentContainerStyle={{paddingLeft:5}}
                                 />  
                             </View>
                             

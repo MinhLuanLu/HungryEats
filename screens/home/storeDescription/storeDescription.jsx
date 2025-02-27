@@ -1,27 +1,60 @@
 import { StyleSheet, View, Text , ScrollView, TouchableOpacity, Button, TouchableWithoutFeedback} from "react-native";
+import axios from "axios";
+import {SERVER_IP} from '@env';
 import { useContext, useState, useRef, useEffect } from "react";
 import { StoreContext } from "../../../contextApi/store_context";
+import { UserContext } from "../../../contextApi/user_context";
+import PopUpMessage from "../../../conponents/popUpMessage";
+import { use } from "react";
 
 
-export default function Store_Description({display_store_detail, store_status, store_description}){
+export default function Store_Description({display_store_detail, store_status, store_description, store_id}){
 
     const { public_StoreName, setPublic_Store_Name }                        = useContext(StoreContext);
-    const { public_Address, setPublic_Address }                             = useContext(StoreContext);
     const { public_Store_Status, setPublic_Store_Status}                    = useContext(StoreContext);
-    const {  public_Phone_Number, setPublic_Phone_Number}                   = useContext(StoreContext);
+    const { publicEmail, setPublicEmail}                                    = useContext(UserContext);
+    const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false);
+    const [discount_value, setDiscountValue] = useState()
+    const [discount_code, setDiscount_Code] = useState()
 
+    async function HandleClickButton(){
+        display_store_detail();
+        Check_Purchase_Log()
+    }
+
+    async function Check_Purchase_Log() {
+        const checkDiscount = await axios.post(`${SERVER_IP}/purchaseLog/api`,{
+            Email: publicEmail,
+            Store_id: store_id
+        })
+        if(checkDiscount?.data?.success){
+            console.log(checkDiscount?.data?.message)
+            setDisplayPopUpMessage(true)
+            setDiscount_Code(checkDiscount.data.data.Discount_code)
+            setDiscountValue(checkDiscount.data.data.Discount_value)              
+        }
+    }
+
+    if(displayPopUpMessage) {
+        return <PopUpMessage 
+            displayPopUpMessage={displayPopUpMessage} 
+            title={`Discount ${discount_value}%`} 
+            message={`Code: ${discount_code}`} 
+            onclose={()=> setDisplayPopUpMessage(false)}
+        />
+    }
  
     return(
         <View style={{ flexGrow: 1, backgroundColor:'transparent'}}>
             { store_status === 1 &&
-                <TouchableWithoutFeedback onPress={()=> {display_store_detail()}}>
+                <TouchableWithoutFeedback onPress={()=> HandleClickButton()}>
                     <View style={styles.Container}>  
                         <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom:2,borderRadius:3, justifyContent:'center'}}>
                             { public_Store_Status == '1' 
                                 ? 
                                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
                                         <View style={{flex:0.5, marginLeft:8}}>
-                                            <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> {display_store_detail()} }>
+                                            <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
                                                     <Text style={{textAlign:'center', fontSize:14, fontWeight:500, color:'#FFFFFF'}}>Click to Order</Text>
                                             </TouchableOpacity>
                                         </View>
@@ -41,6 +74,7 @@ export default function Store_Description({display_store_detail, store_status, s
                 </TouchableWithoutFeedback>
             }  
         </View>
+        
     )
 }
 

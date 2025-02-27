@@ -1,6 +1,8 @@
 import { StyleSheet, View, Text, TextInput, TouchableOpacity , Image} from "react-native";
 import { useState, useEffect } from "react";
-import {SERVER_IP} from '@env'
+import {SERVER_IP} from '@env';
+import axios from "axios";
+import AUTHENTICATION from "../../config";
 const google                                                    = require('../../assets/icons/google.png')
 const apple                                                     = require('../../assets/icons/apple.png')
 const facebook                                                  = require('../../assets/icons/facebook.png')
@@ -48,6 +50,27 @@ export default function Register(){
             .catch(error=>{
                 console.debug(error)
             })
+        }
+    }
+
+    async function HandleRegister(){
+        if(email == "" || username == "" || password == '' || password != confirm_password){
+            alert('Input values are not correct. Try again.')
+        }
+        else{
+            const Register = await axios.post(`${SERVER_IP}/register/api`,{
+                Email: email,
+                Username: username,
+                Password: password,
+                Accept_term_condition: accept_term_condition,
+                Role: AUTHENTICATION.USER
+            })
+
+            if(Register?.data?.sucess){
+                console.info(Register?.data?.message)
+                console.log(Register?.data?.data)
+            }
+
         }
     }
     
