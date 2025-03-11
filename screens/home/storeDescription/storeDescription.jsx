@@ -5,7 +5,8 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { StoreContext } from "../../../contextApi/store_context";
 import { UserContext } from "../../../contextApi/user_context";
 import PopUpMessage from "../../../conponents/popUpMessage";
-import { use } from "react";
+import log from "minhluanlu-color-log"
+
 
 
 export default function Store_Description({display_store_detail, store_status, store_description, store_id}){
@@ -28,7 +29,7 @@ export default function Store_Description({display_store_detail, store_status, s
             Store_id: store_id
         })
         if(checkDiscount?.data?.success){
-            console.log(checkDiscount?.data?.message)
+            log.info(checkDiscount?.data?.message)
             setDisplayPopUpMessage(true)
             setDiscount_Code(checkDiscount.data.data.Discount_code)
             setDiscountValue(checkDiscount.data.data.Discount_value)              

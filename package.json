@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@babel/helper-module-transforms": "7.26.0",
     "@react-native-community/datetimepicker": "^8.2.0",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/drawer": "^7.1.1",
@@ -23,6 +24,7 @@
     "expo-router": "~4.0.17",
     "expo-status-bar": "~2.0.1",
     "lottie-react-native": "7.1.0",
+    "minhluanlu-color-log": "^1.0.1",
     "react": "18.3.1",
     "react-native": "^0.76.6",
     "react-native-date-picker": "^5.0.7",

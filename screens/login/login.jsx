@@ -5,6 +5,7 @@ import {SERVER_IP} from '@env';
 import axios from "axios";
 import AUTHENTICATION from "../../config";
 import { useNavigation } from "@react-navigation/native";
+import log from 'minhluanlu-color-log'
 
 const app_logo                                                  = require('../../assets/images/app_logo.png')
 const google                                                    = require('../../assets/icons/google.png')
@@ -28,22 +29,28 @@ export default function Login(){
         if(email == "" || password == ""){
             alert('Emty email or Password')
         }
-        else{   
-            const Login = await axios.post(`${SERVER_IP}/login/api`,{
-                Email: email,
-                Password: password
-            })
-            if(Login?.data?.success){
-                console.log(Login?.data?.message)
-                const [User] = Login?.data?.data;
-                if(User?.Role == AUTHENTICATION.USER){
-                    setPublic_Username(User?.Username);
-                    setPublicEmail(User?.Email);
-                    navigate.navigate("Home")
+        else{  
+            try{ 
+                const Login = await axios.post(`${SERVER_IP}/login/api`,{
+                    Email: email,
+                    Password: password
+                })
+                if(Login?.data?.success){
+                    console.log(Login?.data?.message)
+                    const [User] = Login?.data?.data;
+                    if(User?.Role == AUTHENTICATION.USER){
+                        setPublic_Username(User?.Username);
+                        setPublicEmail(User?.Email);
+                        navigate.navigate("Home")
+                    }
                 }
-            }
-            if(Login.status === 404){
-                Login?.data?.message
+            }catch(error){
+                alert('Login failed, please try again');
+                log.error({
+                    success: false,
+                    message:'Login failed, please try again',
+                    data: error
+                })
             }
         }
     }

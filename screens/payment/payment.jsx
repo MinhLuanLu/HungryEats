@@ -1,6 +1,7 @@
-import { StyleSheet, View,Text, TouchableOpacity, Modal, FlatList,Image, TouchableWithoutFeedback, TextInput} from "react-native";
+import { StyleSheet, View,Text, TouchableOpacity, Modal, FlatList,Image, TouchableWithoutFeedback, TextInput, BackHandler} from "react-native";
 import { UserContext } from "../../contextApi/user_context";
 import axios from "axios";
+import log from 'minhluanlu-color-log'
 import { useContext, useEffect, useState } from "react";
 import popUpMessage from "../../conponents/popUpMessage";
 import LottieView from "lottie-react-native";
@@ -34,6 +35,8 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
     const [order_confirm, setOrder_Comfirm] = useState(null);
     const [discountCode, setDiscountCode] = useState("");
     const [insertCode, setInsertCode] = useState(false);
+    const [applyStatus, setApplyStatus] = useState(false)
+    const [discountPrice, setdiscountPrice] = useState()
 
 
 
@@ -74,6 +77,7 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
         </TouchableOpacity>
     )
 
+   
     useEffect(()=>{
         
         // Create arrays to hold values outside of the loop
@@ -131,7 +135,8 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
         for(let price = 0; price < total_price.length; price++){
                 sum_Total_Price += total_price[price]
         }
-        setSum_Price(sum_Total_Price) 
+        setSum_Price(sum_Total_Price)
+
 
     },[display_Payment, public_Cart_list])
     
@@ -141,13 +146,16 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
        let order_detail = {
         "Sender":publicEmail, 
         "Store_name": store_name,
+        "Store_id": store_id,
         "Food_item": foodname_list,
         "Food_quantity": food_quantity,
         "Drink_item": drink_list,
         "Drink_quantity": drink_quantity,
         "Total_price": sum_price,
         "Pickup_time": pickup_Time,
-        "Food_id": food_id
+        "Food_id": food_id,
+        "Discount": applyStatus,
+        "Discount_code": discountCode
        }
 
        if(public_Cart_list.length != 0){
@@ -163,6 +171,9 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
         setFoodname_List([])
         setStore_name("")
         setTotal_Price([])
+        setInsertCode(false)
+        setApplyStatus(false)
+        setDiscountCode("")
     }
 
     // ============== Handle check the order is sending to store successfully or not ==================== //
@@ -188,20 +199,35 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
                 Discount_code: discountCode
             });
             if(applyCode?.data?.success){
-                console.info(applyCode?.data?.message)
+                log.info(applyCode?.data?.message)
                 const discountValue = applyCode?.data?.data?.Discount_value;
                 const discountPrice = (Number(discountValue)/100) * sum_price;
                 const newPrice = sum_price - discountPrice;
-                setSum_Price(newPrice.toFixed());
-                setDiscountCode(`Applied successfully ${discountCode}`)
+                setdiscountPrice(newPrice.toFixed());
+                setApplyStatus(true)
+                setDiscountCode(`${discountCode} ${discountValue}%`)
+            }else{
+                setApplyStatus(false)
+                setDiscountCode(`Couldn't be applied`)
             }
         }
         catch(error){
-            console.info(error)
+            log.warn(error)
         }
     }
 
+    function HandleCancelApplyCode(){
+        setDiscountCode("");
+        setApplyStatus(false)
+    }
 
+    useEffect(()=>{
+        if(!applyStatus){
+            setDiscountCode("")
+        }
+    },[insertCode])
+
+ 
     return(
         <Modal
             visible={display_Payment}
@@ -216,7 +242,7 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
                                 <Image resizeMode="cover" style={{width:20, height:20, alignSelf:'center'}} source={down_arrow}/>
                             </TouchableOpacity>
 
-                            {public_Cart_list.length > 0      
+                            {public_Cart_list.length != 0      
                                 ?<View style={{marginTop:10}}>
                                     <Text style={{fontSize:20, fontWeight:400, color:'#000000'}}>Current Order</Text>
 
@@ -238,20 +264,32 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
                     }
                 </View>
                 
-                <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', borderWidth:0.5, width:'80%', alignSelf:'center', borderRadius:3, marginBottom:15}}>
+                {public_Cart_list.length != 0 && (
+                    <View>
+                        <Text style={{width:'85%', alignSelf:'center', paddingBottom:5, fontWeight:500, paddingLeft:3, fontSize:15}}>Apply promo code</Text>
+                        <View style={{display:'flex', flexDirection:'row', alignItems:'center', justifyContent:'center', borderWidth:0.5, width:'85%', alignSelf:'center', borderRadius:3, marginBottom:15, borderColor: !applyStatus ? '#000000' : '#008080', backgroundColor: !applyStatus ? 'none' : '#d8ebeb'}}>
                             <TextInput
                                 style={styles.discountInput}
-                                placeholder="Code"
+                                placeholder="Promo code"
                                 value={discountCode}
                                 onChangeText={text => setDiscountCode(text)}
                                 onFocus={()=> setInsertCode(true)}
                                 onBlur={()=> setInsertCode(false)}
                             /> 
-                            <TouchableOpacity style={styles.applyButton} onPress={()=> HandleApplyButton()}>
-                                <Text style={{fontSize:15, fontWeight:500, textAlign:'center', color:'#FFFFFF'}}>Apply</Text>
-                            </TouchableOpacity>
-                </View>
-                
+                            {!applyStatus
+                                ?
+                                <TouchableOpacity style={styles.applyButton} onPress={()=> HandleApplyButton()}>
+                                    <Text style={{fontSize:15, fontWeight:500, textAlign:'center', color: insertCode || applyStatus ? '#008080' : 'grey'}}>Apply</Text>
+                                </TouchableOpacity>
+                                :
+                                <TouchableOpacity style={styles.applyButton} onPress={()=> HandleCancelApplyCode()}>
+                                    <Text style={{fontSize:15, fontWeight:500, textAlign:'center', backgroundColor:'transparent', width:'35%', alignSelf:'center', fontSize:15, fontWeight:'thin'}}>X</Text>
+                                </TouchableOpacity>
+                            }
+                        </View>
+                    </View>
+                )}
+
                 { !insertCode &&
                     <View style={styles.middle_Layer}>
                         
@@ -281,10 +319,10 @@ export default function Payment({display_Payment, onclose, socketIO, store_id}){
                 <View style={styles.bottom_Layer}>
                     <View style={styles.price_Container}>
                         <Text style={{fontSize:18, fontWeight:'semibold', color:'#3C2F2F'}}>Total</Text>
-                        <Text style={{fontSize:32, fontWeight:'semibold', color:'#000000'}}>{sum_price}Kr</Text>
+                        <Text style={{fontSize:32, fontWeight:'semibold', color:'#000000'}}>{!applyStatus ? sum_price : discountPrice}Kr</Text>
                     </View>
 
-                    <TouchableOpacity style={styles.order_Button} onPress={()=> Handle_Order_Button()}>
+                    <TouchableOpacity style={styles.order_Button} onPress={()=> !insertCode ? Handle_Order_Button() : alert("Please finish apply code..")}>
                         <Text style={{fontSize:18, fontWeight:'semibold', color:'#FFFFFF', textAlign:'center'}}>ORDER NOW</Text>
                     </TouchableOpacity>
                 </View>
@@ -388,11 +426,9 @@ const styles = StyleSheet.create({
         paddingLeft:10
     },
     applyButton:{
-        backgroundColor:'#008080',
         width:'25%',
         height:45,
         justifyContent:'center',
-        borderLeftWidth:0.5
     }
 
 
