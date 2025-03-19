@@ -10,10 +10,10 @@ import Home from './screens/home/home';
 import Store_Detail from "./screens/storeDetail/store_detail";
 import Launch_Screen from "./screens/launchScreen/launchScreen";
 import Register from "./screens/register/register";
-import Login from './screens/login/login';
 import Account from "./screens/account/account";
 import PaymentHistory from "./screens/paymentHistory/paymentHistory";
-import popUpMessage from "./conponents/popUpMessage";
+import Cart from "./screens/cart/cart";
+import { SocketioProvider } from "./contextApi/socketio_context";
 
 export default function App() {
 
@@ -31,17 +31,7 @@ export default function App() {
               headerShown: false,
             }}
           />
-
-          <Stack.Screen
-            name='login'
-            component={Login}
-            options={{
-              headerTitleAlign: 'center',
-              headerTitle: '',
-              headerShown: false,
-            }}
-          />
-
+          
           <Stack.Screen
             name='register'
             component={Register}
@@ -66,8 +56,18 @@ export default function App() {
           />
 
           <Stack.Screen
-            name='store_detail'
+            name='StoreDetail'
             component={Store_Detail}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: '',
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name='Cart'
+            component={Cart}
             options={{
               headerTitleAlign: 'center',
               headerTitle: '',
@@ -100,16 +100,18 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>   
-      <UserProvider>
-      <StoreProvider>
+    <SafeAreaView style={styles.container}> 
+      <SocketioProvider>
+        <UserProvider>
+          <StoreProvider>
 
-        <NavigationContainer>
-          <StackNav/>
-        </NavigationContainer>
+            <NavigationContainer>
+              <StackNav/>
+            </NavigationContainer>
 
-      </StoreProvider>
-      </UserProvider>
+          </StoreProvider>
+        </UserProvider>
+      </SocketioProvider>  
     </SafeAreaView>
   );
 }

@@ -5,12 +5,20 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { StoreContext } from "../../../contextApi/store_context";
 import { UserContext } from "../../../contextApi/user_context";
 import PopUpMessage from "../../../conponents/popUpMessage";
-import log from "minhluanlu-color-log"
+import log from "minhluanlu-color-log";
+import { useNavigation } from "@react-navigation/native";
+import Animated, {
+    FadeInUp, 
+    withTiming, 
+    withSpring,
+    useSharedValue,
+    useAnimatedStyle 
+} from "react-native-reanimated";
 
 
 
-export default function Store_Description({display_store_detail, store_status, store_description, store_id}){
-
+export default function Store_Description({store}){
+    const navigate = useNavigation()
     const { public_StoreName, setPublic_Store_Name }                        = useContext(StoreContext);
     const { public_Store_Status, setPublic_Store_Status}                    = useContext(StoreContext);
     const { publicEmail, setPublicEmail}                                    = useContext(UserContext);
@@ -19,14 +27,15 @@ export default function Store_Description({display_store_detail, store_status, s
     const [discount_code, setDiscount_Code] = useState()
 
     async function HandleClickButton(){
-        display_store_detail();
+        //display_store_detail();
+        navigate.navigate('StoreDetail', {store: store})
         Check_Purchase_Log()
     }
 
     async function Check_Purchase_Log() {
         const checkDiscount = await axios.post(`${SERVER_IP}/purchaseLog/api`,{
             Email: publicEmail,
-            Store_id: store_id
+            Store_id: store.Store_id
         })
         if(checkDiscount?.data?.success){
             log.info(checkDiscount?.data?.message)
@@ -46,35 +55,33 @@ export default function Store_Description({display_store_detail, store_status, s
     }
  
     return(
-        <View style={{ flexGrow: 1, backgroundColor:'transparent'}}>
-            { store_status === 1 &&
-                <TouchableWithoutFeedback onPress={()=> HandleClickButton()}>
-                    <View style={styles.Container}>  
-                        <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom:2,borderRadius:3, justifyContent:'center'}}>
-                            { public_Store_Status == '1' 
-                                ? 
-                                    <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                                        <View style={{flex:0.5, marginLeft:8}}>
-                                            <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
-                                                    <Text style={{textAlign:'center', fontSize:14, fontWeight:500, color:'#FFFFFF'}}>Click to Order</Text>
-                                            </TouchableOpacity>
-                                        </View>
+        <Animated.View entering={FadeInUp.duration(500)} style={{ flexGrow: 1, backgroundColor:'transparent'}}>
+            <TouchableWithoutFeedback onPress={()=> HandleClickButton()}>
+                <View style={styles.Container}>  
+                    <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom:2,borderRadius:3, justifyContent:'center'}}>
+                        { store.Status == 1
+                            ? 
+                                <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
+                                    <View style={{flex:0.5, marginLeft:8}}>
+                                        <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
+                                                <Text style={{textAlign:'center', fontSize:14, fontWeight:500, color:'#FFFFFF'}}>Click to Order</Text>
+                                        </TouchableOpacity>
+                                    </View>
 
-                                        <View style={{flex:2, height:'100%', justifyContent:'center'}}>
-                                            <Text style={{fontSize:18, fontWeight:'600', textAlign:'center', color:'#FFFFFF'}} >{public_StoreName} - <Text  style={{fontSize:15, color:'#FF9F0D'}}>Open</Text></Text> 
-                                            <View style={{width:'100%', height:20, alignSelf:'center'}}>
-                                                <Text style={{color:'#D7D7D7', textAlign:'center', overflow:'hidden'}}>{store_description}</Text>
-                                            </View>
+                                    <View style={{flex:2, height:'100%', justifyContent:'center'}}>
+                                        <Text style={{fontSize:18, fontWeight:'600', textAlign:'center', color:'#FFFFFF'}} >{store.Store_name} - <Text  style={{fontSize:15, color:'#FF9F0D'}}>Open</Text></Text> 
+                                        <View style={{width:'100%', height:20, alignSelf:'center'}}>
+                                            <Text style={{color:'#D7D7D7', textAlign:'center', overflow:'hidden'}}>{store.Store_description}</Text>
                                         </View>
                                     </View>
-                                : 
-                                    <Text style={{fontSize:18, textAlign:'center', fontWeight:'600'}}>Status: <Text  style={{fontSize:15, color:'red'}}>Close</Text></Text>
-                            }
-                        </View>
+                                </View>
+                            : 
+                                <Text style={{fontSize:18, textAlign:'center', fontWeight:'600'}}>Status: <Text  style={{fontSize:15, color:'red'}}>Close</Text></Text>
+                        }
                     </View>
-                </TouchableWithoutFeedback>
-            }  
-        </View>
+                </View>
+            </TouchableWithoutFeedback>  
+        </Animated.View>
         
     )
 }
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
         width:'95%',
         alignSelf:'center',
         borderRadius:5,
-        marginTop:5,
+        marginTop:10,
         zIndex:999,
         display:'flex',
         flexDirection:'row',

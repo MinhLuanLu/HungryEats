@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import LottieView from "lottie-react-native";
 import { UserContext } from "../../contextApi/user_context";
 import { StoreContext } from "../../contextApi/store_context";
+import { SocketioContext } from "../../contextApi/socketio_context";
 import Maps from "./map/maps";
 import SideBar from "../sideBar/sideBar";
 import Store_Detail from "../storeDetail/store_detail";
@@ -13,6 +14,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import PendingOrders from "./pendingOrders/pendingOrder";
 import {SERVER_IP} from '@env';
 import axios from "axios";
+import log from "minhluanlu-color-log"
 
 
 export default function Home(){
@@ -31,7 +33,7 @@ export default function Home(){
     const {public_StoreName, setPublic_Store_Name }                     = useContext(StoreContext);
     const [store_id, setStore_id] = useState()
 
-    const [update_food_quantity, setUpdate_Food_Quantity]               = useState([])
+    const { publicSocketio, setPublicSocketio}                           = useContext(SocketioContext)
 
     const socketIO                                                      = useRef(null)
     const [pendingOrderTab, setPendingOrderTab]                           = useState(false)
@@ -53,40 +55,57 @@ export default function Home(){
                 Email: publicEmail
             })
             if(pendingOrder?.data?.success){
-                console.info(pendingOrder?.data?.message);
+                log.info(pendingOrder?.data?.message);
                 setPublic_PendingOrder(data?.data)
             }
         }, 3000);
+
     },[])
 
-    socketIO.current = io(`${SOCKET_SERVER}`)
-    socketIO.current.on('connect', ()=>{
-          console.log('Connect to SocketIO successfully..')
-          console.log(socketIO.current.id)
-          socketIO.current.emit('connection',{
-              Socket_id: socketIO.current.id,
-              Email: publicEmail,
-              Username: public_Username
-          });
+    useEffect(() => {
+        // Prevent multiple connections by checking if socket already exists
+        if (!socketIO.current) {
+            socketIO.current = io(SOCKET_SERVER, {
+                transports: ['websocket'], // Use WebSocket to avoid polling
+                forceNew: true, // Ensures a new connection is created
+            });
 
-          socketIO.current.on('pendingOrder',(order)=>{
-              setPublic_PendingOrder((prevOrder) => [...prevOrder, order[0]])
-              //console.log(order)
-          })
+            socketIO.current.on('connect', () => {
+                log.info('Connected to Socket.IO successfully.');
+                log.info(`Socket ID: ${socketIO.current.id}`);
 
-          /// Get update order Status from on socketio [Accept or Waitting]
-          socketIO.current.on('update_order', (order)=>{
-              setPublic_PendingOrder(order)
-          })
+                // Emit connection event with user details
+                socketIO.current.emit('connection', {
+                    Socket_id: socketIO.current.id,
+                    Email: publicEmail,
+                    Username: public_Username,
+                });
+                
+                setPublicSocketio(socketIO)
+            });
 
-          /// Get Update food qauntity on socketio
-          socketIO.current.on('update_food_quantity',(food_list)=>{
-              console.log('update food quantity successfully..')
-              setUpdate_Food_Quantity(food_list)
-          })
+            // Listen for pending orders
+            socketIO.current.on('pendingOrder', (order) => {
+                setPublic_PendingOrder((prevOrder) => [...prevOrder, order[0]]);
+            });
 
-      });
-      
+            // Listen for order status updates
+            socketIO.current.on('update_order', (order) => {
+                setPublic_PendingOrder(order);
+            });
+
+        }
+
+        // Cleanup function to disconnect socket when component unmounts
+        return () => {
+            if (socketIO.current) {
+                socketIO.current.disconnect();
+                socketIO.current = null; // Ensure no duplicate connections
+                console.log('Socket disconnected.');
+            }
+        };
+    },[])
+
     function HandleStore_id(store_id){
         setStore_id(store_id)
     }
@@ -95,28 +114,11 @@ export default function Home(){
         <>
             <View>
                 <Maps 
-                    socketIO={socketIO} 
-                    display_store_detail={()=>{ setDisplay_store_detail(true)}} 
-                    display_Payment={()=> setDisplay_Payment(true)} 
+                    socketIO={socketIO}  
                     display_sideBar={()=> {setDisplay_SideBar(true)}} 
                     sendStore_id={HandleStore_id}
                 />
-                <Store_Detail 
-                    display_store_detail={display_store_detail} 
-                    onclose={()=>{setDisplay_store_detail(false)}} 
-                    socketIO={socketIO} 
-                    display_payment={()=> setDisplay_Payment(true)} 
-                    update_food_quantity={update_food_quantity} 
-                    store_id={store_id}
-                />
             </View>
-            
-            <Payment 
-                display_Payment={display_Payment} 
-                onclose={()=> setDisplay_Payment(false)} 
-                socketIO={socketIO}
-                store_id={store_id}
-            />
             
             {/*Handle display order status*/}
             <View style={{position:'absolute', top:100, right:15}}>

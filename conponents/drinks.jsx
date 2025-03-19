@@ -1,26 +1,29 @@
 import { StyleSheet, View, TouchableOpacity, Text , Image, FlatList} from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../contextApi/store_context";
+import log from 'minhluanlu-color-log'
 import {SERVER_IP} from '@env'
 
 
-export default function Drink({Drink_name, food_id}){
+export default function Drink({list, food, store}){
     const { public_StoreName, setPublic_Store_Name}             = useContext(StoreContext);
     const [drink_list, setDrink_list]                           = useState([])
+    const [quantity, setQauntity] = useState(1)
 
-    function Handle_Add_Drink(drik_name, drink_price){
-        Drink_name(drik_name, drink_price)
+    function Handle_Add_Drink(drink) {
+        list(drink)
     }
 
+    
     const renderItem = ({item}) => (
-        <TouchableOpacity style={styles.Container}  onPress={()=> Handle_Add_Drink(item.Drink_name, item.Drink_price)}>
+        <TouchableOpacity style={styles.Container}  onPress={()=> Handle_Add_Drink(item)}>
                 <View style={styles.image_Container}>
                     <Image style={{width:'100%', height:'100%', borderRadius:9, borderBottomLeftRadius:15, borderBottomRightRadius:15}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Drink_image}` }}/>
                 </View>
 
                 <View style={styles.text_Container}>
                     <Text style={{fontSize:13, fontWeight:'medium', marginLeft:5, color:'#FFFFFF'}}>{item.Drink_name}</Text>
-                    <TouchableOpacity style={{backgroundColor:'#FF9F0D', width:18, height:18, justifyContent:'center', borderRadius:18, marginRight:5}} onPress={()=> Handle_Add_Drink(item.Drink_name, item.Drink_price)}>
+                    <TouchableOpacity style={{backgroundColor:'#FF9F0D', width:18, height:18, justifyContent:'center', borderRadius:18, marginRight:5}} onPress={()=> Handle_Add_Drink(item)}>
                         <Text style={{fontSize:14, textAlign:'center', fontWeight:'bold',color:'#FFFFFF'}}>+</Text>
                     </TouchableOpacity>
                 </View>
@@ -36,14 +39,14 @@ export default function Drink({Drink_name, food_id}){
                 headers:{
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({"Store_name": public_StoreName})
+                body: JSON.stringify({"Store_name": store.Store_name})
             })
             .then(res =>{
                 if(res.ok){
                     return res.json().then(data =>{
                         if(data.success){
                             setDrink_list(data?.data)
-                            console.info(data?.message)
+                            log.info(data?.message)
                         }
                     })
                 }
@@ -57,7 +60,9 @@ export default function Drink({Drink_name, food_id}){
         }   
 
         Handle_Get_Dink()
-    },[])
+        setDrink_list([])
+
+    },[food, store])
 
     return(
         <>

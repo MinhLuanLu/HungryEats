@@ -12,7 +12,7 @@ export default function Search({display_Payment, display_sideBar}){
     const navigate = useNavigation()
     const [search_value, setSearch_value]                   = useState('')
     const [search_Result, setSearch_Result]                 = useState([])
-    const {public_Cart_list, setPublic_Cart_List}           = useContext(UserContext)
+    const {publicCart, setPublicCart} = useContext(UserContext)
 
     const renderItem  = ({item }) =>(
         <View style={styles.result_list_Container}>
@@ -102,11 +102,11 @@ export default function Search({display_Payment, display_sideBar}){
             </View>
             
             <View style={styles.right_Section}>
-                <TouchableOpacity style={styles.icon_Container} onPress={()=> display_Payment()}>
+                <TouchableOpacity style={styles.icon_Container} onPress={()=> navigate.navigate('Cart')}>
                     <Image style={styles.cart_icon} source={cart}/>
-                    { public_Cart_list.length != 0 &&
+                    { Object.keys(publicCart).length != 0 &&
                         <View style={{backgroundColor:'#008080', width:18, height:18,borderRadius:10, position:'absolute', right:-8, top:-5}}>
-                            <Text style={{fontSize:12,color:'#FFFFFF', textAlign:'center'}}>{public_Cart_list.length}</Text>
+                            <Text style={{fontSize:12,color:'#FFFFFF', textAlign:'center'}}>{Object.keys(publicCart.Food_item).length}</Text>
                         </View>
                     }
                 </TouchableOpacity>

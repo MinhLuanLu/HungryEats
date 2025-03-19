@@ -4,7 +4,7 @@ import { UserContext } from "../../contextApi/user_context";
 import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import Login1 from "../login/login1";
+import Login from "../login/login";
 import Animated,{
     Easing,
     FadeInDown,
@@ -84,14 +84,14 @@ export default function Launch_Screen(){
                     </View>
 
                     <Animated.View  entering={FadeInDown.duration(500).delay(200)} style={styles.button_Container}>
-                        <TouchableOpacity style={styles.start_Button} onPress={()=> /*navigate.navigate('login')*/ (setDisplayLogin(true))}>
+                        <TouchableOpacity style={styles.start_Button} onPress={()=> setDisplayLogin(true)}>
                             <Text style={{fontSize:20, fontWeight:'300', color:'#FFFFFF', textAlign:'center'}}>Get started</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>
             </View>
 
-            <Login1 displayLogin={displayLogin}/>
+            <Login displayLogin={displayLogin}/>
         </>
     )
 }

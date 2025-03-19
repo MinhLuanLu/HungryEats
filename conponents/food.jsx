@@ -1,10 +1,11 @@
 import { StyleSheet,View, Text, TouchableOpacity, Image } from "react-native";
 import { useState, useEffect, useContext } from "react";
-import AddToCart from "../screens/storeDetail/addTocart/addToCart";
+import AddToCart from "../screens/home/addToCart/addToCart";
+import { useNavigation } from "@react-navigation/native";
 import {SERVER_IP} from '@env'
 
-export default function Food({item, socketIO}){
-
+export default function Food({item, store}){
+    const navigate = useNavigation()
     const [display_addToCart, setDisplay_AddToCart] = useState(false)
    
     return(
@@ -30,7 +31,8 @@ export default function Food({item, socketIO}){
                             </View>
                         </View>
                     </TouchableOpacity>
-                    <AddToCart socketIO={socketIO} display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} price={item.Price} food_name={item.Food_name} food_description={item.Food_description} food_id={item.Food_id}/>
+                    {/* <AddToCart display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} food={item} price={item.Price} food_name={item.Food_name} food_description={item.Food_description} food_id={item.Food_id}/> */}
+                    <AddToCart displayAddToCart={display_addToCart} item={item} onclose={()=> setDisplay_AddToCart(false)} store={store}/>
                 </View>
                 :
                 <View>
