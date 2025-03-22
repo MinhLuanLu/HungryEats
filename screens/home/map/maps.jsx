@@ -1,5 +1,5 @@
 import { StyleSheet , View} from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import MapView, { Callout, Marker,  PROVIDER_GOOGLE } from 'react-native-maps';
 import Map_Style_Light from "../../../mapStyle";
 import log  from "minhluanlu-color-log";
@@ -9,7 +9,9 @@ import Search from "../../../conponents/search"
 import Loading from "../../../conponents/loading";
 import Store_Description from "../storeDescription/storeDescription";
 import {SERVER_IP} from '@env';
+import { StoreContext } from "../../../contextApi/store_context";
 import axios from "axios";
+import { config } from "../../../config";
 
 
 const marker_Icon_open = require('../../../assets/icons/location_open_icon.png')
@@ -25,6 +27,8 @@ export default function Maps({socketIO, display_sideBar}){
     const [marker_list, setMarker_list]                           = useState([])
     const [display_tabBar, setDisplay_TabBar]                     = useState(false)
     const [selectStore, setSelectStore]                           = useState();
+
+    const {publicStore, setPublicStore} = useContext(StoreContext)
 
     // Handle fetching necessary data that is used in the map.
     useEffect(() => {
@@ -75,13 +79,16 @@ export default function Maps({socketIO, display_sideBar}){
     },[location])
 
 
+    // hander select store inmap
     function handle_Marker_Select(store) {
-      setSelectStore(store)
+      setSelectStore(store);
+      setPublicStore(store);
+      log.debug({message: 'User select store', store: store})
     }
 
     /// Handle update storeStatus [close or open] live //
     if(socketIO.current){
-      socketIO.current.on('updateStoreStatus', (storeStatusList)=>{
+      socketIO.current.on(config.updateStoreStatus , (storeStatusList)=>{
         log.info('Update stores Status successfully..')
         setMarker_list(storeStatusList)
       })

@@ -19,9 +19,8 @@ import Animated, {
 
 export default function Store_Description({store}){
     const navigate = useNavigation()
-    const { public_StoreName, setPublic_Store_Name }                        = useContext(StoreContext);
-    const { public_Store_Status, setPublic_Store_Status}                    = useContext(StoreContext);
-    const { publicEmail, setPublicEmail}                                    = useContext(UserContext);
+    const {publicUser, setPublicUser} = useContext(UserContext)
+
     const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false);
     const [discount_value, setDiscountValue] = useState()
     const [discount_code, setDiscount_Code] = useState()
@@ -34,7 +33,7 @@ export default function Store_Description({store}){
 
     async function Check_Purchase_Log() {
         const checkDiscount = await axios.post(`${SERVER_IP}/purchaseLog/api`,{
-            Email: publicEmail,
+            Email: publicUser.Email,
             Store_id: store.Store_id
         })
         if(checkDiscount?.data?.success){

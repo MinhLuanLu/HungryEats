@@ -12,6 +12,7 @@ import Launch_Screen from "./screens/launchScreen/launchScreen";
 import Register from "./screens/register/register";
 import Account from "./screens/account/account";
 import PaymentHistory from "./screens/paymentHistory/paymentHistory";
+import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
 
@@ -81,6 +82,16 @@ export default function App() {
             options={{
               headerTitleAlign: 'center',
               headerTitle: 'Account',
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name='Payment'
+            component={Payment}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: '',
               headerShown: false,
             }}
           />

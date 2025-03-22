@@ -2,17 +2,37 @@ import { StyleSheet,View, Text, TouchableOpacity, Image } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import AddToCart from "../screens/home/addToCart/addToCart";
 import { useNavigation } from "@react-navigation/native";
-import {SERVER_IP} from '@env'
+import { UserContext } from "../contextApi/user_context";
+import { StoreContext } from "../contextApi/store_context";
+import {SERVER_IP} from '@env';
+import log  from "minhluanlu-color-log";
 
 export default function Food({item, store}){
-    const navigate = useNavigation()
+    const navigate = useNavigation();
+    const {publicCart, setPublicCart} = useContext(UserContext);
+    const {publicStore, setPublicStore} = useContext(StoreContext)
+
+
     const [display_addToCart, setDisplay_AddToCart] = useState(false)
+
+    function selectFoodHandler(){
+       
+        if(Object.keys(publicCart).length > 0){
+            if(publicCart.Store.Store_id !== publicStore.Store_id){
+                alert('YOU MUST TO FINSHI ORDER THE THE STORE FIRST TO ORDER FOOD IN OTHER STORE.');
+                log.warn('YOU MUST TO FINSHI ORDER THE THE STORE FIRST TO ORDER FOOD IN OTHER STORE.')
+                return
+            }
+        }
+        setDisplay_AddToCart(true);
+        
+    }
    
     return(
         <>  
             {item.Quantity != 0 ?
                 <View>
-                    <TouchableOpacity style={styles.food_box} onPress={()=> {setDisplay_AddToCart(true)}}>
+                    <TouchableOpacity style={styles.food_box} onPress={()=> selectFoodHandler()}>
                         <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
                             <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                         </View>
@@ -31,7 +51,6 @@ export default function Food({item, store}){
                             </View>
                         </View>
                     </TouchableOpacity>
-                    {/* <AddToCart display_addToCart={display_addToCart} onclose={()=> setDisplay_AddToCart(false)} food={item} price={item.Price} food_name={item.Food_name} food_description={item.Food_description} food_id={item.Food_id}/> */}
                     <AddToCart displayAddToCart={display_addToCart} item={item} onclose={()=> setDisplay_AddToCart(false)} store={store}/>
                 </View>
                 :

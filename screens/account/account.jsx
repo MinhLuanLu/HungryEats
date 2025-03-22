@@ -14,8 +14,8 @@ const leftArrow = require('../../assets/icons/left_arrow.png')
 const Account = () =>{
 
     const navigate = useNavigation()
-    const {publicEmail, setPublicEmail}                     = useContext(UserContext)
-    const {public_Username, setPublic_Username}             = useContext(UserContext)
+    const {publicUser, setPublicUser} = useContext(UserContext)
+
     const [inputActive, setInputActive]                     = useState(false)
     const [editable, setEdiTable]                           = useState(false)
 
@@ -45,7 +45,7 @@ const Account = () =>{
                     <Text style={styles.inputInfoText}>Email</Text>
                     <TextInput  
                         style={styles.inputInfo} 
-                        placeholder={publicEmail} 
+                        placeholder={publicUser.Email} 
                         editable={editable} 
                         onFocus={()=> setInputActive(true)} 
                         onBlur={()=> setInputActive(false)}
@@ -56,7 +56,7 @@ const Account = () =>{
                     <Text style={styles.inputInfoText}>Username</Text>
                     <TextInput  
                         style={styles.inputInfo} 
-                        placeholder={public_Username} 
+                        placeholder={publicUser.Username} 
                         editable={editable} 
                         onFocus={()=> setInputActive(true)} 
                         onBlur={()=> setInputActive(false)} 

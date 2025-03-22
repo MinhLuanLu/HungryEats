@@ -33,8 +33,8 @@ export default function Store_Detail({route}){
     const {store} = route.params;
     
     const { publicSocketio, setPublicSocketio}   = useContext(SocketioContext)
-    const {publicEmail, setPublicEmail} = useContext(UserContext)
     const {publicCart, setPublicCart} = useContext(UserContext)
+    const {publicUser, setPublicUser} = useContext(UserContext)
 
     const [menu, setMenu] = useState([])
     const [food_list, setFood_list]= useState([])
@@ -110,9 +110,9 @@ export default function Store_Detail({route}){
         }
         try{
             const fetchStoreFavorite = await axios.post(`${SERVER_IP}/storeFavorite/api`,{
-                "Email": publicEmail,
-                "Store_name": store.Store_name,
-                "Request": store_favorite
+                Email: publicUser.Email,
+                Store_name: store.Store_name,
+                Request: store_favorite
             })
             if(fetchStoreFavorite.data.success){
                 log.info(fetchStoreFavorite.data.message);

@@ -12,7 +12,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
 
     const [food_list, setFood_List]                         = useState([])
     const [no_food_list, setno_food_list]                   = useState('')
-    const {public_Cart_list, setPublic_Cart_List}           = useContext(UserContext)
+    const {publicCart, setPublicCart}                       = useContext(UserContext)
 
     const renderItem =({item}) =>(
         <Food item={item} socketIO={socketIO}/>
@@ -90,7 +90,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                 </View>
             </View>
             <View style={{position:'absolute', bottom:25, right:25}}>
-                { public_Cart_list.length != 0 &&
+                { Object.keys(publicCart).length > 0 &&
                     <TouchableOpacity style={styles.cart_Container} onPress={()=> display_payment()}>
                         <LottieView
                             autoPlay
@@ -98,7 +98,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                             style={{width:'100%', height:'100%'}}
                         />
                         <View style={{backgroundColor:'#008080', width:22, borderRadius:10, position:'absolute', right:-8,top:0}}>
-                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{public_Cart_list.length}</Text>
+                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{Object.keys(publicCart).length}</Text>
                         </View>
                         <View style={{width:'100%', borderRadius:10, position:'absolute', bottom:7}}>
                             <Text style={{fontSize:13,color:'#008080', textAlign:'center', fontWeight:500}}>Cart</Text>

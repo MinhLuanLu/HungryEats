@@ -28,11 +28,7 @@ export default function Home(){
     const {public_PendingOrder, setPublic_PendingOrder}                 = useContext(UserContext)
     const [display_Pending_Order, setDisplay_Pending_Order]               = useState(false)
 
-    const {public_Username, setPublic_Username}                         = useContext(UserContext)
-    const {publicEmail, setPublicEmail}                                 = useContext(UserContext)
-    const {public_StoreName, setPublic_Store_Name }                     = useContext(StoreContext);
-    const [store_id, setStore_id] = useState()
-
+    const {publicUser, setPublicUser} = useContext(UserContext)
     const { publicSocketio, setPublicSocketio}                           = useContext(SocketioContext)
 
     const socketIO                                                      = useRef(null)
@@ -52,7 +48,7 @@ export default function Home(){
 
         setTimeout(async () => {
             const pendingOrder = await axios.post(`${SERVER_IP}/pendingOrder/api`,{
-                Email: publicEmail
+                Email: publicUser.Email
             })
             if(pendingOrder?.data?.success){
                 log.info(pendingOrder?.data?.message);
@@ -77,8 +73,8 @@ export default function Home(){
                 // Emit connection event with user details
                 socketIO.current.emit('connection', {
                     Socket_id: socketIO.current.id,
-                    Email: publicEmail,
-                    Username: public_Username,
+                    Email: publicUser.Email,
+                    Username: publicUser.Username,
                 });
                 
                 setPublicSocketio(socketIO)
@@ -106,9 +102,7 @@ export default function Home(){
         };
     },[])
 
-    function HandleStore_id(store_id){
-        setStore_id(store_id)
-    }
+    
 
     return(
         <>
@@ -116,7 +110,6 @@ export default function Home(){
                 <Maps 
                     socketIO={socketIO}  
                     display_sideBar={()=> {setDisplay_SideBar(true)}} 
-                    sendStore_id={HandleStore_id}
                 />
             </View>
             
@@ -156,7 +149,7 @@ export default function Home(){
                 order_status_list={public_PendingOrder} 
                 socketIO={socketIO} 
                 onclose={()=> setDisplay_Pending_Order(false)} 
-                email={publicEmail} 
+                email={publicUser.Email} 
                 defineTab={pendingOrderTab}
             />
             

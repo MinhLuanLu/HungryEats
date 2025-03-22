@@ -23,9 +23,7 @@ export default function Login({displayLogin}){
     const [email, setEmail] = useState("")
     const [password, setPasword] = useState("");
 
-    const { publicEmail, setPublicEmail}  = useContext(UserContext)
-    const {public_Username, setPublic_Username} = useContext(UserContext)
-    const {public_User_id, setPublic_Userid} = useContext(UserContext)
+    const {publicUser, setPublicUser} = useContext(UserContext)
 
     const display = useSharedValue(-400)
     const opacity = useSharedValue(0.5)
@@ -99,9 +97,7 @@ export default function Login({displayLogin}){
                     console.log(Login?.data?.message)
                     const [User] = Login?.data?.data;
                     if(User?.Role == AUTHENTICATION.USER){
-                        setPublic_Username(User?.Username);
-                        setPublicEmail(User?.Email);
-                        setPublic_Userid(User.User_id)
+                        setPublicUser(User)
                         navigate.navigate("Home")
                     }
                 }
@@ -122,7 +118,7 @@ export default function Login({displayLogin}){
                 <Animated.View style={[styles.textInputContainer, AnimateHeight]}>
                     <TextInput 
                         style={styles.textInput} 
-                        placeholder={publicEmail != "" ? `${publicEmail}` : 'Email' } 
+                        placeholder={publicUser.Email != undefined ? `${publicUser.Email}` : 'Email' } 
                         onFocus={()=> setFocus(true)} 
                         onBlur={()=>setFocus(false)}
                         value={email}

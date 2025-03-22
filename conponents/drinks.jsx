@@ -6,9 +6,8 @@ import {SERVER_IP} from '@env'
 
 
 export default function Drink({list, food, store}){
-    const { public_StoreName, setPublic_Store_Name}             = useContext(StoreContext);
+
     const [drink_list, setDrink_list]                           = useState([])
-    const [quantity, setQauntity] = useState(1)
 
     function Handle_Add_Drink(drink) {
         list(drink)

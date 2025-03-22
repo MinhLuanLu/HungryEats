@@ -14,6 +14,10 @@ export default function Search({display_Payment, display_sideBar}){
     const [search_Result, setSearch_Result]                 = useState([])
     const {publicCart, setPublicCart} = useContext(UserContext)
 
+    useEffect(()=>{
+        console.log('Update publicCart')
+    },[publicCart])
+
     const renderItem  = ({item }) =>(
         <View style={styles.result_list_Container}>
             <Text style={{paddingLeft:5, fontSize:16, fontWeight:'500'}}>{item.Store_name}</Text>
