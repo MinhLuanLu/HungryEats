@@ -21,7 +21,7 @@ export default function Register(){
             "Username": username,
             "Password": password,
             "Accept_term_condition": accept_term_condition,
-            "Role": "User"
+            "Role": AUTHENTICATION.private
         }
         if(email == "" || username == "" || password == '' || password != confirm_password){
             alert('Input values are not correct. Try again.')
@@ -53,27 +53,6 @@ export default function Register(){
         }
     }
 
-    async function HandleRegister(){
-        if(email == "" || username == "" || password == '' || password != confirm_password){
-            alert('Input values are not correct. Try again.')
-        }
-        else{
-            const Register = await axios.post(`${SERVER_IP}/register/api`,{
-                Email: email,
-                Username: username,
-                Password: password,
-                Accept_term_condition: accept_term_condition,
-                Role: AUTHENTICATION.USER
-            })
-
-            if(Register?.data?.sucess){
-                console.info(Register?.data?.message)
-                console.log(Register?.data?.data)
-            }
-
-        }
-    }
-    
     return(
         <View style={styles.Conatiner}>
             <View style={styles.middle_layer}>

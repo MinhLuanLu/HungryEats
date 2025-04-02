@@ -6,33 +6,25 @@ import { StoreContext } from "../../contextApi/store_context";
 import { SocketioContext } from "../../contextApi/socketio_context";
 import Maps from "./map/maps";
 import SideBar from "../sideBar/sideBar";
-import Store_Detail from "../storeDetail/store_detail";
 import {io} from 'socket.io-client'
 import {SOCKET_SERVER} from '@env'
-import Payment from "../payment/payment";
 import { useFocusEffect } from "@react-navigation/native";
-import PendingOrders from "./pendingOrders/pendingOrder";
 import {SERVER_IP} from '@env';
 import axios from "axios";
-import log from "minhluanlu-color-log"
+import { useNavigation } from "@react-navigation/native";
+import log from "minhluanlu-color-log";
+import { config } from "../../config";
 
 
 export default function Home(){
-
-    const [time, setTime]                                               = useState(new Date());
-
-    const [display_store_detail, setDisplay_store_detail]               = useState(false)
-    const [display_Payment, setDisplay_Payment]                         = useState(false)
     const [display_sideBar, setDisplay_SideBar]                         = useState(false)
-
-    const {public_PendingOrder, setPublic_PendingOrder}                 = useContext(UserContext)
+    const {publicPendingOrder, setPublicPendingOrder}                 = useContext(UserContext)
     const [display_Pending_Order, setDisplay_Pending_Order]               = useState(false)
-
-    const {publicUser, setPublicUser} = useContext(UserContext)
+    const {publicUser, setPublicUser}                                       = useContext(UserContext)
     const { publicSocketio, setPublicSocketio}                           = useContext(SocketioContext)
-
     const socketIO                                                      = useRef(null)
     const [pendingOrderTab, setPendingOrderTab]                           = useState(false)
+    const navigate = useNavigation()
 
     // setDisplay_SideBar to false to be able to display side bar again after navigate back from orther screen.
     useFocusEffect(
@@ -48,11 +40,12 @@ export default function Home(){
 
         setTimeout(async () => {
             const pendingOrder = await axios.post(`${SERVER_IP}/pendingOrder/api`,{
-                Email: publicUser.Email
+                User: publicUser
             })
             if(pendingOrder?.data?.success){
                 log.info(pendingOrder?.data?.message);
-                setPublic_PendingOrder(data?.data)
+                log.info(pendingOrder?.data)
+                setPublicPendingOrder(pendingOrder?.data?.data)
             }
         }, 3000);
 
@@ -73,21 +66,19 @@ export default function Home(){
                 // Emit connection event with user details
                 socketIO.current.emit('connection', {
                     Socket_id: socketIO.current.id,
-                    Email: publicUser.Email,
-                    Username: publicUser.Username,
+                    User: publicUser
                 });
                 
                 setPublicSocketio(socketIO)
             });
 
-            // Listen for pending orders
-            socketIO.current.on('pendingOrder', (order) => {
-                setPublic_PendingOrder((prevOrder) => [...prevOrder, order[0]]);
-            });
+            socketIO.current.on(config.confirmRecivedOrder, (order) =>{
+                alert('order has been confirm by store, see details here, order Status : processing')
+            })
 
             // Listen for order status updates
             socketIO.current.on('update_order', (order) => {
-                setPublic_PendingOrder(order);
+                setPublicPendingOrder(order);
             });
 
         }
@@ -115,8 +106,8 @@ export default function Home(){
             
             {/*Handle display order status*/}
             <View style={{position:'absolute', top:100, right:15}}>
-                { public_PendingOrder.length > 0 &&
-                    <TouchableOpacity style={{  
+                { publicPendingOrder.length > 0 &&
+                    <TouchableOpacity  style={{  
                         width:50, 
                         height:50, 
                         borderRadius:50, 
@@ -129,7 +120,7 @@ export default function Home(){
                         shadowOpacity: 0.5, 
                         shadowRadius: 10, 
                         elevation: 10
-                    }} onPress={()=> setDisplay_Pending_Order(true)}>
+                    }} onPress={()=> navigate.navigate('PendingOrders')}>
                         <LottieView
                             autoPlay
                             source={require('../../assets/lottie/food.json')}
@@ -137,21 +128,11 @@ export default function Home(){
                         />
                        
                         <View style={{backgroundColor:'#008080', width:20, borderRadius:10, position:'absolute', right:-5, top:-3}}>
-                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{public_PendingOrder.length}</Text>
+                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{publicPendingOrder.length}</Text>
                         </View>
                     </TouchableOpacity>
                 }
             </View>
-            
-            {/*Handle display order status*/}
-            <PendingOrders 
-                display_Pending_Order={display_Pending_Order} 
-                order_status_list={public_PendingOrder} 
-                socketIO={socketIO} 
-                onclose={()=> setDisplay_Pending_Order(false)} 
-                email={publicUser.Email} 
-                defineTab={pendingOrderTab}
-            />
             
             <SideBar 
                 display_sideBar={display_sideBar} 

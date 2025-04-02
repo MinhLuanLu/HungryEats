@@ -4,7 +4,7 @@ export const UserContext = createContext({})
 
 export const UserProvider = ({children}) =>{
     const [publicCart, setPublicCart]                            = useState({})
-    const [public_PendingOrder, setPublic_PendingOrder]         = useState([])
+    const [publicPendingOrder, setPublicPendingOrder]         = useState([])
     const [publicUser, setPublicUser] = useState({})
 
     
@@ -12,7 +12,7 @@ export const UserProvider = ({children}) =>{
         <UserContext.Provider value={{
             publicUser, setPublicUser,
             publicCart, setPublicCart,
-            public_PendingOrder, setPublic_PendingOrder,
+            publicPendingOrder, setPublicPendingOrder,
         }}>
             {children}
         </UserContext.Provider>

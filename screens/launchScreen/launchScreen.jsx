@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Login from "../login/login";
+import Loading from "../../conponents/loading";
 import Animated,{
     Easing,
     FadeInDown,
@@ -22,7 +23,7 @@ const background = require('../../assets/images/launch_image_background.png')
 
 export default function Launch_Screen(){
     const navigate = useNavigation()
-    const {public_PendingOrder, setPublic_PendingOrder}         = useContext(UserContext);
+    const {publicPendingOrder, setPublicPendingOrder}         = useContext(UserContext);
     const [displayLogin, setDisplayLogin] = useState(false)
 
     const imageSize = useSharedValue('75%');
@@ -31,7 +32,7 @@ export default function Launch_Screen(){
 
     useFocusEffect(
         useCallback(() => {
-            setPublic_PendingOrder([])
+            setPublicPendingOrder([])
         }, []) 
     );
 
@@ -63,6 +64,8 @@ export default function Launch_Screen(){
         }
     })
 
+
+    //if(!displayLogin) return <Loading/>
 
     return(
         <>

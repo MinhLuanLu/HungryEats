@@ -96,7 +96,7 @@ export default function Login({displayLogin}){
                 if(Login?.data?.success){
                     console.log(Login?.data?.message)
                     const [User] = Login?.data?.data;
-                    if(User?.Role == AUTHENTICATION.USER){
+                    if(User?.Role == AUTHENTICATION.private){
                         setPublicUser(User)
                         navigate.navigate("Home")
                     }

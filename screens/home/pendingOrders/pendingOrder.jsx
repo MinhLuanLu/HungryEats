@@ -1,16 +1,23 @@
 import { StyleSheet, View, Modal, TouchableWithoutFeedback, ScrollView, TouchableOpacity , Text, Image} from "react-native";
 import LottieView from "lottie-react-native";
-import { useEffect , useState} from "react";
+import { useEffect , useState, useContext} from "react";
 import axios from "axios";
-import {SERVER_IP} from'@env'
+import log  from "minhluanlu-color-log";
+import { config } from "../../../config";
+import {SERVER_IP} from'@env';
+import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../../../contextApi/user_context";
 
 const down_arrow = require('../../../assets/icons/down_arrow.png')
 
-export default function PendingOrders({ display_Pending_Order, order_status_list, socketIO, onclose, email, defineTab}) {
+export default function PendingOrders() {
   
   const [tab, setTab]                                 = useState(false)
-  const [order_history, setOrder_history]             = useState([])
+  const [order_history, setOrder_history]             = useState([]);
+  const navigate = useNavigation()
+  const {publicPendingOrder, setPublicPendingOrder}                 = useContext(UserContext)
 
+  const [order_status_list, setorder_status_list] = useState([])
   useEffect(()=>{
     async function Handel_Get_Order_History() {
       const orderHistory = await axios.post(`${SERVER_IP}/orderHistory/api`,{
@@ -22,20 +29,12 @@ export default function PendingOrders({ display_Pending_Order, order_status_list
       }
     }
     
-    if(tab || defineTab == true){
-      Handel_Get_Order_History()
-    } 
   },[tab])
-
-
-  useEffect(()=>{
-    setTab(defineTab)
-  },[defineTab])
 
   
   return (
     <Modal
-      visible={display_Pending_Order}
+      visible={true}
       animationType="slide"
       hardwareAccelerated={true}
     >
@@ -44,7 +43,7 @@ export default function PendingOrders({ display_Pending_Order, order_status_list
         <TouchableWithoutFeedback>
           <View style={styles.top_Layer}>
 
-            <TouchableWithoutFeedback onPress={()=> {onclose(), setTab(false)}}>
+            <TouchableWithoutFeedback onPress={()=> navigate.navigate('Home') }>
               <View style={{width:35, height:35, backgroundColor:'#d7d7d7', borderRadius:40, justifyContent:'center', alignItems:'center', position:'absolute', left:15, top:20}}>
                 <Image style={{width:25, height:25}} resizeMode="cover" source={down_arrow}/>
               </View>
@@ -69,8 +68,8 @@ export default function PendingOrders({ display_Pending_Order, order_status_list
         </TouchableWithoutFeedback>
         { !tab ?
           <ScrollView style={styles.bottom_layer}>
-            {order_status_list.map((item, index) => (
-              <View key={item.Order_id} style={styles.order_Container}>
+            {publicPendingOrder.map((item, index) => (
+              <View key={index} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
                     <LottieView
                       autoPlay
@@ -80,15 +79,15 @@ export default function PendingOrders({ display_Pending_Order, order_status_list
                 </View>
                 <View style={styles.order_detail}>
               
-                    {JSON.parse(item.Food_item).map((food, id) =>(
+                    { /*JSON.parse(item.Food_item).map((food, id) =>(
                       <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
-                    ))}
+                    ))*/}
                     
-                    <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
-                      {item.Order_status === "Accept"
+                    <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status: 
+                      {/*item.Order_status === "Accept"
                         ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
                         :<Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
-                      }
+                      */}
                     </Text>
                     <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
                       <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>
@@ -118,10 +117,10 @@ export default function PendingOrders({ display_Pending_Order, order_status_list
                     ))}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
-                      {item.Order_status === "Accept"
+                      {/*item.Order_status === "Accept"
                         ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
                         :<Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
-                      }
+                      */}
                     </Text>
                     <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
                       <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>

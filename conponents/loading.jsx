@@ -1,37 +1,53 @@
-import React from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { StyleSheet, View, Text } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming } from "react-native-reanimated";
+import { useEffect } from "react";
+
 export default function Loading() {
-    const { height, width } = Dimensions.get('window'); // Get screen dimensions
+    const rotation = useSharedValue(0);
+
+    useEffect(() => {
+        rotation.value = withRepeat(withTiming(360, { duration: 2000 }), -1);
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${rotation.value}deg` }],
+        };
+    });
 
     return (
-        <View style={[styles.container, { height, width }]}>
-            <LottieView
-                autoPlay
-                source={require('../assets/lottie/maps_loading.json')}
-                style={styles.maps_loading}
-            />
-            <LottieView
-                autoPlay
-                source={require('../assets/lottie/text_loading.json')}
-                style={styles.text_loading}
-            />
+        <View style={styles.Container}>
+            <Animated.View style={[styles.animateContainer, animatedStyle]}>
+                <View style={styles.box}></View>
+            </Animated.View>
+            <Text style={{paddingTop:10, color:'#ffffff', fontSize:18, fontWeight:'600', textAlign:'center'}}>Waiting...</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: 'stransparent',
-        justifyContent: 'center',
-        alignItems: 'center',
+    Container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)',
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
     },
-    maps_loading: {
-        width:200,
-        height:200
+
+    animateContainer: {
+        width: 50,
+        height: 50,
+        backgroundColor: "#008080",
+        justifyContent: "center",
+        alignItems: "center",
     },
-    text_loading:{
-        width:150,
-        height:100
-    }
+
+    box: {
+        width: 40,
+        height: 40,
+        backgroundColor: "#FF9F0D",
+    },
 });

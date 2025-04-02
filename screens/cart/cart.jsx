@@ -6,6 +6,8 @@ import {SERVER_IP} from '@env'
 import { useNavigation } from "@react-navigation/native";
 import log from 'minhluanlu-color-log';
 import { config } from "../../config";
+import Loading from "../../conponents/loading";
+import Payment from "../payment/payment";
 
 const leftArow = require('../../assets/icons/left_arrow.png')
 const cartIcon = require('../../assets/icons/emtyCart.png')
@@ -14,11 +16,28 @@ const cartIcon = require('../../assets/icons/emtyCart.png')
 export default function Cart(){
 
     const {publicCart, setPublicCart} = useContext(UserContext);
-    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext)
+    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
+    const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
+    const [loading, setLoading] = useState(false);
+    const [displayPayment, setDisplayPayment] = useState(false)
     const navigate = useNavigation()
 
+
+    useEffect(()=>{
+        setLoading(false);
+
+        // listen to unprocesing order feedback //
+        publicSocketio.current.on(config.orderPending , (order) => {
+            log.debug('recived order pending status from socketIO')
+            alert('your order has sent to store.')
+            setLoading(false)
+            navigate.navigate('Home')
+            setPublicPendingOrder((prevOrder) => [...prevOrder, order[0]]);
+        });
+    },[])
+
+
     function foodQuantityHandler(action, food) {
-        
         setPublicCart(prevCart => {
             return {
                 ...prevCart,  // Keep other properties unchanged
@@ -85,15 +104,14 @@ export default function Cart(){
     }
 
     async function sendOrderHandler() {
-        publicSocketio.current.emit("user.newOrderHandler.1", publicCart);
-
+        //publicSocketio.current.emit("user.newOrderHandler.1", publicCart);
+        setDisplayPayment(true)
+        
         // make the loading screen to want oder send to store
+
+        // recived order from database then set order to setPublicPendingOrder //
     }
 
-    useEffect(()=>{
-        log.debug({Cart: publicCart})
-    },[])
-    
 
     return(
         <Modal
@@ -135,7 +153,7 @@ export default function Cart(){
                                                     <Text style={{paddingLeft:8, paddingRight:8, fontSize:15, fontWeight:500}}>{item.Food_quantity}</Text>
 
                                                 <TouchableOpacity onPress={()=> foodQuantityHandler(true, item)} style={{width:30, height:30, backgroundColor:'#008080', borderRadius:30, justifyContent:'center', alignItems:'center', borderWidth:0.2}}>
-                                                    <Text>-</Text>
+                                                    <Text>+</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
@@ -192,8 +210,12 @@ export default function Cart(){
                         <Text style={{fontSize:18, fontWeight:'semibold', color:'#ffffff', textAlign:'center'}}>Order now</Text>
                     </TouchableOpacity>
                 </View>
-
+                
             </View>
+            {loading &&
+                <Loading/>
+            }
+            <Payment display={displayPayment} onclose={()=> setDisplayPayment(false)}/>
         </Modal>
     )
 }

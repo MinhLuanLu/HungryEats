@@ -12,9 +12,11 @@ import Launch_Screen from "./screens/launchScreen/launchScreen";
 import Register from "./screens/register/register";
 import Account from "./screens/account/account";
 import PaymentHistory from "./screens/paymentHistory/paymentHistory";
+import PendingOrders from "./screens/home/pendingOrders/pendingOrder";
 import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
+
 
 export default function App() {
 
@@ -69,6 +71,16 @@ export default function App() {
           <Stack.Screen
             name='Cart'
             component={Cart}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: '',
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name='PendingOrders'
+            component={PendingOrders}
             options={{
               headerTitleAlign: 'center',
               headerTitle: '',

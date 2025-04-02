@@ -6,7 +6,7 @@ import log  from "minhluanlu-color-log";
 import * as Location from 'expo-location';
 import { useRef } from "react";
 import Search from "../../../conponents/search"
-import Loading from "../../../conponents/loading";
+import LoadingMap from "../../../conponents/loadingMap";
 import Store_Description from "../storeDescription/storeDescription";
 import {SERVER_IP} from '@env';
 import { StoreContext } from "../../../contextApi/store_context";
@@ -88,14 +88,14 @@ export default function Maps({socketIO, display_sideBar}){
 
     /// Handle update storeStatus [close or open] live //
     if(socketIO.current){
-      socketIO.current.on(config.updateStoreStatus , (storeStatusList)=>{
+      socketIO.current.on(config.updateStoreState , (storeStatusList)=>{
         log.info('Update stores Status successfully..')
         setMarker_list(storeStatusList)
       })
     }
     
 
-    if(location == null || marker_list.length === 0) return <Loading/>
+    if(location == null || marker_list.length === 0) return <LoadingMap/>
     
  
 
