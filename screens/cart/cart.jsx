@@ -5,6 +5,7 @@ import {SERVER_IP} from "@env"
 import { FONT } from "../../fontConfig";
 import { UserContext } from "../../contextApi/user_context";
 import DiscountBottomSheet from "../../conponents/DiscountBottomSheet";
+import { discountType } from "../../config";
 
 const downArrow = require('../../assets/icons/down_arrow.png')
 const rightArrow = require('../../assets/icons/right_arrow.png')
@@ -13,9 +14,12 @@ const rightArrow = require('../../assets/icons/right_arrow.png')
 export default function Cart(){
     
     const {publicCart, setPublicCart} = useContext(UserContext)
-    const [applyCode, setApplyCode] = useState(false);
+    const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
-    const [displayDiscount, setDisplayDiscount] =  useState(false)
+    const [displayDiscount, setDisplayDiscount] =  useState(false);
+    const [discountInfo, setDiscountInfo] = useState({});
+    const [subTotal, setSubtotal] = useState()
+    const [totalPrice, setTotalPrice] = useState()
 
     useEffect(()=>{
         let listPrice = [];
@@ -34,6 +38,8 @@ export default function Cart(){
             }
             const total = listPrice.reduce((acc, curr) => acc + curr, 0);
             publicCart.Total_price = total;
+            setTotalPrice(publicCart.Total_price)
+            setSubtotal(total)
 
             setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
         }
@@ -41,8 +47,27 @@ export default function Cart(){
 
     useEffect(()=>{
         setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
-    },[publicCart]);
+        setTotalPrice(publicCart.Total_price + publicCart.Total_price * 0.25)
+    },[publicCart, totalPrice]);
 
+    function calculateDiscount(discountData){
+        let discountValue = discountData.Discount_value;
+        if(typeof(discountData.Discount_value) === "string"){
+            discountValue = Number(discountData.Discount_value);
+        }
+
+        const discountPrice = publicCart.Total_price * (discountValue / 100);
+        publicCart.Total_price = publicCart.Total_price - discountPrice;
+        publicCart.Discount = discountData
+        setTotalPrice(publicCart.Total_price)
+        setDiscountInfo(discountData)
+        setApplyDiscount(true)
+    }
+
+    async function CheckoutHandler() {
+        //publicCart.Total_price = 0
+    }
+    
 
     if (Object.keys(publicCart).length === 0) return <DiscountBottomSheet display={displayDiscount}/>
 
@@ -105,13 +130,13 @@ export default function Cart(){
                                     <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Subtotal</Text>
                                     <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Moms</Text>
                                     <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Total</Text>
-                                    {applyCode && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Discount</Animated.Text>}
+                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Discount</Animated.Text>}
                                 </View>
                                 <View style={{paddingRight:10}}>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? publicCart.Total_price : 0}Kr</Text>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{subTotal}Kr</Text>
                                     <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(publicCart.Total_price * 0.25) : 0}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(afterMonsPrice) : 0}Kr</Text>
-                                    {applyCode && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>-150Kr</Animated.Text>}
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(totalPrice) : 0}Kr</Text>
+                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(publicCart.Total_price * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
                                 </View>
                             </View>
                         </View>
@@ -138,12 +163,12 @@ export default function Cart(){
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity style={styles.checkoutButton}>
+                <TouchableOpacity style={styles.checkoutButton} onPress={()=> CheckoutHandler()}>
                     <Text style={{color:'#ffffff', fontFamily:FONT.SoraMedium}}>Go to checkout</Text>
                 </TouchableOpacity>
             </View>
             
-            <DiscountBottomSheet display={displayDiscount} onclose={()=> setDisplayDiscount(false)} publicCart={publicCart}/>
+            <DiscountBottomSheet display={displayDiscount} onclose={()=> setDisplayDiscount(false)} publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)}/>
         </Modal>
     )
 }

@@ -90,7 +90,7 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
             })
 
             if(applyCode.data.success){
-                console.log(applyCode.data.data)
+                console.log(applyCode.data.message)
                 setApplyCode(true)
                 setCodeData(applyCode.data.data)
                 return
@@ -106,7 +106,7 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
     async function submitCodeHandler() {
         setSubmit(true)
         setTimeout(() => {
-            //submitCode(codeData)
+            submitCode(codeData)
             onclose()
             setSubmit(false)
         }, 2000);

@@ -28,5 +28,9 @@ export const paymentMethod = {
     mobilePay: "mobilePay"
 }
 
+export const discountType = {
+    percentage: "percentage"
+}
+
 
 export default AUTHENTICATION;
