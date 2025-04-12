@@ -10,6 +10,7 @@ import Food from "../../conponents/food";
 import axios from "axios";
 import log from 'minhluanlu-color-log'
 import {SERVER_IP} from '@env';
+import {FONT} from '../../fontConfig'
 import Animated,{
     useAnimatedRef,
     withTiming,
@@ -38,8 +39,11 @@ export default function Store_Detail({route}){
 
     const [menu, setMenu] = useState([])
     const [food_list, setFood_list]= useState([])
-    const [store_favorite, setStore_Favorite] = useState(false)
-    const [emty_menu, setEmty_menu] = useState('')
+    const [store_favorite, setStore_Favorite] = useState(false);
+
+    useEffect(()=>{
+        console.log(store.Store_name)
+    },[store])
     
     
     const renderItem = ({item}) => (
@@ -195,29 +199,27 @@ if(publicSocketio.current){
                     <View style={styles.info_Container}>
                         
                         <Animated.View style={[styles.Store_info_Container, animationOpactity]}>
-                            <Text style={{fontSize:24, textDecorationLine:'underline'}}>{store.Store_name}</Text>
+                            <Text style={{fontSize:24, textDecorationLine:'underline', fontFamily: FONT.SoraSemiBold}}>{store.Store_name}</Text>
 
                             <View style={{display:'flex', flexDirection:'row', marginBottom:5}}>
-                                <Image style={{width:16, height:16}} resizeMode="cover" source={telefon_number}/>
-                                <Text style={{fontWeight:'medium'}}> {store.Phone_number}</Text>
+                                <Image style={{width:15, height:15}} resizeMode="cover" source={telefon_number}/>
+                                <Text style={{fontFamily: FONT.Sora}}> {store.Phone_number}</Text>
                             </View>
 
                             <View style={{display:'flex', flexDirection:'row'}}>
                                 <Image style={{width:20, height:20}} resizeMode="cover" source={addressIcon}/>
-                                <Text style={{fontSize:15, fontWeight:'500'}}> {store.Address}</Text>
+                                <Text style={{fontSize:15, fontFamily: FONT.SoraMedium}}> {store.Address}</Text>
                             </View>
 
                             <View style={{marginTop:10, maxHeight:100, overflow:'hidden'}}>
-                                <Text style={{fontSize:14}} >
+                                <Text style={{fontSize:12, fontFamily:FONT.Sora}} >
                                     {store.Store_description}
                                 </Text>
                             </View>
 
                         </Animated.View>
-                        {emty_menu &&
-                            <Text>{emty_menu}</Text>
-                        }
-                        <Text style={{paddingBottom:5, marginLeft:5, fontSize:22, fontWeight:'500', textDecorationLine:'underline', backgroundColor:'#D7D7D7'}}>Menu</Text>
+                        
+                        <Text style={{paddingBottom:5, marginLeft:5, fontSize:22, fontFamily:FONT.SoraMedium, textDecorationLine:'underline', backgroundColor:'#D7D7D7'}}>Menu</Text>
                         <Animated.View style={[{overflow:'hidden', display:'flex', flexDirection:'column', justifyContent:'space-between', backgroundColor:'#D7D7D7'}, animationScroolStyle]}>
                             <View style={styles.menu_Container}>
                                 <FlatList
@@ -247,7 +249,7 @@ if(publicSocketio.current){
                 </View>
 
                 <View style={{position:'absolute', bottom:25, right:25}}>
-                    {Object.keys(publicCart).length > 0 &&
+                    {Object.keys(publicCart).length !== 0 ?
                         <TouchableOpacity style={styles.cart_Container} onPress={()=> navigate.navigate('Cart')}>
                             <LottieView
                                 autoPlay
@@ -261,6 +263,7 @@ if(publicSocketio.current){
                                 <Text style={{fontSize:13,color:'#008080', textAlign:'center', fontWeight:500}}>Cart</Text>
                             </View>
                         </TouchableOpacity>
+                        : null
                     }
                 </View>
 

@@ -13,7 +13,8 @@ import {SERVER_IP} from '@env';
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import log from "minhluanlu-color-log";
-import { config } from "../../config";
+import {config } from "../../config";
+import Animated,{withTiming, withSpring, useSharedValue, useAnimatedStyle, withSequence} from "react-native-reanimated";
 
 
 export default function Home(){
@@ -72,10 +73,6 @@ export default function Home(){
                 setPublicSocketio(socketIO)
             });
 
-            socketIO.current.on(config.confirmRecivedOrder, (order) =>{
-                alert('order has been confirm by store, see details here, order Status : processing')
-            })
-
             // Listen for order status updates
             socketIO.current.on('update_order', (order) => {
                 setPublicPendingOrder(order);
@@ -83,7 +80,7 @@ export default function Home(){
 
         }
 
-        // Cleanup function to disconnect socket when component unmounts
+        /* Cleanup function to disconnect socket when component unmounts
         return () => {
             if (socketIO.current) {
                 socketIO.current.disconnect();
@@ -91,7 +88,41 @@ export default function Home(){
                 console.log('Socket disconnected.');
             }
         };
+        */
     },[])
+
+    ////////////////////////////////////////////////
+    // Animation ///
+    const display = useSharedValue(0);
+    const shake = useSharedValue(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            shake.value = withSequence(
+                withTiming(-3, { duration: 50 }),
+                withTiming(3, { duration: 50 }),
+                withTiming(-3, { duration: 50 }),
+                withTiming(3, { duration: 50 }),
+                withTiming(0, { duration: 50 }),
+            );
+        }, 5000);
+    
+        return () => clearInterval(interval);
+    }, []);
+
+
+    useEffect(()=>{
+        if( publicPendingOrder.length !== 0 ){
+            display.value = withSpring(1)
+        }
+    },[publicPendingOrder])
+
+    const pendingOrderAnimation = useAnimatedStyle(()=>{
+        return{
+            
+            transform:[{scale: display.value},  { translateX: shake.value }, { translateY: shake.value }]
+        }
+    })
 
     
 
@@ -105,7 +136,7 @@ export default function Home(){
             </View>
             
             {/*Handle display order status*/}
-            <View style={{position:'absolute', top:100, right:15}}>
+            <Animated.View style={[{position:'absolute', top:100, right:15}, pendingOrderAnimation]}>
                 { publicPendingOrder.length > 0 &&
                     <TouchableOpacity  style={{  
                         width:50, 
@@ -132,7 +163,7 @@ export default function Home(){
                         </View>
                     </TouchableOpacity>
                 }
-            </View>
+            </Animated.View>
             
             <SideBar 
                 display_sideBar={display_sideBar} 

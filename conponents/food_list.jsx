@@ -5,7 +5,7 @@ import { useContext } from "react";
 import { useState, useEffect } from "react";
 import {SERVER_IP} from '@env';
 import Food from "./food";
-
+import {FONT} from '../fontConfig'
 
 
 export default function Food_List({display_food_list, menu_name, menu_description,menu_id, onclose, socketIO, display_payment}){
@@ -72,8 +72,8 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                 <TouchableOpacity onPress={()=>{onclose()}} style={{flex:1}}></TouchableOpacity>
                 <View style={styles.food_Container}>
                     <View style={styles.menu_info}>
-                        <Text style={{fontSize:22, fontWeight:'500'}}>{menu_name}</Text>
-                        <Text style={{fontSize:14}}>{menu_description}</Text>
+                        <Text style={{fontSize:20, fontFamily: FONT.SoraSemiBold}}>{menu_name}</Text>
+                        <Text style={{fontSize:13, fontFamily: FONT.SoraRegular}}>{menu_description}</Text>
                     </View>
 
                     <View style={styles.food_info_Container}>

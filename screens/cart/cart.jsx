@@ -1,306 +1,202 @@
-import { StyleSheet, View, Text, TouchableOpacity,Modal, Image , ScrollView} from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Modal} from "react-native";
+import Animated,{useSharedValue, useAnimatedStyle, withTiming, withSpring,FadeInDown} from "react-native-reanimated";
 import { useEffect, useState, useContext } from "react";
+import {SERVER_IP} from "@env"
+import { FONT } from "../../fontConfig";
 import { UserContext } from "../../contextApi/user_context";
-import { SocketioContext } from "../../contextApi/socketio_context";
-import {SERVER_IP} from '@env'
-import { useNavigation } from "@react-navigation/native";
-import log from 'minhluanlu-color-log';
-import { config } from "../../config";
-import Loading from "../../conponents/loading";
-import Payment from "../payment/payment";
+import DiscountBottomSheet from "../../conponents/DiscountBottomSheet";
 
-const leftArow = require('../../assets/icons/left_arrow.png')
-const cartIcon = require('../../assets/icons/emtyCart.png')
+const downArrow = require('../../assets/icons/down_arrow.png')
+const rightArrow = require('../../assets/icons/right_arrow.png')
 
 
 export default function Cart(){
-
-    const {publicCart, setPublicCart} = useContext(UserContext);
-    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
-    const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
-    const [loading, setLoading] = useState(false);
-    const [displayPayment, setDisplayPayment] = useState(false)
-    const navigate = useNavigation()
-
+    
+    const {publicCart, setPublicCart} = useContext(UserContext)
+    const [applyCode, setApplyCode] = useState(false);
+    const [afterMonsPrice, setAfterMonsPrice] = useState(null);
+    const [displayDiscount, setDisplayDiscount] =  useState(false)
 
     useEffect(()=>{
-        setLoading(false);
+        let listPrice = [];
 
-        // listen to unprocesing order feedback //
-        publicSocketio.current.on(config.orderPending , (order) => {
-            log.debug('recived order pending status from socketIO')
-            alert('your order has sent to store.')
-            setLoading(false)
-            navigate.navigate('Home')
-            setPublicPendingOrder((prevOrder) => [...prevOrder, order[0]]);
-        });
+        if(Object.keys(publicCart).length !== 0){
+            for(const item of publicCart.Food_item){
+                const price = item.Price;
+                const quantity = item.Food_quantity;
+                listPrice.push(price * quantity)
+            }
+
+            for(const drink of publicCart.Drink_item){
+                const price = drink.Drink_price;
+                const quantity = drink.Drink_quantity;
+                listPrice.push(price * quantity)
+            }
+            const total = listPrice.reduce((acc, curr) => acc + curr, 0);
+            publicCart.Total_price = total;
+
+            setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
+        }
     },[])
 
+    useEffect(()=>{
+        setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
+    },[publicCart]);
 
-    function foodQuantityHandler(action, food) {
-        setPublicCart(prevCart => {
-            return {
-                ...prevCart,  // Keep other properties unchanged
-                Food_item: prevCart.Food_item.map(item => 
-                    item.Food_id === food.Food_id 
-                        ? { ...item, Food_quantity: action ? item.Food_quantity + 1 : Math.max(1, item.Food_quantity - 1) }
-                        : item
-                )
-            };
-        });
-        
-        // if the food quantity is 1 then stop update the Total price
-        if(food.Food_quantity > 1){
-            const foodPrice = food.Price;
-            setPublicCart(prevCart => ({
-                ...prevCart,
-                Total_price: action 
-                    ? prevCart.Total_price + foodPrice  // Add price if action is true
-                    : prevCart.Total_price - foodPrice  // Subtract price if action is false
-            }));
-        }
-        else if (food.Food_quantity === 1) { 
-            if (action) {  //  Only add price, no subtraction
-                const FoodPrice = food.Price;
-                setPublicCart(prevCart => ({
-                    ...prevCart,
-                    Total_price: prevCart.Total_price + FoodPrice
-                }));
-            }
-        }
-    }
 
-    function drinkQuantityHandler(action, drink) {
-        setPublicCart(prevCart => {
-            return {
-                ...prevCart,  // Keep other properties unchanged
-                Drink_item: prevCart.Drink_item.map(item => 
-                    item.Drink_id === drink.Drink_id 
-                        ? { ...item, Drink_quantity: action ? item.Drink_quantity + 1 : Math.max(1, item.Drink_quantity - 1) }
-                        : item
-                )
-            };
-        });
-        
-        // if the food quantity is 1 then stop update the Total price
-        log.err(drink.Drink_quantity)
-        if(drink.Drink_quantity > 1 ){
-            const drinkPrice = drink.Drink_price;
-            setPublicCart(prevCart => ({
-                ...prevCart,
-                Total_price: action 
-                    ? prevCart.Total_price + drinkPrice  // Add price if action is true
-                    : prevCart.Total_price - drinkPrice  // Subtract price if action is false
-            }));
-        }else if (drink.Drink_quantity === 1) { 
-            if (action) {  //  Only add price, no subtraction
-                const drinkPrice = drink.Drink_price;
-                setPublicCart(prevCart => ({
-                    ...prevCart,
-                    Total_price: prevCart.Total_price + drinkPrice
-                }));
-            }
-        }
-    }
-
-    async function sendOrderHandler() {
-        //publicSocketio.current.emit("user.newOrderHandler.1", publicCart);
-        setDisplayPayment(true)
-        
-        // make the loading screen to want oder send to store
-
-        // recived order from database then set order to setPublicPendingOrder //
-    }
-
+    if (Object.keys(publicCart).length === 0) return <DiscountBottomSheet display={displayDiscount}/>
 
     return(
         <Modal
             animationType="slide"
         >
-            
-            <TouchableOpacity onPress={()=> navigate.navigate("Home")} style={{backgroundColor:'#f8f8f8', width:40, height:40, borderRadius:40, borderWidth:0.2, position:'absolute', top:10, left:10, justifyContent:'center', alignItems:'center'}}>
-                <Image resizeMode="cover" style={{width:'60%', height:'60%'}} source={leftArow}/>
-            </TouchableOpacity>
-            
             <View style={styles.Container}>
-                <View style={styles.topContainer}>
-                    <Text style={{flex:1, color:'#000000', fontSize:30, fontWeight:500}}>Cart</Text>
-                    <View style={{flex:1, display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
-                        <Text style={{fontSize:16, color:'grey', paddingRight:8}}>Pickup time</Text>
-                        <TouchableOpacity style={{width:60, height:30, backgroundColor:'#008080', borderRadius:20, justifyContent:'center', alignItems:'center'}}>
-                            <Text style={{fontSize:14, fontWeight:400, color:'#ffffff'}}>15:12</Text>
-                        </TouchableOpacity>
+                <View style={styles.header}>
+                    <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:1, alignItems:'center'}}>
+                        <View style={styles.iconContainer}>
+                            <Image resizeMode="cover" source={downArrow} style={{width:30, height:30}}/>
+                        </View>
+                        <View style={styles.headerText}>
+                            <Text style={{fontFamily:FONT.SoraSemiBold, fontSize:17}}>Your orders</Text>
+                        </View>
+                        <View style={styles.editContainer}>
+                            <TouchableOpacity>
+                                <Text style={{fontFamily:FONT.SoraRegular}}>Edit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={{flex:0.5, backgroundColor:'#ffffff', width:'90%', alignSelf:'center', marginBottom:8, borderRadius:50, display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', position:'relative'}}>
+                        <View style={{width:'50%', textAlign:'center', backgroundColor:'#f8f8f8',alignItems:'center', justifyContent:'center',height:'100%', borderRadius:50, position:'absolute'}}></View>
+                        <Text style={{flex:1, textAlign:'center', fontFamily:FONT.SoraSemiBold, fontSize:13}}>Shopping carts</Text>
+                        <Text style={{flex:1, textAlign:'center', fontFamily:FONT.SoraSemiBold, fontSize:13}}>Order again</Text>
                     </View>
                 </View>
 
-                <View style={styles.middleContainer}>
-                    <ScrollView>
-                        { Object.keys(publicCart).length > 0
-                            ? publicCart.Food_item.map((item, index) =>(
-                                <View key={index} style={styles.foodContainer}> 
-                                    <View style={styles.imageContainer}>
-                                        <Image resizeMode="cover" style={{width:60, height:60}} source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
-                                    </View>
-                                    <View style={styles.foodInfoContainer}>
-                                        <Text>{item.Food_name}</Text>
-                                        <View style={styles.foodQuantityContainer}>
-                                            <Text style={{flex:1}}>{item.Price * item.Food_quantity}Kr</Text>
-                                            <View style={{flex:1, display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
-                                                <TouchableOpacity onPress={()=> foodQuantityHandler(false, item)} style={{width:30, height:30, backgroundColor:'#ffffff', borderRadius:30, justifyContent:'center', alignItems:'center', borderWidth:0.2}}>
-                                                    <Text>-</Text>
-                                                </TouchableOpacity>
+                <ScrollView style={styles.middelContainer}>
+                    <View style={styles.orderContainer}>
+                        <View style={{
+                            display:'flex',
+                            flexDirection:'row',
+                            borderBottomWidth:0.5,
+                            borderColor:'#C0C0C0',
+                            borderStyle:'dashed',
+                            height:80,
+                            alignItems:'center',
+                            width:'90%',
+                            alignSelf:'center'
+                        }}>
+                            <Image resizeMode="cover" style={{width:60, height:60, borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${publicCart.Store.Store_image}`}}/>
+                            <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{publicCart.Store.Store_name} - {publicCart.Store.Address} </Text>
+                        </View>
 
-                                                    <Text style={{paddingLeft:8, paddingRight:8, fontSize:15, fontWeight:500}}>{item.Food_quantity}</Text>
-
-                                                <TouchableOpacity onPress={()=> foodQuantityHandler(true, item)} style={{width:30, height:30, backgroundColor:'#008080', borderRadius:30, justifyContent:'center', alignItems:'center', borderWidth:0.2}}>
-                                                    <Text>+</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                            ))
-                            :
-                            <View style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', marginTop:20}}>
-                                <Image resizeMode="cover" style={{width:60, height:60}} source={cartIcon}/>
-                                <Text style={{fontSize:20, fontWeight:500}}>Your Cart is Emty</Text>
-                                <Text>Select a store and add food to cart to place an order</Text>
-
-                                <TouchableOpacity onPress={()=> navigate.navigate('Home')} style={{width:'60%',height:50, backgroundColor:'#008080', marginTop:10, borderRadius:5, justifyContent:'center', alignItems:'center'}}>
-                                    <Text style={{fontSize:16, fontWeight:500, color:'#ffffff'}}>Find Store</Text>
-                                </TouchableOpacity>
+                        <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
+                            <View style={{display:'flex', flexDirection:'row', marginTop:10}}>
+                                {publicCart.Food_item.map((item, index)=>(
+                                    <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                                ))}
+                                {publicCart.Drink_item.map((item, index)=>(
+                                    <Image key={index} resizeMode="cover" style={{width:65, height:45,  borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>
+                                ))}
                             </View>
-                        }
-                        { Object.keys(publicCart).length > 0 &&
-                            publicCart.Drink_item.map((item, index) =>(
-                                <View key={index} style={styles.foodContainer}> 
-                                    <View style={styles.imageContainer}>
-                                        <Image resizeMode="cover" style={{width:60, height:60}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>
-                                    </View>
-                                    <View style={styles.foodInfoContainer}>
-                                        <Text>{item.Food_name}</Text>
-                                        <View style={styles.foodQuantityContainer}>
-                                            <Text style={{flex:1}}>{item.Drink_price * item.Drink_quantity}Kr</Text>
-                                            <View style={{flex:1, display:'flex', flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
-                                                <TouchableOpacity onPress={()=> drinkQuantityHandler(false, item)} style={{width:30, height:30, backgroundColor:'#ffffff', borderRadius:30, justifyContent:'center', alignItems:'center', borderWidth:0.2}}>
-                                                    <Text>-</Text>
-                                                </TouchableOpacity>
-
-                                                    <Text style={{paddingLeft:8, paddingRight:8, fontSize:15, fontWeight:500}}>{item.Drink_quantity}</Text>
-
-                                                <TouchableOpacity onPress={()=> drinkQuantityHandler(true, item)} style={{width:30, height:30, backgroundColor:'#008080', borderRadius:30, justifyContent:'center', alignItems:'center', borderWidth:0.2}}>
-                                                    <Text>+</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-                                    </View>
+                            
+                            <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%', alignSelf:'center', marginTop:10}}>
+                                <View>
+                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Subtotal</Text>
+                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Moms</Text>
+                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Total</Text>
+                                    {applyCode && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Discount</Animated.Text>}
                                 </View>
-                            ))
-                        }
-                    </ScrollView>
-                </View>
-                
-                <View style={styles.bottomContainer}>
-                    <View style={styles.price_Container}>
-                        <Text style={{fontSize:18, fontWeight:'semibold', color:'#3C2F2F'}}>Total</Text>
-                        <Text style={{fontSize:32, fontWeight:'semibold', color:'#000000'}}>{Object.keys(publicCart).length > 0 ? publicCart.Total_price : 0}Kr</Text>
+                                <View style={{paddingRight:10}}>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? publicCart.Total_price : 0}Kr</Text>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(publicCart.Total_price * 0.25) : 0}Kr</Text>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(afterMonsPrice) : 0}Kr</Text>
+                                    {applyCode && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>-150Kr</Animated.Text>}
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{height:60, width:'90%', justifyContent:'center', alignSelf:'center'}}>
+                            <TouchableOpacity style={{width:'100%', height:40, backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                                <Text style={{color:'#008080', fontFamily: FONT.SoraMedium}}>View detail</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
+                </ScrollView>
 
-                    <TouchableOpacity style={Object.keys(publicCart).length > 0 ? styles.orderButton : styles.disableButton} onPress={()=> Object.keys(publicCart).length > 0 && sendOrderHandler()} >
-                        <Text style={{fontSize:18, fontWeight:'semibold', color:'#ffffff', textAlign:'center'}}>Order now</Text>
+                <View style={{flex:0.4}}>
+                    <TouchableOpacity style={{display:'flex', flexDirection:'row',alignItems:'center', width:'90%', height:50,alignSelf:'centers', alignSelf:'center', justifyContent:'space-between'}} onPress={()=> setDisplayDiscount(true)}>
+                        <View style={{width:50, justifyContent:'center', alignItems:'center'}}>
+                            <Text style={{width:25, height:20, backgroundColor:'#008080', borderRadius:5, textAlign:'center', color:'#ffffff', fontWeight:500}}>%</Text>
+                        </View>
+                        <View style={{flex:1}}>
+                            <Text style={{fontFamily:FONT.SoraMedium}}>Redeem code</Text>
+                            <Text style={{fontFamily:FONT.SoraRegular, fontSize:13}}>Enter promo code here</Text>
+                        </View>
+                        
+                        <Image resizeMode="cover" source={rightArrow} style={{width:25, height:25, position:'absolute', right:10}}/>
+                        
                     </TouchableOpacity>
                 </View>
-                
+
+                <TouchableOpacity style={styles.checkoutButton}>
+                    <Text style={{color:'#ffffff', fontFamily:FONT.SoraMedium}}>Go to checkout</Text>
+                </TouchableOpacity>
             </View>
-            {loading &&
-                <Loading/>
-            }
-            <Payment display={displayPayment} onclose={()=> setDisplayPayment(false)}/>
+            
+            <DiscountBottomSheet display={displayDiscount} onclose={()=> setDisplayDiscount(false)} publicCart={publicCart}/>
         </Modal>
     )
 }
 
+
 const styles = StyleSheet.create({
-
-    Container: {
+    Container:{
         flex:1,
-        marginTop:30
     },
 
-    
-    topContainer: {
-        flex:0.5  ,
-        display:'flex',
-        flexDirection:'row',
+    header:{
+        width:'100%',
+        height:110,
+        marginBottom:10,
+        backgroundColor:'#e0e0e0'
+    },
+
+    iconContainer:{
+        backgroundColor:'#c0c0c0',
+        width:40, 
+        height:40,
+        justifyContent:'center',
         alignItems:'center',
-        width:'95%', 
-        alignSelf:'center'
+        borderRadius:40,
     },
 
-    //////////////////////////
-    middleContainer: {
-        flex:2,
-        overflow:'hidden',
+
+    middelContainer:{
+        flex:1
     },
 
-    foodContainer:{
-        display:'flex',
-        flexDirection:'row',
-        width:'90%', 
+    orderContainer:{
+        width:'95%',
         alignSelf:'center',
-        borderBottomWidth:0.2,
-        marginTop:8
+        borderRadius:10,
+        borderWidth:0.8,
+        borderColor:'#C0C0C0'
     },
-
-    imageContainer:{
-        flex:1,
-        justifyContent:'center',
+    
+    checkoutButton:{
+        width:'90%', 
+        backgroundColor:'#008080', 
+        height:50, 
+        alignSelf:'center', 
+        position:'absolute', 
+        bottom:20, 
+        borderRadius:5, 
+        justifyContent:'center', 
         alignItems:'center',
-        paddingBottom:8
-    },
-
-    foodInfoContainer:{
-        flex:3
-    },
-
-    foodQuantityContainer:{
-        flex:1,
-        display:'flex',
-        flexDirection:'row',
-    },
-    ////////////////////////////
-    bottomContainer: {
-        flex:1,
-        display:'flex',
-        flexDirection:'row',
-        justifyContent:'space-between',
-        alignItems:'center'
-    },
-
-    price_Container:{
-        flex:1,
-        marginLeft:15
-    },
-
-    orderButton:{
-        flex:1.5,
-        backgroundColor:'#008080',
-        height:55,
-        borderRadius:15,
-        marginRight:15,
-        justifyContent:'center',
-        alignItems:'center'
-    },
-
-    disableButton:{
-        flex:1.5,
-        backgroundColor:'grey',
-        height:55,
-        borderRadius:15,
-        marginRight:15,
-        justifyContent:'center',
-        alignItems:'center', 
-        opacity:0.7
+        shadowColor: '#000000', 
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3, 
+        shadowRadius: 10, 
+        elevation: 10
     }
-
 })

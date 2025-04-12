@@ -1,10 +1,12 @@
 import "react-native-gesture-handler";
 import { StatusBar } from 'expo-status-bar';
+import { useContext } from "react";
 import { StyleSheet, Text, View , Platform, SafeAreaView, TouchableOpacity} from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { StoreProvider } from './contextApi/store_context';
+import { UserContext } from "./contextApi/user_context";
 import { UserProvider } from './contextApi/user_context';
 import Home from './screens/home/home';
 import Store_Detail from "./screens/storeDetail/store_detail";
@@ -16,10 +18,13 @@ import PendingOrders from "./screens/home/pendingOrders/pendingOrder";
 import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
+import { StripeProvider } from "@stripe/stripe-react-native";
+
 
 
 export default function App() {
 
+  const {publishableKey, setPublishableKey} = useContext(UserContext)
 
   const StackNav=()=>{
     const Stack = createNativeStackNavigator();
@@ -124,17 +129,20 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}> 
-      <SocketioProvider>
-        <UserProvider>
-          <StoreProvider>
+      {/*<NotificatonAlert top={50}/>*/}
+      <StripeProvider publishableKey={publishableKey}>
+        <SocketioProvider>
+          <UserProvider>
+            <StoreProvider>
 
-            <NavigationContainer>
-              <StackNav/>
-            </NavigationContainer>
+              <NavigationContainer>
+                <StackNav/>
+              </NavigationContainer>
 
-          </StoreProvider>
-        </UserProvider>
-      </SocketioProvider>  
+            </StoreProvider>
+          </UserProvider>
+        </SocketioProvider>  
+      </StripeProvider>
     </SafeAreaView>
   );
 }

@@ -2,8 +2,9 @@ import { StyleSheet, Text, TouchableOpacity, View, Modal, Image } from "react-na
 import { useState, useEffect } from "react";
 
 const checkedIcon = require('../assets/icons/checkedIcon.png')
+const discountIcon = require('../assets/icons/discount.png')
 
-export default function PopUpMessage ({displayPopUpMessage, title, message, onclose}){
+export default function PopUpMessage ({displayPopUpMessage, title, message, onclose, type}){
 
     return(
         <Modal
@@ -15,7 +16,7 @@ export default function PopUpMessage ({displayPopUpMessage, title, message, oncl
             <View style={styles.Container}>
                 <View style={styles.messageContainer}>
                     <View style={styles.iconContainer}>
-                        <Image resizeMode="cover" style={{width:70, height:70}} source={checkedIcon}/>
+                        <Image resizeMode="cover" style={{width:70, height:70}} source={type == "discount" ? discountIcon : checkedIcon}/>
                     </View>
                     <View style={styles.textConatiner}>
                         <Text style={{fontSize:30, fontWeight:'bold', textAlign:'center'}}>{title}</Text>
@@ -37,13 +38,13 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent:'center',
         alignItems:'center',
-        backgroundColor:'transparent',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
     },
 
     messageContainer:{
         width:'80%',
         height:320,
-        backgroundColor:'#fff',
+        backgroundColor:'#f8f8f8',
         display:'flex',
         flexDirection:'column',
         justifyContent:'space-between',

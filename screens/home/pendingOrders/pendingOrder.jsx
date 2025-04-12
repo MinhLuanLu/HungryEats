@@ -3,7 +3,7 @@ import LottieView from "lottie-react-native";
 import { useEffect , useState, useContext} from "react";
 import axios from "axios";
 import log  from "minhluanlu-color-log";
-import { config } from "../../../config";
+import { config, orderStatusConfig } from "../../../config";
 import {SERVER_IP} from'@env';
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../../contextApi/user_context";
@@ -84,13 +84,13 @@ export default function PendingOrders() {
                     ))*/}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status: 
-                      {/*item.Order_status === "Accept"
+                      {item.Order_status === orderStatusConfig.procesing
                         ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
                         :<Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
-                      */}
+                      }
                     </Text>
                     <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
-                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>
+                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time ? item.Pickup_time : "none"}</Text>
                     </Text>
 
                     <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {item.Total_price}Kr</Text>

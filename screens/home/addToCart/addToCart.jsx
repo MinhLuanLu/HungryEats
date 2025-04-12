@@ -4,7 +4,7 @@ import {SERVER_IP} from '@env'
 import { useEffect, useState, useContext } from "react";
 import Drink from "../../../conponents/drinks";
 import { UserContext } from "../../../contextApi/user_context";
-
+import {FONT} from '../../../fontConfig'
 
 const left_arrow = require('../../../assets/icons/left_arrow.png')
 
@@ -16,7 +16,7 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
     const [foodPrice, setFoodPrice] = useState(item.Price);
 
     const {publicUser, setPublicUser} = useContext(UserContext);
-    const {publicCart, setPublicCart} = useContext(UserContext)
+    const {publicCart, setPublicCart} = useContext(UserContext);
 
     useEffect(()=>{
         settotalPrice(foodPrice) // listen to foodPrice  and update to total process
@@ -171,7 +171,7 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
                 <View style={styles.middleContainer}>
                     <View style={{flex:1, display:'flex', flexDirection:'row'}}>
                         <View style={{flex:1.5}}>
-                            <Text style={{padding:10, fontSize:18, fontWeight:500}}>{item.Food_name}</Text>
+                            <Text style={{padding:10, fontSize:20, fontFamily: FONT.SoraSemiBold}}>{item.Food_name}</Text>
                         </View>
 
                         <View style={{flex:1, justifyContent:'center'}}>
@@ -190,7 +190,7 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
                     </View>
 
                     <View style={{flex:1}}>
-                        <Text style={{padding:10, color:'grey'}}>{item.Food_description}</Text>
+                        <Text style={{padding:10, color:'grey', fontFamily:FONT.SoraLight, fontSize:13}}>{item.Food_description}</Text>
                     </View>
                     
                 </View>
@@ -202,14 +202,14 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
                 <View style={styles.bottomContainer}>
                     <View style={{flex:1, position: 'relative'}}>
                         <View style={{position:'absolute', bottom:30, left:20}}>
-                            <Text style={{fontSize:15, color:'grey'}}>Total amount</Text>
-                            <Text style={{fontSize:25, fontWeight:'500'}}>{totalPrice} Kr</Text>
+                            <Text style={{fontSize:15, color:'grey', fontFamily:FONT.Sora}}>Total amount</Text>
+                            <Text style={{fontSize:25, fontWeight:'500', fontFamily:FONT.SoraMedium}}>{totalPrice} Kr</Text>
                         </View>
                     </View>
 
                     <View style={{flex:1.5, position: 'relative'}}>
                         <TouchableOpacity onPress={()=> addToCartHandler()} style={{width:'95%', height:50, position:'absolute', bottom:30, borderRadius:25, justifyContent:'center', alignItems:'center', backgroundColor:'#008080'}}>
-                            <Text style={{color:'#ffffff', fontSize:18}}>Add to cart</Text>
+                            <Text style={{color:'#ffffff', fontSize:16, fontFamily:FONT.SoraMedium}}>Add to cart</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

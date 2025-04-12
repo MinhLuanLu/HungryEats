@@ -1,6 +1,7 @@
 import { StyleSheet,Text,View, TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import Food_List from "./food_list";
+import { FONT } from "../fontConfig";
 
 export default function Menu({item, socketIO, display_payment, store}){
 
@@ -37,13 +38,13 @@ const styles = StyleSheet.create({
         },
 
     menu_Name:{
-        fontSize:13,
+        fontSize:11,
         fontWeight:'medium',
         color:'#FFFFFF',
-        fontWeight:'semibold',
         textAlign:'center',
         paddingLeft:5,
-        paddingRight:5
+        paddingRight:5,
+        fontFamily:FONT.SoraRegular
     },
 
     Menu_description:{

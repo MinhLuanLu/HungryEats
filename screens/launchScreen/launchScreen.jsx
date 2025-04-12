@@ -5,7 +5,9 @@ import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Login from "../login/login";
-import Loading from "../../conponents/loading";
+import { FONT } from "../../fontConfig";
+import { listFonts } from "../../fontConfig";
+import { useFonts } from "expo-font";
 import Animated,{
     Easing,
     FadeInDown,
@@ -28,7 +30,9 @@ export default function Launch_Screen(){
 
     const imageSize = useSharedValue('75%');
     const opacity = useSharedValue(1)
-    const scrollDown = useSharedValue(0)
+    const scrollDown = useSharedValue(0);
+
+    const [loadFonts] = useFonts(listFonts)
 
     useFocusEffect(
         useCallback(() => {
@@ -65,8 +69,6 @@ export default function Launch_Screen(){
     })
 
 
-    //if(!displayLogin) return <Loading/>
-
     return(
         <>
             <View style={styles.Container}>
@@ -77,8 +79,8 @@ export default function Launch_Screen(){
                 </View>
                 <Animated.View style={[styles.bottom_Layer, AnimateScroll]}>
                     <View style={{flex:1}}>
-                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(1500)} style={{fontWeight:'bold', fontSize:38, textAlign:'center', paddingTop:10}}>Fast & easy food {'\n'} for you</Animated.Text>
-                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000).delay(200)} style={{fontSize:16, textAlign:'center', paddingTop:5}}>Our food is ready for you. {'\n'} You will get what you want in no time.</Animated.Text>
+                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(1500)} style={{fontSize:38, textAlign:'center', paddingTop:10, fontFamily: FONT.SoraSemiBold}}>Fast & easy food {'\n'} for you</Animated.Text>
+                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000).delay(200)} style={{fontSize:16, textAlign:'center', paddingTop:5, fontFamily: FONT.SoraRegular}}>Our food is ready for you. {'\n'} You will get what you want in no time.</Animated.Text>
                         <LottieView
                             autoPlay
                             source={require('../../assets/lottie/food.json')}
@@ -88,7 +90,7 @@ export default function Launch_Screen(){
 
                     <Animated.View  entering={FadeInDown.duration(500).delay(200)} style={styles.button_Container}>
                         <TouchableOpacity style={styles.start_Button} onPress={()=> setDisplayLogin(true)}>
-                            <Text style={{fontSize:20, fontWeight:'300', color:'#FFFFFF', textAlign:'center'}}>Get started</Text>
+                            <Text style={{fontSize:20, color:'#FFFFFF', textAlign:'center', fontFamily: FONT.SoraLight}}>Get started</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>

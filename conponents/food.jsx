@@ -6,14 +6,13 @@ import { UserContext } from "../contextApi/user_context";
 import { StoreContext } from "../contextApi/store_context";
 import {SERVER_IP} from '@env';
 import log  from "minhluanlu-color-log";
+import {FONT} from '../fontConfig'
 
 export default function Food({item, store}){
     const navigate = useNavigation();
     const {publicCart, setPublicCart} = useContext(UserContext);
     const {publicStore, setPublicStore} = useContext(StoreContext)
-
-
-    const [display_addToCart, setDisplay_AddToCart] = useState(false)
+    const [display_addToCart, setDisplay_AddToCart] = useState(false);
 
     function selectFoodHandler(){
        
@@ -38,16 +37,16 @@ export default function Food({item, store}){
                         </View>
                         
                         <View style={{flex:1.3, paddingLeft:5}}>
-                            <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
+                            <Text style={{fontSize:17, fontFamily:FONT.SoraMedium}}>{item.Food_name}</Text>
                             <View style={{height:20, overflow:'hidden'}}>
-                                <Text style={{fontSize:14}}>{item.Food_description}</Text>
+                                <Text style={{fontSize:13, fontFamily:FONT.SoraRegular}}>{item.Food_description}</Text>
                             </View>
-                            <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
+                            <Text style={{fontSize:12, fontFamily: FONT.SoraSemiBold, textDecorationLine:'underline'}}>See more</Text>
                             <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
                                 <View style={{flex:1, marginLeft:5}}>
-                                    <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                                    <Text style={{fontSize:17, fontFamily:FONT.SoraSemiBold}}>{item.Price}Kr</Text>
                                 </View>
-                                <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                                <Text style={{paddingRight:10, fontSize:14, fontFamily:FONT.SoraSemiBold}}>({item.Quantity}x)</Text>
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -60,16 +59,16 @@ export default function Food({item, store}){
                             <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                         </View>
                         <View style={{flex:1.3, paddingLeft:5}}>
-                            <Text style={{fontSize:18, fontWeight:'semibold'}}>{item.Food_name}</Text>
+                            <Text style={{fontSize:17, fontFamily:FONT.SoraMedium}}>{item.Food_name}</Text>
                             <View style={{height:20, overflow:'hidden'}}>
-                                <Text style={{fontSize:14}}>{item.Food_description}</Text>
+                                <Text style={{fontSize:14, fontFamily:FONT.SoraRegular}}>{item.Food_description}</Text>
                             </View>
-                            <Text style={{fontSize:13, fontWeight:500, textDecorationLine:'underline'}}>See more</Text>
+                            <Text style={{fontSize:12, fontFamily: FONT.SoraSemiBold, textDecorationLine:'underline'}}>See more</Text>
                             <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginTop:5}}>
                                 <View style={{flex:1, marginLeft:5}}>
-                                    <Text style={{fontSize:18, fontWeight:'500'}}>{item.Price}Kr</Text>
+                                    <Text style={{fontSize:17, fontFamily:FONT.SoraSemiBold}}>{item.Price}Kr</Text>
                                 </View>
-                                <Text style={{paddingRight:10, fontSize:16, fontWeight:500}}>({item.Quantity}x)</Text>
+                                <Text style={{paddingRight:10, fontSize:14, fontFamily:FONT.SoraSemiBold}}>({item.Quantity}x)</Text>
                             </View>
                         </View>
                     </TouchableOpacity>

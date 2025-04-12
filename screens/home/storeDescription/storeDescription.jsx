@@ -4,9 +4,10 @@ import {SERVER_IP} from '@env';
 import { useContext, useState, useRef, useEffect } from "react";
 import { StoreContext } from "../../../contextApi/store_context";
 import { UserContext } from "../../../contextApi/user_context";
-import PopUpMessage from "../../../conponents/popUpMessage";
+import PopUpMessage from '../../../conponents/popUpMessage'
 import log from "minhluanlu-color-log";
 import { useNavigation } from "@react-navigation/native";
+import { FONT } from "../../../fontConfig";
 import Animated, {
     FadeInUp, 
     withTiming, 
@@ -25,33 +26,29 @@ export default function Store_Description({store}){
     const [discount_value, setDiscountValue] = useState()
     const [discount_code, setDiscount_Code] = useState()
 
-    async function HandleClickButton(){
-        //display_store_detail();
-        navigate.navigate('StoreDetail', {store: store})
+    useEffect(()=>{
         Check_Purchase_Log()
+    },[store])
+
+    async function HandleClickButton(){
+        navigate.navigate('StoreDetail', {store: store})
     }
 
     async function Check_Purchase_Log() {
-        const checkDiscount = await axios.post(`${SERVER_IP}/purchaseLog/api`,{
-            Email: publicUser.Email,
-            Store_id: store.Store_id
+        const checkDiscount = await axios.post(`${SERVER_IP}/checkDiscount/api`,{
+            User: publicUser,
+            Store: store
         })
         if(checkDiscount?.data?.success){
             log.info(checkDiscount?.data?.message)
-            setDisplayPopUpMessage(true)
-            setDiscount_Code(checkDiscount.data.data.Discount_code)
-            setDiscountValue(checkDiscount.data.data.Discount_value)              
+            console.log(checkDiscount.data.data)  
+            setDisplayPopUpMessage(true)        
+        }else{
+            log.info(checkDiscount?.data?.message)
         }
     }
 
-    if(displayPopUpMessage) {
-        return <PopUpMessage 
-            displayPopUpMessage={displayPopUpMessage} 
-            title={`Discount ${discount_value}%`} 
-            message={`Code: ${discount_code}`} 
-            onclose={()=> setDisplayPopUpMessage(false)}
-        />
-    }
+    if(displayPopUpMessage) return <PopUpMessage onclose={()=> setDisplayPopUpMessage(false)} title="Discounts" message="Discount code was found. Order now" type="discount"/>
  
     return(
         <Animated.View entering={FadeInUp.duration(500)} style={{ flexGrow: 1, backgroundColor:'transparent'}}>
@@ -63,14 +60,14 @@ export default function Store_Description({store}){
                                 <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
                                     <View style={{flex:0.5, marginLeft:8}}>
                                         <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
-                                                <Text style={{textAlign:'center', fontSize:14, fontWeight:500, color:'#FFFFFF'}}>Click to Order</Text>
+                                                <Text style={{textAlign:'center', fontSize:14, fontFamily: FONT.SoraMedium, color:'#FFFFFF'}}>Go to Store</Text>
                                         </TouchableOpacity>
                                     </View>
 
                                     <View style={{flex:2, height:'100%', justifyContent:'center'}}>
-                                        <Text style={{fontSize:18, fontWeight:'600', textAlign:'center', color:'#FFFFFF'}} >{store.Store_name} - <Text  style={{fontSize:15, color:'#FF9F0D'}}>Open</Text></Text> 
+                                        <Text style={{fontSize:18, fontWeight:'600', textAlign:'center', color:'#FFFFFF', fontFamily: FONT.SoraBold}} >{store.Store_name} - <Text  style={{fontSize:15, color:'#FF9F0D', fontFamily: FONT.SoraBold}}>Open</Text></Text> 
                                         <View style={{width:'100%', height:20, alignSelf:'center'}}>
-                                            <Text style={{color:'#D7D7D7', textAlign:'center', overflow:'hidden'}}>{store.Store_description}</Text>
+                                            <Text style={{color:'#D7D7D7', textAlign:'center', overflow:'hidden', fontFamily: FONT.Sora}}>{store.Store_description}</Text>
                                         </View>
                                     </View>
                                 </View>

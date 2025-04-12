@@ -13,6 +13,7 @@ import Animated,{
     useAnimatedStyle,
     FadeInUp
 } from "react-native-reanimated";
+import { FONT } from "../../fontConfig";
 
 const google    = require('../../assets/icons/google.png')
 const meta      = require('../../assets/icons/facebook.png')
@@ -29,7 +30,9 @@ export default function Login({displayLogin}){
     const opacity = useSharedValue(0.5)
     const height = useSharedValue('50%');
     const marginTop = useSharedValue('0%')
-    const tranlateY = useSharedValue(0)
+    const tranlateY = useSharedValue(0);
+
+
 
     const [focus, setFocus] = useState(false)
     useFocusEffect(
@@ -133,14 +136,14 @@ export default function Login({displayLogin}){
                         onChangeText={text => {setPasword(text)}}
                     />
                     <TouchableOpacity style={styles.loginButton} onPress={()=> SignInHandler()}>
-                        <Text style={{fontSize:16, color:'white', fontWeight:500}}>Sign In</Text>
+                        <Text style={{fontSize:16, color:'white', fontFamily: FONT.SoraMedium}}>Sign In</Text>
                     </TouchableOpacity>
-                    <Text style={{paddingTop:15}}>Don't have an account? Sign Up</Text>
+                    <Text style={{paddingTop:15, fontFamily: FONT.SoraLight}}>Don't have an account? Sign Up</Text>
                 </Animated.View>
 
                 <Animated.View style={[{display:'flex', flexDirection:'row', alignSelf:'center', width:'80%', flex:0.3}, AnimateTranslate]}>
                         <View style={{flex:1, height:10, borderBottomWidth:1}}></View>
-                        <Text style={{paddingLeft:10, paddingRight:10}}>Or continue with</Text>
+                        <Text style={{paddingLeft:10, paddingRight:10, fontFamily: FONT.SoraSemiBold}}>Or continue with</Text>
                         <View style={{flex:1, height:10, borderBottomWidth:1}}></View>
                 </Animated.View>
 
