@@ -5,17 +5,20 @@ import {SERVER_IP} from "@env"
 import { FONT } from "../../fontConfig";
 import { UserContext } from "../../contextApi/user_context";
 import DiscountBottomSheet from "../../conponents/DiscountBottomSheet";
+import { useNavigation } from "@react-navigation/native";
 import { discountType } from "../../config";
+import log from "minhluanlu-color-log";
 
 const downArrow = require('../../assets/icons/down_arrow.png')
 const rightArrow = require('../../assets/icons/right_arrow.png')
 
 
 export default function Cart(){
-    
+    const navigate = useNavigation()
     const {publicCart, setPublicCart} = useContext(UserContext)
     const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
+    const [momPrice, setMomPrice] = useState()
     const [displayDiscount, setDisplayDiscount] =  useState(false);
     const [discountInfo, setDiscountInfo] = useState({});
     const [subTotal, setSubtotal] = useState()
@@ -37,18 +40,20 @@ export default function Cart(){
                 listPrice.push(price * quantity)
             }
             const total = listPrice.reduce((acc, curr) => acc + curr, 0);
-            publicCart.Total_price = total;
-            setTotalPrice(publicCart.Total_price)
             setSubtotal(total)
 
             setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
+            setMomPrice(publicCart.Total_price * 0.25); // calculate mom value as 25% af total price
+
+            publicCart.Total_price = total; // it is total price of order without mom as 25%
+            setTotalPrice(publicCart.Total_price)
         }
+
+        setDisplayDiscount(false);
+        setApplyDiscount(false)
+        
     },[])
 
-    useEffect(()=>{
-        setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
-        setTotalPrice(publicCart.Total_price + publicCart.Total_price * 0.25)
-    },[publicCart, totalPrice]);
 
     function calculateDiscount(discountData){
         let discountValue = discountData.Discount_value;
@@ -56,16 +61,31 @@ export default function Cart(){
             discountValue = Number(discountData.Discount_value);
         }
 
+        console.log(`Discount Value: ${discountValue}%`)
         const discountPrice = publicCart.Total_price * (discountValue / 100);
+        
+        log.debug(`Discount price: TotalPrice of Order (${publicCart.Total_price}) * discount% (${discountValue / 100}) = ${discountPrice}`);
         publicCart.Total_price = publicCart.Total_price - discountPrice;
-        publicCart.Discount = discountData
-        setTotalPrice(publicCart.Total_price)
+        publicCart.Discount = discountData;
+
+        setMomPrice(publicCart.Total_price * 0.25); // calculate mom value as 25% af total price
+        setTotalPrice(publicCart.Total_price);
+
         setDiscountInfo(discountData)
         setApplyDiscount(true)
+        
     }
 
     async function CheckoutHandler() {
-        //publicCart.Total_price = 0
+        // set moms to order //
+        publicCart.Moms = {
+            Moms_price: publicCart.Total_price * 0.25,
+            Moms_value: '25%'
+        }
+        log.debug({
+            message: 'set moms info to Order.',
+            momInfo: publicCart.Moms
+        })
     }
     
 
@@ -78,9 +98,9 @@ export default function Cart(){
             <View style={styles.Container}>
                 <View style={styles.header}>
                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:1, alignItems:'center'}}>
-                        <View style={styles.iconContainer}>
+                        <TouchableOpacity style={styles.iconContainer} onPress={()=> navigate.navigate('Home')}>
                             <Image resizeMode="cover" source={downArrow} style={{width:30, height:30}}/>
-                        </View>
+                        </TouchableOpacity>
                         <View style={styles.headerText}>
                             <Text style={{fontFamily:FONT.SoraSemiBold, fontSize:17}}>Your orders</Text>
                         </View>
@@ -134,8 +154,8 @@ export default function Cart(){
                                 </View>
                                 <View style={{paddingRight:10}}>
                                     <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{subTotal}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(publicCart.Total_price * 0.25) : 0}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(totalPrice) : 0}Kr</Text>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(momPrice) : 0}Kr</Text>
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(publicCart.Total_price + momPrice) : 0}Kr</Text>
                                     {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(publicCart.Total_price * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
                                 </View>
                             </View>
@@ -149,7 +169,7 @@ export default function Cart(){
                 </ScrollView>
 
                 <View style={{flex:0.4}}>
-                    <TouchableOpacity style={{display:'flex', flexDirection:'row',alignItems:'center', width:'90%', height:50,alignSelf:'centers', alignSelf:'center', justifyContent:'space-between'}} onPress={()=> setDisplayDiscount(true)}>
+                    <TouchableOpacity style={{display:'flex', flexDirection:'row',alignItems:'center', width:'90%', height:50,alignSelf:'centers', alignSelf:'center', justifyContent:'space-between'}} onPress={()=> {setDisplayDiscount(true)}}>
                         <View style={{width:50, justifyContent:'center', alignItems:'center'}}>
                             <Text style={{width:25, height:20, backgroundColor:'#008080', borderRadius:5, textAlign:'center', color:'#ffffff', fontWeight:500}}>%</Text>
                         </View>
@@ -168,7 +188,9 @@ export default function Cart(){
                 </TouchableOpacity>
             </View>
             
-            <DiscountBottomSheet display={displayDiscount} onclose={()=> setDisplayDiscount(false)} publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)}/>
+            
+            <DiscountBottomSheet publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)} display={displayDiscount} onclose={()=> setDisplayDiscount(false)}/>
+                
         </Modal>
     )
 }

@@ -9,17 +9,23 @@ import { FONT } from "../fontConfig";
 
 const discountIcon = require('../assets/icons/discount.png')
 
-export default function DiscountBottomSheet({publicCart, display, onclose, submitCode}){
+export default function DiscountBottomSheet({publicCart, submitCode, onclose, display}){
 
     const [discountCode, setDiscountCode] = useState([]);
     const [activeInput, setActiveInput] = useState(null)
     const [discountCodeList, setDiscountCodeList] = useState(false);
     const [applyCode, setApplyCode] = useState(false)
     const [submit, setSubmit] = useState(false)
-    const [codeData, setCodeData] = useState()
+    const [codeData, setCodeData] = useState({})
 
-    const height = useSharedValue(0);
-    const headerHeight = useSharedValue(23)
+    const height = useSharedValue(35);
+    const headerHeight = useSharedValue(23);
+
+    useEffect(()=>{
+        if(display === true){
+            height.value = withTiming(35, {duration:800});
+        }
+    },[display])
 
     const bottomSheetAnimation = useAnimatedStyle(()=>{
         return{
@@ -44,16 +50,12 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
         }
     }
 
+    const close = () =>{
+        height.value = withTiming(0, {duration:800});
+        onclose()
+    }
 
-    useEffect(()=>{
-        height.value = withTiming(0)
-        setSubmit(false)
-        setApplyCode(false)
-    },[])
-
-    useEffect(()=>{
-        display  ? height.value = withTiming(35, {duration:800}) : height.value = withTiming(0, {duration:800})
-    },[display])
+    
 
     
     useEffect(()=>{
@@ -93,7 +95,7 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
                 console.log(applyCode.data.message)
                 setApplyCode(true)
                 setCodeData(applyCode.data.data)
-                return
+                return true
             }
 
             setApplyCode(undefined)
@@ -104,25 +106,32 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
     }
 
     async function submitCodeHandler() {
-        setSubmit(true)
-        setTimeout(() => {
-            submitCode(codeData)
-            onclose()
-            setSubmit(false)
-        }, 2000);
+        if(discountCode === ""){
+            setApplyCode(undefined)
+        }
+        else{
+            setSubmit(true);
+            
+            setTimeout(() => {
+                submitCode(codeData)
+                setDiscountCode("")
+                close()
+                setSubmit(false)
+            }, 2000);
+        }
     }
    
 
     return (
        <Animated.View style={[styles.Container,bottomSheetAnimation ]}>
-            <Animated.View style={[styles.header, headerAnimation]} onPress={()=> onclose()}>
+            <Animated.View style={[styles.header, headerAnimation]}>
                 <View style={{width:'90%',display:'flex',
                             flexDirection:'row',
                             justifyContent:'space-between',
                             alignItems:'center',
                             alignSelf:'center'
                         }}>
-                    <TouchableOpacity style={{flex:1}} onPress={()=> onclose()}>
+                    <TouchableOpacity style={{flex:1}} onPress={()=> close()}>
                         <Text style={{fontFamily:FONT.SoraSemiBold, fontSize:13, color:'#008080'}}>Cancel</Text>
                     </TouchableOpacity>
                     
@@ -174,6 +183,11 @@ export default function DiscountBottomSheet({publicCart, display, onclose, submi
                     </View>
                     {applyCode === undefined ?
                         <Text style={{color:'red',padding:5, fontFamily:FONT.SoraRegular, fontSize:13}}>Your code is invalid. Please try another code.</Text>
+                        :
+                        null
+                    }
+                    {applyCode ?
+                        <Text style={{color:'#008080',padding:5, fontFamily:FONT.SoraRegular, fontSize:13}}>Discount code {codeData.Discount_value}%</Text>
                         :
                         null
                     }
