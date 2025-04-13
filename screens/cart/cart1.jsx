@@ -240,8 +240,11 @@ export default function Cart1(){
           alert(`Cancel Payment: ${error.code}`, error.message);
         } 
         else{
+            /*
             publicSocketio.current.emit("user.newOrderHandler.1", publicCart); // send order
             setSendOrderLoading(true) // set display to the payment preccess
+            */
+           alert('Paymeny successfully')
         }
     
       };

@@ -2,11 +2,12 @@ import { useEffect, useState, useContext } from "react";
 import { StyleSheet,Text, View, Image, TouchableOpacity, TextInput, FlatList,TouchableWithoutFeedback} from "react-native";
 import { UserContext } from "../contextApi/user_context";
 import { useNavigation } from "@react-navigation/native";
+import {responsiveSize} from '../utils/responsive'
+import {SERVER_IP} from '@env'
 
 const marker_Icon = require('../assets/icons/tabbar_icon.png')
 const cart = require('../assets/icons/cart.png')
- 
-import {SERVER_IP} from '@env'
+
 
 export default function Search({display_Payment, display_sideBar}){
     const navigate = useNavigation()
@@ -91,7 +92,12 @@ export default function Search({display_Payment, display_sideBar}){
                     <Image style={styles.tabbarIcon} source={marker_Icon}/>
                 </TouchableWithoutFeedback>
 
-                <TextInput style={styles.search_input} placeholder="Search, name, postcode" value={search_value} onChangeText={text => setSearch_value(text)}/>
+                <TextInput 
+                    style={styles.search_input} 
+                    placeholder="Search, name, postcode" 
+                    value={search_value} 
+                    onChangeText={text => setSearch_value(text)}
+                />
                 <View style={styles.search_container}>
                     {search_value != '' && search_Result.length === 0 && <Text style={{fontWeight:'500', paddingLeft:10}}>No result</Text>}
                     <View>
@@ -126,7 +132,7 @@ const styles = StyleSheet.create({
         display:'flex',
         flexDirection:'row',
         justifyContent:'space-between',
-        height:45,
+        height: responsiveSize(40),
         width:'90%',
         alignSelf:'center',
         marginBottom:30,
@@ -143,8 +149,8 @@ const styles = StyleSheet.create({
 
 
     tabbarIcon:{
-        width:20,
-        height:24,
+        width: responsiveSize(20),
+        height: responsiveSize(20),
         marginLeft:15
     },
 
@@ -152,7 +158,8 @@ const styles = StyleSheet.create({
         height:'100%',
         width:'95%',
         borderRadius:24,
-        paddingLeft:15
+        paddingLeft:15,
+        fontSize: responsiveSize(13)
     },
     
 
@@ -165,16 +172,16 @@ const styles = StyleSheet.create({
     icon_Container:{
         backgroundColor:'#333333',
         borderWidth:0.2,
-        width:35,
-        height:35,
+        width: responsiveSize(30),
+        height:responsiveSize(30),
         alignSelf:'flex-end',
         justifyContent:'center',
         borderRadius:48,
     },
 
     cart_icon:{
-        width:20,
-        height:22,
+        width: responsiveSize(20),
+        height:responsiveSize(20),
         alignSelf:'center'
     },
 

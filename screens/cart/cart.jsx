@@ -1,21 +1,34 @@
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Modal} from "react-native";
+import { StyleSheet, SafeAreaView,View, Text, TouchableOpacity, Image, ScrollView, Modal} from "react-native";
 import Animated,{useSharedValue, useAnimatedStyle, withTiming, withSpring,FadeInDown} from "react-native-reanimated";
 import { useEffect, useState, useContext } from "react";
 import {SERVER_IP} from "@env"
 import { FONT } from "../../fontConfig";
 import { UserContext } from "../../contextApi/user_context";
+import { SocketioContext } from "../../contextApi/socketio_context";
 import DiscountBottomSheet from "../../conponents/DiscountBottomSheet";
 import { useNavigation } from "@react-navigation/native";
 import { discountType } from "../../config";
+import { useStripe } from "@stripe/stripe-react-native";
+import axios from "axios";
 import log from "minhluanlu-color-log";
+import { responsiveSize } from "../../utils/responsive";
+import OrderLoading from "../../conponents/OrderLoading";
 
 const downArrow = require('../../assets/icons/down_arrow.png')
 const rightArrow = require('../../assets/icons/right_arrow.png')
 
 
 export default function Cart(){
-    const navigate = useNavigation()
-    const {publicCart, setPublicCart} = useContext(UserContext)
+    const navigate = useNavigation();
+    const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+    const {publicCart, setPublicCart} = useContext(UserContext);
+    const {publicUser, setPublicUser} = useContext(UserContext);
+    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
+    const {publishableKey, setPublishableKey} = useContext(UserContext);
+
+    const [displayOrderLoading, setDisplayOrderLoading] =useState(false)
+    
     const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
     const [momPrice, setMomPrice] = useState()
@@ -76,6 +89,20 @@ export default function Cart(){
         
     }
 
+    async function createPaymentIntent() {
+        try{
+            const paymentIntent = await axios.post(`${SERVER_IP}/payment/api`,{
+                User: publicUser,
+                Order: publicCart
+            })
+            return paymentIntent.data
+        }catch(error){
+            console.log(error)
+        }
+    }
+
+    
+
     async function CheckoutHandler() {
         // set moms to order //
         publicCart.Moms = {
@@ -85,8 +112,52 @@ export default function Cart(){
         log.debug({
             message: 'set moms info to Order.',
             momInfo: publicCart.Moms
-        })
+        });
+
+        const createPayment = await createPaymentIntent()
+        const {customer, ephemeralKey, paymentIntent, publishableKey } = createPayment
+        setPublishableKey(publishableKey
+
+        )
+        const { error } = await initPaymentSheet({
+            merchantDisplayName: "Example, Inc.",
+            customerId: customer,
+            customerEphemeralKeySecret: ephemeralKey,
+            paymentIntentClientSecret: paymentIntent,
+            defaultBillingDetails: {
+                email: publicUser.Email,
+                name: publicUser.Username,
+            },
+
+            returnURL: "stripe-example://stripe-redirect",
+            applePay: {
+                merchantCountryCode: 'US'
+            }
+          });
+        if(error){
+            console.log(error)
+        }
+
+        openPaymentSheet()
     }
+
+    const openPaymentSheet = async () => {
+        const { error } = await presentPaymentSheet();
+    
+        if (error) {
+          alert(`Cancel Payment: ${error.code}`, error.message);
+        } 
+        else{
+            /*
+            publicSocketio.current.emit("user.newOrderHandler.1", publicCart); // send order
+            setSendOrderLoading(true) // set display to the payment preccess
+            */
+           alert('Paymeny successfully')
+           setDisplayOrderLoading(true)
+        }
+    
+      };
+
     
 
     if (Object.keys(publicCart).length === 0) return <DiscountBottomSheet display={displayDiscount}/>
@@ -95,7 +166,7 @@ export default function Cart(){
         <Modal
             animationType="slide"
         >
-            <View style={styles.Container}>
+            <SafeAreaView style={styles.Container}>
                 <View style={styles.header}>
                     <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'90%', alignSelf:'center', flex:1, alignItems:'center'}}>
                         <TouchableOpacity style={styles.iconContainer} onPress={()=> navigate.navigate('Home')}>
@@ -120,6 +191,10 @@ export default function Cart(){
 
                 <ScrollView style={styles.middelContainer}>
                     <View style={styles.orderContainer}>
+                        <TouchableOpacity style={styles.optionButton}>
+                            <TouchableOpacity style={styles.optionButton1}></TouchableOpacity>
+                        </TouchableOpacity>
+
                         <View style={{
                             display:'flex',
                             flexDirection:'row',
@@ -160,8 +235,8 @@ export default function Cart(){
                                 </View>
                             </View>
                         </View>
-                        <View style={{height:60, width:'90%', justifyContent:'center', alignSelf:'center'}}>
-                            <TouchableOpacity style={{width:'100%', height:40, backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                        <View style={{height:responsiveSize(60), width:'90%', justifyContent:'center', alignSelf:'center'}}>
+                            <TouchableOpacity style={{width:'100%', height: responsiveSize(40), backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
                                 <Text style={{color:'#008080', fontFamily: FONT.SoraMedium}}>View detail</Text>
                             </TouchableOpacity>
                         </View>
@@ -186,11 +261,11 @@ export default function Cart(){
                 <TouchableOpacity style={styles.checkoutButton} onPress={()=> CheckoutHandler()}>
                     <Text style={{color:'#ffffff', fontFamily:FONT.SoraMedium}}>Go to checkout</Text>
                 </TouchableOpacity>
-            </View>
+            </SafeAreaView>
             
             
             <DiscountBottomSheet publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)} display={displayDiscount} onclose={()=> setDisplayDiscount(false)}/>
-                
+           
         </Modal>
     )
 }
@@ -203,7 +278,7 @@ const styles = StyleSheet.create({
 
     header:{
         width:'100%',
-        height:110,
+        height:responsiveSize(100),
         marginBottom:10,
         backgroundColor:'#e0e0e0'
     },
@@ -233,10 +308,10 @@ const styles = StyleSheet.create({
     checkoutButton:{
         width:'90%', 
         backgroundColor:'#008080', 
-        height:50, 
+        height: responsiveSize(45), 
         alignSelf:'center', 
         position:'absolute', 
-        bottom:20, 
+        bottom: responsiveSize(30), 
         borderRadius:5, 
         justifyContent:'center', 
         alignItems:'center',
@@ -245,5 +320,31 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3, 
         shadowRadius: 10, 
         elevation: 10
+    },
+
+    optionButton:{
+        width:20,
+        height:20,
+        backgroundColor:'#e0e0e0',
+        borderRadius:20,
+        position:'absolute',
+        top:10,
+        right:10,
+        shadowColor: '#000000', 
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3, 
+        shadowRadius: 10, 
+        elevation: 10,
+        borderWidth:0.5,
+        justifyContent:'center',
+        alignItems:'center'
+    },
+
+    optionButton1:{
+        width:15,
+        height:15,
+        backgroundColor:'#008080',
+        borderRadius:25,
+        position:'absolute',
     }
 })

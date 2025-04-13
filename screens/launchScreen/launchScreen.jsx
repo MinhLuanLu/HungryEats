@@ -1,4 +1,4 @@
-import { StyleSheet,View,Text, TouchableOpacity, Image, Pressable, TouchableWithoutFeedback } from "react-native";
+import { StyleSheet,View,Text, TouchableOpacity, Image, Pressable, TouchableWithoutFeedback, Dimensions } from "react-native";
 import { useEffect, useState, useContext, useCallback } from "react";
 import { UserContext } from "../../contextApi/user_context";
 import { useNavigation } from "@react-navigation/native";
@@ -20,7 +20,8 @@ import Animated,{
     withDelay,
     withSpring
 } from "react-native-reanimated";
-const background = require('../../assets/images/launch_image_background.png')
+const background = require('../../assets/images/launch_image_background.png');
+import { responsiveSize } from "../../utils/responsive";
 
 
 export default function Launch_Screen(){
@@ -79,8 +80,8 @@ export default function Launch_Screen(){
                 </View>
                 <Animated.View style={[styles.bottom_Layer, AnimateScroll]}>
                     <View style={{flex:1}}>
-                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(1500)} style={{fontSize:38, textAlign:'center', paddingTop:10, fontFamily: FONT.SoraSemiBold}}>Fast & easy food {'\n'} for you</Animated.Text>
-                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000).delay(200)} style={{fontSize:16, textAlign:'center', paddingTop:5, fontFamily: FONT.SoraRegular}}>Our food is ready for you. {'\n'} You will get what you want in no time.</Animated.Text>
+                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(1500)} style={{fontSize: responsiveSize(32), textAlign:'center', paddingTop:10, fontFamily: FONT.SoraSemiBold}}>Fast & easy food {'\n'} for you</Animated.Text>
+                        <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000).delay(200)} style={{fontSize:responsiveSize(14), textAlign:'center', paddingTop:5, fontFamily: FONT.SoraRegular}}>Our food is ready for you. {'\n'} You will get what you want in no time.</Animated.Text>
                         <LottieView
                             autoPlay
                             source={require('../../assets/lottie/food.json')}
@@ -89,8 +90,8 @@ export default function Launch_Screen(){
                     </View>
 
                     <Animated.View  entering={FadeInDown.duration(500).delay(200)} style={styles.button_Container}>
-                        <TouchableOpacity style={styles.start_Button} onPress={()=> setDisplayLogin(true)}>
-                            <Text style={{fontSize:20, color:'#FFFFFF', textAlign:'center', fontFamily: FONT.SoraLight}}>Get started</Text>
+                        <TouchableOpacity style={[styles.start_Button, {height: responsiveSize(50)}]} onPress={()=> setDisplayLogin(true)}>
+                            <Text style={{fontSize: responsiveSize(17), color:'#FFFFFF', textAlign:'center', fontFamily: FONT.SoraLight}}>Get started</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>
@@ -146,7 +147,6 @@ const styles = StyleSheet.create({
 
     start_Button:{
         backgroundColor:'#008080',
-        height:60,
         justifyContent:'center',
         borderWidth:0,
         borderRadius:15,

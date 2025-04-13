@@ -14,6 +14,7 @@ import Animated,{
     FadeInUp
 } from "react-native-reanimated";
 import { FONT } from "../../fontConfig";
+import { responsiveSize } from "../../utils/responsive";
 
 const google    = require('../../assets/icons/google.png')
 const meta      = require('../../assets/icons/facebook.png')
@@ -120,7 +121,7 @@ export default function Login({displayLogin}){
             <Animated.View style={[styles.Container, AnimateLoginContainer]}>
                 <Animated.View style={[styles.textInputContainer, AnimateHeight]}>
                     <TextInput 
-                        style={styles.textInput} 
+                        style={[styles.textInput, {height: responsiveSize(45)}]} 
                         placeholder={publicUser.Email != undefined ? `${publicUser.Email}` : 'Email' } 
                         onFocus={()=> setFocus(true)} 
                         onBlur={()=>setFocus(false)}
@@ -128,22 +129,22 @@ export default function Login({displayLogin}){
                         onChangeText={text =>{setEmail(text)}}
                     />
                     <TextInput 
-                        style={styles.textInput} 
+                        style={[styles.textInput]} 
                         placeholder="Password" 
                         onFocus={()=> setFocus(true)}
                         onBlur={() => setFocus(false)}
                         value={password}
                         onChangeText={text => {setPasword(text)}}
                     />
-                    <TouchableOpacity style={styles.loginButton} onPress={()=> SignInHandler()}>
+                    <TouchableOpacity style={[styles.loginButton, {height: responsiveSize(43)}]} onPress={()=> SignInHandler()}>
                         <Text style={{fontSize:16, color:'white', fontFamily: FONT.SoraMedium}}>Sign In</Text>
                     </TouchableOpacity>
-                    <Text style={{paddingTop:15, fontFamily: FONT.SoraLight}}>Don't have an account? Sign Up</Text>
+                    <Text style={{paddingTop:15, fontSize:responsiveSize(12),fontFamily: FONT.SoraLight, width:'95%', textAlign:'center'}}>Don't have an account? Sign Up</Text>
                 </Animated.View>
 
                 <Animated.View style={[{display:'flex', flexDirection:'row', alignSelf:'center', width:'80%', flex:0.3}, AnimateTranslate]}>
                         <View style={{flex:1, height:10, borderBottomWidth:1}}></View>
-                        <Text style={{paddingLeft:10, paddingRight:10, fontFamily: FONT.SoraSemiBold}}>Or continue with</Text>
+                        <Text style={{paddingLeft:10, paddingRight:10, fontFamily: FONT.SoraSemiBold, fontSize: responsiveSize(12), textAlign:'center'}}>Or continue with</Text>
                         <View style={{flex:1, height:10, borderBottomWidth:1}}></View>
                 </Animated.View>
 
@@ -186,15 +187,14 @@ const styles = StyleSheet.create({
 
     textInput:{
         width:'100%',
-        height:45,
         backgroundColor:'#E0E0E0',
         marginBottom:10,
         borderRadius:8,
-        paddingLeft:10
+        paddingLeft:10,
+        height:responsiveSize(45)
     },
     loginButton:{
         width:'100%',
-        height:45,
         backgroundColor:'#008080',
         borderRadius:8,
         justifyContent:'center',
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
         alignSelf:'center',
     },
     otherSignin:{
-        height:40,
-        width:135,
+        height: responsiveSize(35),
+        width: responsiveSize(120),
         borderWidth:0.5,
         borderRadius:5,
         display:'flex',

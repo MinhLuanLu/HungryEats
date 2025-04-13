@@ -1,4 +1,4 @@
-import { StyleSheet, View, Modal, TouchableWithoutFeedback, ScrollView, TouchableOpacity , Text, Image} from "react-native";
+import { StyleSheet, View, Modal, SafeAreaView,TouchableWithoutFeedback, ScrollView, TouchableOpacity , Text, Image} from "react-native";
 import LottieView from "lottie-react-native";
 import { useEffect , useState, useContext} from "react";
 import axios from "axios";
@@ -38,7 +38,7 @@ export default function PendingOrders() {
       animationType="slide"
       hardwareAccelerated={true}
     >
-      <View style={styles.Container}>
+      <SafeAreaView style={styles.Container}>
 
         <TouchableWithoutFeedback>
           <View style={styles.top_Layer}>
@@ -136,7 +136,7 @@ export default function PendingOrders() {
             ))}
           </ScrollView>
         }
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }

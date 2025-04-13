@@ -22,6 +22,7 @@ import { StripeProvider } from "@stripe/stripe-react-native";
 
 
 
+
 export default function App() {
 
   const {publishableKey, setPublishableKey} = useContext(UserContext)
@@ -130,7 +131,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}> 
       {/*<NotificatonAlert top={50}/>*/}
-      <StripeProvider publishableKey={publishableKey}>
+      <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.com.example.placeholder">
         <SocketioProvider>
           <UserProvider>
             <StoreProvider>

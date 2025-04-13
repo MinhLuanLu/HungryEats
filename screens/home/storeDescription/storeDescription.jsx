@@ -15,6 +15,7 @@ import Animated, {
     useSharedValue,
     useAnimatedStyle 
 } from "react-native-reanimated";
+import { responsiveSize } from "../../../utils/responsive";
 
 
 
@@ -54,19 +55,19 @@ export default function Store_Description({store}){
         <Animated.View entering={FadeInUp.duration(500)} style={{ flexGrow: 1, backgroundColor:'transparent'}}>
             <TouchableWithoutFeedback onPress={()=> HandleClickButton()}>
                 <View style={styles.Container}>  
-                    <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom:2,borderRadius:3, justifyContent:'center'}}>
+                    <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom: responsiveSize(10),borderRadius:5, justifyContent:'center'}}>
                         { store.Status == 1
                             ? 
                                 <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
                                     <View style={{flex:0.5, marginLeft:8}}>
-                                        <TouchableOpacity style={{width:65, height:65, backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
-                                                <Text style={{textAlign:'center', fontSize:14, fontFamily: FONT.SoraMedium, color:'#FFFFFF'}}>Go to Store</Text>
+                                        <TouchableOpacity style={{width:responsiveSize(60), height:responsiveSize(60), backgroundColor:'#008080', justifyContent:'center', borderRadius:3}} onPress={()=> HandleClickButton() }>
+                                                <Text style={{textAlign:'center', fontSize: responsiveSize(13), fontFamily: FONT.SoraMedium, color:'#FFFFFF'}}>Go to Store</Text>
                                         </TouchableOpacity>
                                     </View>
 
-                                    <View style={{flex:2, height:'100%', justifyContent:'center'}}>
-                                        <Text style={{fontSize:18, fontWeight:'600', textAlign:'center', color:'#FFFFFF', fontFamily: FONT.SoraBold}} >{store.Store_name} - <Text  style={{fontSize:15, color:'#FF9F0D', fontFamily: FONT.SoraBold}}>Open</Text></Text> 
-                                        <View style={{width:'100%', height:20, alignSelf:'center'}}>
+                                    <View style={{flex:2, height:'95%', justifyContent:'center'}}>
+                                        <Text style={{fontSize: responsiveSize(17), fontWeight:'600', textAlign:'center', color:'#FFFFFF', fontFamily: FONT.SoraBold}} >{store.Store_name} - <Text  style={{fontSize:responsiveSize(13), color:'#FF9F0D', fontFamily: FONT.SoraBold}}>Open</Text></Text> 
+                                        <View style={{width:'98%', height:20, alignSelf:'center'}}>
                                             <Text style={{color:'#D7D7D7', textAlign:'center', overflow:'hidden', fontFamily: FONT.Sora}}>{store.Store_description}</Text>
                                         </View>
                                     </View>
@@ -84,7 +85,7 @@ export default function Store_Description({store}){
 
 const styles = StyleSheet.create({
     Container:{
-        height:80,
+        height: responsiveSize(70),
         backgroundColor:'transparent',
         width:'95%',
         alignSelf:'center',

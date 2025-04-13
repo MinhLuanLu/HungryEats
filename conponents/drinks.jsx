@@ -2,7 +2,9 @@ import { StyleSheet, View, TouchableOpacity, Text , Image, FlatList} from "react
 import { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../contextApi/store_context";
 import log from 'minhluanlu-color-log'
-import {SERVER_IP} from '@env'
+import {SERVER_IP} from '@env';
+import { responsiveSize } from "../utils/responsive";
+import { FONT } from "../fontConfig";
 
 
 export default function Drink({list, food, store}){
@@ -21,13 +23,13 @@ export default function Drink({list, food, store}){
                 </View>
 
                 <View style={styles.text_Container}>
-                    <Text style={{fontSize:13, fontWeight:'medium', marginLeft:5, color:'#FFFFFF'}}>{item.Drink_name}</Text>
+                    <Text style={{fontSize: responsiveSize(11), marginLeft:5, color:'#FFFFFF', fontFamily:FONT.SoraMedium}}>{item.Drink_name}</Text>
                     <TouchableOpacity style={{backgroundColor:'#FF9F0D', width:18, height:18, justifyContent:'center', borderRadius:18, marginRight:5}} onPress={()=> Handle_Add_Drink(item)}>
                         <Text style={{fontSize:14, textAlign:'center', fontWeight:'bold',color:'#FFFFFF'}}>+</Text>
                     </TouchableOpacity>
                 </View>
 
-                <Text style={{fontSize:12, fontWeight:'medium', marginLeft:5, color:'#FFFFFF', paddingBottom:10, flex:0.5}}>{item.Drink_price}Kr</Text>
+                <Text style={{fontSize:responsiveSize(10), fontFamily:FONT.SoraSemiBold,marginLeft:5, color:'#FFFFFF', paddingBottom:10, flex:0.5}}>{item.Drink_price}Kr</Text>
         </TouchableOpacity>
     )
 
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
     Container:{
         flex:1,
         backgroundColor:'#333333',
-        width:100, 
+        width:responsiveSize(100), 
         display:'flex',
         flexDirection:'column',
         justifyContent:'space-between',

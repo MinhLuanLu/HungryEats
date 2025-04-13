@@ -109,8 +109,8 @@ export default function Maps({socketIO, display_sideBar}){
           <MapView 
             ref={mapRef}
             style={styles.map}
-            showsUserLocation={true}
-            provider={PROVIDER_GOOGLE}
+            //showsUserLocation={true}
+            //provider={PROVIDER_GOOGLE}
             customMapStyle={Map_Style_Light}
             showsCompass={false}
             toolbarEnabled={false}
@@ -121,8 +121,8 @@ export default function Maps({socketIO, display_sideBar}){
             }}
             
             initialRegion={{
-                latitude: latitude,
-                longitude: longitude,
+                latitude: latitude || 56.157798767089844,
+                longitude: longitude || 10.201899528503418,
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005,
             }}

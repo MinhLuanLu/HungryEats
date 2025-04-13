@@ -1,4 +1,4 @@
-import { StyleSheet,View, Text, TouchableOpacity, Image } from "react-native";
+import { StyleSheet,View, Text, TouchableOpacity, Image, Dimensions } from "react-native";
 import { useState, useEffect, useContext } from "react";
 import AddToCart from "../screens/home/addToCart/addToCart";
 import { useNavigation } from "@react-navigation/native";
@@ -6,7 +6,10 @@ import { UserContext } from "../contextApi/user_context";
 import { StoreContext } from "../contextApi/store_context";
 import {SERVER_IP} from '@env';
 import log  from "minhluanlu-color-log";
-import {FONT} from '../fontConfig'
+import {FONT} from '../fontConfig';
+import { responsiveSize } from "../utils/responsive";
+
+const { width, height } = Dimensions.get('window');
 
 export default function Food({item, store}){
     const navigate = useNavigation();
@@ -18,8 +21,8 @@ export default function Food({item, store}){
        
         if(Object.keys(publicCart).length > 0){
             if(publicCart.Store.Store_id !== publicStore.Store_id){
-                alert('YOU MUST TO FINSHI ORDER THE THE STORE FIRST TO ORDER FOOD IN OTHER STORE.');
-                log.warn('YOU MUST TO FINSHI ORDER THE THE STORE FIRST TO ORDER FOOD IN OTHER STORE.')
+                alert('Please finish your order at this store before ordering from another one.');
+                log.warn('Please finish your order at this store before ordering from another one.')
                 return
             }
         }
@@ -30,7 +33,7 @@ export default function Food({item, store}){
     return(
         <>  
             {item.Quantity != 0 ?
-                <View>
+                <View style={styles.Container}>
                     <TouchableOpacity style={styles.food_box} onPress={()=> selectFoodHandler()}>
                         <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
                             <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
@@ -79,29 +82,33 @@ export default function Food({item, store}){
 }
 
 const styles = StyleSheet.create({
+
+    Container:{
+        marginTop:10
+    },
+
     food_box:{
         backgroundColor:'#D7D7D7',
-        height:220,
-        minWidth:150,
-        maxWidth:170,
-        width:130,
+        height:responsiveSize(210),
+        minWidth: width / 2.3,
+        maxWidth: width / 2.2,
         marginBottom:30,
         borderRadius:10,
         shadowColor: '#000000', 
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.3, 
         shadowRadius: 10, 
-        elevation: 10
+        elevation: 10,
+        
 
     },
 
     food_box_2:{
         backgroundColor:'#D7D7D7',
         opacity:0.5,
-        height:220,
-        minWidth:150,
-        maxWidth:170,
-        width:130,
+        height: responsiveSize(210),
+        minWidth: width / 2.3,
+        maxWidth: width / 2.2,
         marginBottom:30,
         borderRadius:10,
         shadowColor: '#000000', // Color of the shadow

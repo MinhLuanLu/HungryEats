@@ -1,10 +1,11 @@
-import { StyleSheet, View, Text, TouchableOpacity, Modal,Image } from "react-native";
+import { StyleSheet, Platform, StatusBar,SafeAreaView,View, Text, TouchableOpacity, Modal,Image } from "react-native";
 import log from 'minhluanlu-color-log';
 import {SERVER_IP} from '@env'
 import { useEffect, useState, useContext } from "react";
 import Drink from "../../../conponents/drinks";
 import { UserContext } from "../../../contextApi/user_context";
-import {FONT} from '../../../fontConfig'
+import {FONT} from '../../../fontConfig';
+import { responsiveSize } from "../../../utils/responsive";
 
 const left_arrow = require('../../../assets/icons/left_arrow.png')
 
@@ -162,8 +163,8 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
             animationType="slide"
         >
            
-            <View style={styles.Container}>
-                <TouchableOpacity onPress={()=> {onclose();}} style={{backgroundColor:'#F8F8F8', width:40, height:40, borderRadius:40, justifyContent:'center', position:'absolute', zIndex:1111, left:10, top:10}}>
+            <SafeAreaView style={styles.Container}>
+                <TouchableOpacity onPress={()=> {onclose();}} style={{backgroundColor:'#F8F8F8', width: responsiveSize(35), height: responsiveSize(35), borderRadius:40, justifyContent:'center', position:'absolute', zIndex:1111, left: responsiveSize(10), top: Platform.OS === 'ios' ? responsiveSize(45) : 10}}>
                     <Image style={{width:18, height:18, alignSelf:'center'}} resizeMode="cover" source={left_arrow}/>
                 </TouchableOpacity>
                 <Image resizeMode="cover" style={styles.storeImage} source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
@@ -213,7 +214,7 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
+            </SafeAreaView>
                 
           
             

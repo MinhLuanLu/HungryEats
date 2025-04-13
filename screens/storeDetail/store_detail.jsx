@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity, Modal, FlatList} from "react-native";
+import { StyleSheet, View, Text, ScrollView, SafeAreaView,Platform, StatusBar,Image, TouchableOpacity, Modal, FlatList} from "react-native";
 import { useContext, useEffect, useState, useRef } from "react";
 import { StoreContext } from "../../contextApi/store_context";
 import { UserContext } from "../../contextApi/user_context";
@@ -20,6 +20,7 @@ import Animated,{
     useAnimatedScrollHandler,
     interpolate
 } from "react-native-reanimated";
+import { responsiveSize } from "../../utils/responsive";
 
 
 const left_arrow = require('../../assets/icons/left_arrow.png')
@@ -185,11 +186,11 @@ if(publicSocketio.current){
                         <Image style={styles.cover_Image}  source={{uri: `${SERVER_IP}/${store.Store_image}`}} resizeMode="cover"/>
                     </View>
 
-                    <TouchableOpacity onPress={()=> navigate.navigate('Home')} style={{backgroundColor:'#F9F9F9', width:40, height:40, alignItems:'center', justifyContent:'center', position:'absolute', top:30, left:20, borderWidth:0.2, borderRadius:35}}>
+                    <TouchableOpacity onPress={()=> navigate.navigate('Home')} style={{backgroundColor:'#F9F9F9', width: responsiveSize(35), height:responsiveSize(35), alignItems:'center', justifyContent:'center', position:'absolute', top: responsiveSize(30), left:responsiveSize(20), borderWidth:0.2, borderRadius:35}}>
                         <Image style={styles.icon} source={left_arrow}/>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={()=> storeFavoriteHandler()} style={{backgroundColor:'#F9F9F9', width:40, height:40, alignItems:'center', justifyContent:'center', position:'absolute', top:30, right:20, borderWidth:0.2, borderRadius:35}}>
+                    <TouchableOpacity onPress={()=> storeFavoriteHandler()} style={{backgroundColor:'#F9F9F9', width:responsiveSize(35), height:responsiveSize(35), alignItems:'center', justifyContent:'center', position:'absolute', top:responsiveSize(30), right:responsiveSize(20), borderWidth:0.2, borderRadius:35}}>
                         { store_favorite == false
                             ? <Image style={styles.icon} source={favorite}/>
                             : <Image style={styles.icon} source={favorite_active}/>
@@ -212,7 +213,7 @@ if(publicSocketio.current){
                             </View>
 
                             <View style={{marginTop:10, maxHeight:100, overflow:'hidden'}}>
-                                <Text style={{fontSize:12, fontFamily:FONT.Sora}} >
+                                <Text style={{fontSize: responsiveSize(11), fontFamily:FONT.Sora}} >
                                     {store.Store_description}
                                 </Text>
                             </View>
@@ -220,7 +221,7 @@ if(publicSocketio.current){
                         </Animated.View>
                         
                         <Text style={{paddingBottom:5, marginLeft:5, fontSize:22, fontFamily:FONT.SoraMedium, textDecorationLine:'underline', backgroundColor:'#D7D7D7'}}>Menu</Text>
-                        <Animated.View style={[{overflow:'hidden', display:'flex', flexDirection:'column', justifyContent:'space-between', backgroundColor:'#D7D7D7'}, animationScroolStyle]}>
+                        <Animated.View style={[{overflow:'hidden',display:'flex', flexDirection:'column', justifyContent:'space-between', backgroundColor:'#D7D7D7'}, animationScroolStyle]}>
                             <View style={styles.menu_Container}>
                                 <FlatList
                                     data={menu}
@@ -248,9 +249,9 @@ if(publicSocketio.current){
                     </View>
                 </View>
 
-                <View style={{position:'absolute', bottom:25, right:25}}>
+                <View style={{position:'absolute', bottom:responsiveSize(25), right: responsiveSize(20)}}>
                     {Object.keys(publicCart).length !== 0 ?
-                        <TouchableOpacity style={styles.cart_Container} onPress={()=> navigate.navigate('Cart')}>
+                        <TouchableOpacity style={styles.cart_Container} onPress={()=> {navigate.navigate('Cart')}}>
                             <LottieView
                                 autoPlay
                                 source={require('../../assets/lottie/cart.json')}
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
         justifyContent:'space-between',
         backgroundColor:'transparent',
         flex:1,
-        backgroundColor:'#D7D7D7'
+        backgroundColor:'#D7D7D7',
     },
 
     image_Container:{
@@ -298,13 +299,13 @@ const styles = StyleSheet.create({
     
     icon:{
         width:20,
-        height:20
+        height:20,
     },
 
     info_Container:{
         backgroundColor:'#D7D7D7',
         flex:1.3,
-        width:'93%',
+        width:'95%',
         alignSelf:'center'
     },
 
