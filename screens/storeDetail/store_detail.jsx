@@ -48,7 +48,7 @@ export default function Store_Detail({route}){
     
     
     const renderItem = ({item}) => (
-        <Menu item={item} store={store} display_payment={()=> display_payment()}/>
+        <Menu item={item} store={store} />
     );
 
     const renderFood = ({item}) =>(

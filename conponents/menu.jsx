@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Food_List from "./food_list";
 import { FONT } from "../fontConfig";
 
-export default function Menu({item, socketIO, display_payment, store}){
+export default function Menu({item, socketIO, store}){
 
     const [display_food_list, setDisplay_food_list] = useState(false)
 
@@ -18,7 +18,7 @@ export default function Menu({item, socketIO, display_payment, store}){
                     <Text style={styles.menu_Name}>{item.Menu_name}</Text>
                 </View>
             </TouchableOpacity>
-            <Food_List socketIO={socketIO} onclose={()=> setDisplay_food_list(false)} display_food_list={display_food_list} menu_name={item.Menu_name} menu_description={item.Menu_description} menu_id={item.Menu_id} /*display_payment={()=> display_payment()}*//>
+            <Food_List socketIO={socketIO} onclose={()=> setDisplay_food_list(false)} display_food_list={display_food_list} menu_name={item.Menu_name} menu_description={item.Menu_description} menu_id={item.Menu_id}/>
         </>
     )
 }

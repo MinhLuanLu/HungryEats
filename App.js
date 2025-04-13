@@ -19,7 +19,7 @@ import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
 import { StripeProvider } from "@stripe/stripe-react-native";
-
+import {StripepublishableKey} from '@env'
 
 
 
@@ -131,7 +131,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}> 
       {/*<NotificatonAlert top={50}/>*/}
-      <StripeProvider publishableKey={publishableKey} merchantIdentifier="merchant.com.example.placeholder">
+      <StripeProvider publishableKey={StripepublishableKey} merchantIdentifier="merchant.identifier">
         <SocketioProvider>
           <UserProvider>
             <StoreProvider>

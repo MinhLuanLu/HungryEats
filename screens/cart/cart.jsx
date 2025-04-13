@@ -104,59 +104,61 @@ export default function Cart(){
     
 
     async function CheckoutHandler() {
-        // set moms to order //
+        // set moms to order
         publicCart.Moms = {
-            Moms_price: publicCart.Total_price * 0.25,
-            Moms_value: '25%'
-        }
+          Moms_price: publicCart.Total_price * 0.25,
+          Moms_value: '25%',
+        };
         log.debug({
-            message: 'set moms info to Order.',
-            momInfo: publicCart.Moms
+          message: 'set moms info to Order.',
+          momInfo: publicCart.Moms,
         });
-
-        const createPayment = await createPaymentIntent()
-        const {customer, ephemeralKey, paymentIntent, publishableKey } = createPayment
-        setPublishableKey(publishableKey
-
-        )
+      
+        // 1. Create payment intent
+        const createPayment = await createPaymentIntent();
+        const { customer, ephemeralKey, paymentIntent, publishableKey } = createPayment;
+      
+        // 2. Save publishable key
+        setPublishableKey(publishableKey); // <- fixed this line
+      
+        // 3. Initialize payment sheet
         const { error } = await initPaymentSheet({
-            merchantDisplayName: "Example, Inc.",
-            customerId: customer,
-            customerEphemeralKeySecret: ephemeralKey,
-            paymentIntentClientSecret: paymentIntent,
-            defaultBillingDetails: {
-                email: publicUser.Email,
-                name: publicUser.Username,
-            },
-
-            returnURL: "stripe-example://stripe-redirect",
-            applePay: {
-                merchantCountryCode: 'US'
-            }
-          });
-        if(error){
-            console.log(error)
-        }
-
-        openPaymentSheet()
-    }
-
-    const openPaymentSheet = async () => {
-        const { error } = await presentPaymentSheet();
-    
+          merchantDisplayName: 'Example, Inc.',
+          customerId: customer,
+          customerEphemeralKeySecret: ephemeralKey,
+          paymentIntentClientSecret: paymentIntent,
+          defaultBillingDetails: {
+            email: publicUser.Email,
+            name: publicUser.Username,
+          },
+          returnURL: `${SERVER_IP}/payment/api`,
+        });
+      
         if (error) {
-          alert(`Cancel Payment: ${error.code}`, error.message);
-        } 
-        else{
-            /*
-            publicSocketio.current.emit("user.newOrderHandler.1", publicCart); // send order
-            setSendOrderLoading(true) // set display to the payment preccess
-            */
-           alert('Paymeny successfully')
-           setDisplayOrderLoading(true)
+          console.log(error);
+          return;
         }
-    
+      
+        // 4. Now open the payment sheet
+        await openPaymentSheet();
+      }
+      
+      const openPaymentSheet = async () => {
+        const { error } = await presentPaymentSheet();
+      
+        if (error) {
+          alert(`Cancel Payment: ${error.code}, ${error.message}`);
+          log.warn(error);
+        } else {
+          /*
+          publicSocketio.current.emit("user.newOrderHandler.1", publicCart); // send order
+          setSendOrderLoading(true) // set display to the payment process
+          */
+          log.debug('Payment successfully.')
+          setDisplayOrderLoading(true);
+        }
       };
+      
 
     
 
@@ -265,6 +267,12 @@ export default function Cart(){
             
             
             <DiscountBottomSheet publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)} display={displayDiscount} onclose={()=> setDisplayDiscount(false)}/>
+            
+            {displayOrderLoading ?
+                <OrderLoading store={publicCart.Store}/>
+                :
+                null
+            }
            
         </Modal>
     )

@@ -1,28 +1,35 @@
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import { StyleSheet, View, Modal, Dimensions } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Modal, Dimensions, Text, Image , TouchableOpacity} from 'react-native';
+import { useEffect, useState, useRef, useContext } from 'react';
 import Animated, { useSharedValue, useAnimatedProps, withRepeat, withTiming, useDerivedValue , useAnimatedStyle} from 'react-native-reanimated';
-import { Svg, Circle } from 'react-native-svg';
+import { SocketioContext } from '../contextApi/socketio_context';
 import LottieView from 'lottie-react-native';  // Assuming you're using this package
 import Map_Style_Light from '../mapStyle';
-import { ReText } from 'react-native-redash';
 import { FONT } from '../fontConfig';
+import { responsiveSize } from '../utils/responsive';
+import { Flow } from 'react-native-animated-spinkit';
+import {SERVER_IP} from '@env';
+import { UserContext } from '../contextApi/user_context';
+import { config } from '../config';
 
-const store = {"Store_id":1,"User_id":11,"Store_name":"Sota Sushi","Address":"Vestergade 48, Aarhus C","PostCode":8000,"Latitude":56.1578,"Longitude":10.2019,"Location":"Midtjylland","Status":1,"Store_description":"Smag på japan. Siden 2009 har vi haft vores japanske restaurant her i Vestergade 48 i Aarhus.","Phone_number":86474788,"Store_image":"Sota-Sushi.jpg","Created_at":"2024-12-09T07:06:28.000Z"}
+const callIcon = require('../assets/icons/telephone_icon.png')
 
-export default function OrderLoading({ display, initialLatitude, initialLongitude }) {
+export default function OrderLoading({ store}) {
     const mapRef = useRef(null);
     const screenWidth = Dimensions.get('window').width;
+    
+    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
+    const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
+    
 
-    const [latitude, setLatitude] = useState(initialLatitude || 56.157798767089844);
-    const [longitude, setLongitude] = useState(initialLongitude || 10.201899528503418);
+    const [latitude, setLatitude] = useState(store.Latitude);
+    const [longitude, setLongitude] = useState( store.Longitude);
 
-    const CIRCLE_RADIUS = 40;
-    const CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
-    const percent = useSharedValue(0);
+    const [orderConfirm, setOrderConfirm] = useState(false);
+    const [orderFailed, setOrderFailed] = useState(false)
+
     const width = useSharedValue(-15)
-    const CircleAnimated = Animated.createAnimatedComponent(Circle);
-
+  
     const region = {
         latitude: latitude,
         longitude: longitude,
@@ -30,34 +37,30 @@ export default function OrderLoading({ display, initialLatitude, initialLongitud
         longitudeDelta: 0.005,
     };
 
-    const animatedProps = useAnimatedProps(() => ({
-        strokeDashoffset: CIRCUMFERENCE * (1 - percent.value),  // Make sure it's decreasing or increasing based on percent
-    }));
+    useEffect(()=>{
+        // listen to unprocesing order feedback //
+      
+        publicSocketio.current.on(config.orderPending , (order) => {
+            log.debug('recived order pending status from socketIO')
+            setPublicPendingOrder((prevOrder) => [...prevOrder, order[0]]);
+        });
 
-    const processText = useDerivedValue(() => {
-        return `${Math.floor(percent.value * 100)}%`; // Display percentage progress
-    });
+        publicSocketio.current.on(config.confirmRecivedOrder, (order) => {
+            setOrderConfirm(true);
+            log.debug('Order confirmed');
+        
+        });
 
-    // Example logic to simulate progress
-    useEffect(() => {
-        width.value = withTiming(screenWidth - 15, {duration:5000})
-        const interval = setInterval(() => {
-            if (percent.value < 1) {
-                percent.value = withTiming(percent.value + 0.01, { duration: 100 });
-            }
-        }, 100);
-
-        return () => clearInterval(interval); // Cleanup on unmount
-    }, []);
-
-    const carAnimation = useAnimatedStyle(()=>{
-        return{
-            transform: [{translateX: width.value}]
-        }
-    })
+        publicSocketio.current.on(config.failedRecivedOrder, (order) => {
+            log.debug('Failed to seding Order');
+            setOrderFailed(true);
+        });
+            
+        
+    },[])
 
     return (
-        <Modal animationType="slide" visible={display}>
+        <Modal animationType="fade" visible={true}>
             <View style={styles.container}>
                 {/* Map Container */}
                 <View style={styles.mapContainer}>
@@ -84,44 +87,49 @@ export default function OrderLoading({ display, initialLatitude, initialLongitud
                     </MapView>
                 </View>
 
-                {/* Progress Circle and Lottie Animation */}
-                <View style={{ width: '100%', height: '70%' }}>
-                    <View style={{ width: '100%', height: '30%', position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
-                        <Svg width={'100%'} height={'100%'} viewBox="0 0 150 150">
-                            <Circle
-                                cx="75"
-                                cy="75"
-                                r={CIRCLE_RADIUS}
-                                stroke="rgba(184, 184, 184, 0.3)"
-                                strokeWidth={5}
-                                fill="none"
-                            />
-                            <CircleAnimated
-                                cx="75"
-                                cy="75"
-                                r={CIRCLE_RADIUS}
-                                stroke="#008080"
-                                strokeWidth={3}
-                                fill="none"
-                                strokeDasharray={CIRCUMFERENCE}
-                                animatedProps={animatedProps}
-                                strokeLinecap="round"
-                                rotation="-90" // start from top
-                                origin="75, 75"
-                            />
-                        </Svg>
-                        <ReText text={processText} style={{ position: 'absolute', fontSize: 15, fontFamily: FONT.SoraMedium }} />
-                    </View>
-
-                    <View style={{borderBottomWidth:1, width:'98%', alignSelf:'center', borderStyle:'dotted'}}>
-                        <Animated.View style={[carAnimation]}>
+                <View style={styles.bottomContainer}>
+                    <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', width:'90%', alignSelf:'center'}}>
+                        <View>
+                            <Text style={{fontFamily:FONT.SoraMedium, fontSize:16}}>Estimated Sending order</Text>
+                            <Text style={{fontFamily:FONT.SoraExtraBold, fontSize:25}}>3 - 5 Minutes</Text>
+                            <Text style={{fontFamily:FONT.SoraMedium, fontSize:15}}>Order Status: <Text style={{fontFamily:FONT.SoraRegular, fontSize:14, color:'grey'}}>Unproceess</Text></Text>
+                        </View>
+                        <View>
                             <LottieView
                                 autoPlay
-                                source={require('../assets/lottie/deliveryCar.json')}
-                                style={{ width: 50, height: 30 }}
+                                source={require('../assets/lottie/store.json')}
+                                style={{ width: responsiveSize(110), height: responsiveSize(110) }}
                             />
-                        </Animated.View>
+                        </View>
                     </View>
+                </View>
+
+                <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', alignItems:'center', height:responsiveSize(65), width:'90%', alignSelf:'center', backgroundColor:'#c0c0c0', borderRadius:50,shadowColor: '#000000', 
+                        shadowOffset: { width: 0, height: 5 },
+                        shadowOpacity: 0.3, 
+                        shadowRadius: 10, 
+                        elevation: 10,}}>
+                
+                    <Image resizeMode='cover' source={{uri: `${SERVER_IP}/${store.Store_image}`}} style={{width:responsiveSize(50), height: responsiveSize(50), marginRight: responsiveSize(10), marginLeft:responsiveSize(5), borderRadius:50}}/>
+                    
+                    <View style={{flex:2}} >
+                        <Text style={{color:'#000000', fontFamily:FONT.SoraMedium, fontSize:17}}>{store.Store_name}</Text>
+                        <Text style={{color:'#000000', fontFamily:FONT.SoraRegular, fontSize:14}}>+45 {store.Phone_number}</Text>
+                    </View>
+
+                    <View style={{flex:1, display:'flex', flexDirection:'row', justifyContent:'space-between', marginRight:10}}>
+                        <TouchableOpacity style={{backgroundColor:'#e0e0e0', width:35, height:35, justifyContent:'center', alignItems:'center', borderRadius:35}}>
+                            <Image resizeMode='cover' source={callIcon} style={{width:'60%', height:'60%'}}/>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{backgroundColor:'#e0e0e0', width:35, height:35, justifyContent:'center', alignItems:'center', borderRadius:35}}>
+                            <Text style={{fontFamily:FONT.SoraExtraBold}}>X</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                
+                <View style={{padding: responsiveSize(15)}}>
+                    <Flow color='grey' size={40}/>
                 </View>
             </View>
         </Modal>
@@ -138,10 +146,20 @@ const styles = StyleSheet.create({
 
     mapContainer: {
         width: '100%',
-        height: '30%',
+        height: '80%',
     },
 
     map: {
         ...StyleSheet.absoluteFillObject,
     },
+
+    bottomContainer:{
+        backgroundColor:'#f8f8f8',
+        width:'100%',
+        height: responsiveSize(245),
+        borderTopLeftRadius:20,
+        borderTopRightRadius:20,
+        position:'absolute',
+        bottom:0,
+    }
 });
