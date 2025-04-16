@@ -13,6 +13,9 @@ import axios from "axios";
 import log from "minhluanlu-color-log";
 import { responsiveSize } from "../../utils/responsive";
 import OrderLoading from "../../conponents/OrderLoading";
+import { config } from "../../config";
+import EmtyCart from "../../conponents/emtyCart";
+import OrderDetail from "../orderDetail/orderDetail";
 
 const downArrow = require('../../assets/icons/down_arrow.png')
 const rightArrow = require('../../assets/icons/right_arrow.png')
@@ -26,8 +29,12 @@ export default function Cart(){
     const {publicUser, setPublicUser} = useContext(UserContext);
     const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
     const {publishableKey, setPublishableKey} = useContext(UserContext);
+    const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
 
-    const [displayOrderLoading, setDisplayOrderLoading] =useState(false)
+    const [displayOrderLoading, setDisplayOrderLoading] =useState(false);
+    const [orderDetailDisplay, setOrderDetailDispaly] = useState(false)
+    const [edit, setEdit] = useState(false);
+    const [selectOption, setSelectOption] = useState(false)
     
     const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
@@ -36,6 +43,59 @@ export default function Cart(){
     const [discountInfo, setDiscountInfo] = useState({});
     const [subTotal, setSubtotal] = useState()
     const [totalPrice, setTotalPrice] = useState()
+
+    const [order, setOrder] = useState([])
+
+    useEffect(() => {
+        if (!publicSocketio.current) return;
+      
+        const handleOrderUnprocessing = (order) => {
+          log.debug({
+            message: 'Received order unprocessing status from socketIO',
+            order: order
+          });
+          setPublicPendingOrder((prevOrder) => [...prevOrder, order[0]]);
+          setOrder(order);
+          publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
+        };
+      
+        const handleConfirmReceivedOrder = (order) => {
+          log.debug({
+            message:'Received order confirm status from socketIO',
+            order: order
+          });
+          
+          setOrder(order);
+          publicSocketio.current.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+        };
+      
+        const handleFailedReceivedOrder = (order) => {
+          log.err({
+            message: 'Failed to send Order',
+            order: order
+          });
+          setOrder(order);
+          publicSocketio.current.off(config.failedRecivedOrder, handleFailedReceivedOrder);
+        };
+      
+        publicSocketio.current.on(config.orderUnprocessing, handleOrderUnprocessing);
+        publicSocketio.current.on(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+        publicSocketio.current.on(config.failedRecivedOrder, handleFailedReceivedOrder);
+      
+        return () => {
+            publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
+            publicSocketio.current.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+            publicSocketio.current.off(config.failedRecivedOrder, handleFailedReceivedOrder);
+          };
+    
+      }, [displayOrderLoading]);
+
+    
+    useEffect(()=>{
+        !displayOrderLoading && setOrder({})
+    },[displayOrderLoading])
+      
+    ////////////////////////////////////////////////////////////////////
 
     useEffect(()=>{
         let listPrice = [];
@@ -90,7 +150,18 @@ export default function Cart(){
     }
 
     async function createPaymentIntent() {
+        // set moms to order
+        publicCart.Moms = {
+            Moms_price: publicCart.Total_price * 0.25,
+            Moms_value: '25%',
+          };
+          log.debug({
+            message: 'set moms info to Order.',
+            momInfo: publicCart.Moms,
+          });
+          
         try{
+            console.log('------------ create Payment Intent ---------------------')
             const paymentIntent = await axios.post(`${SERVER_IP}/payment/api`,{
                 User: publicUser,
                 Order: publicCart
@@ -104,15 +175,6 @@ export default function Cart(){
     
 
     async function CheckoutHandler() {
-        // set moms to order
-        publicCart.Moms = {
-          Moms_price: publicCart.Total_price * 0.25,
-          Moms_value: '25%',
-        };
-        log.debug({
-          message: 'set moms info to Order.',
-          momInfo: publicCart.Moms,
-        });
       
         // 1. Create payment intent
         const createPayment = await createPaymentIntent();
@@ -150,19 +212,31 @@ export default function Cart(){
           alert(`Cancel Payment: ${error.code}, ${error.message}`);
           log.warn(error);
         } else {
-          /*
-          publicSocketio.current.emit("user.newOrderHandler.1", publicCart); // send order
-          setSendOrderLoading(true) // set display to the payment process
-          */
-          log.debug('Payment successfully.')
-          setDisplayOrderLoading(true);
+        
+          log.debug('Payment successfully.');
+          publicSocketio.current.emit( config.newOrderHandler, publicCart); // send order
+          setDisplayOrderLoading(true)
         }
       };
+
+      
+    function editButtonHandler(){
+        edit ? setEdit(false) : setEdit(true);
+    }
+
+    function selectButtonHandler(){
+        selectOption ? setSelectOption(false) : setSelectOption(true)
+    }
+
+    
+      
       
 
     
+    if(displayOrderLoading) return <OrderLoading order={order} store={publicCart.Store} failedClose={()=> setDisplayOrderLoading(false)} confirmClose={()=> { setDisplayOrderLoading(false), setPublicCart({}) }}/>
+    if(Object.keys(publicCart).length === 0) return <EmtyCart/>
+    if(orderDetailDisplay) return <OrderDetail onclose={()=> setOrderDetailDispaly(false)}/>
 
-    if (Object.keys(publicCart).length === 0) return <DiscountBottomSheet display={displayDiscount}/>
 
     return(
         <Modal
@@ -178,7 +252,7 @@ export default function Cart(){
                             <Text style={{fontFamily:FONT.SoraSemiBold, fontSize:17}}>Your orders</Text>
                         </View>
                         <View style={styles.editContainer}>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={()=> editButtonHandler()}>
                                 <Text style={{fontFamily:FONT.SoraRegular}}>Edit</Text>
                             </TouchableOpacity>
                         </View>
@@ -193,9 +267,13 @@ export default function Cart(){
 
                 <ScrollView style={styles.middelContainer}>
                     <View style={styles.orderContainer}>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <TouchableOpacity style={styles.optionButton1}></TouchableOpacity>
-                        </TouchableOpacity>
+                        {edit ?
+                            <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton}>
+                                {selectOption && <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton1}></TouchableOpacity>}
+                            </TouchableOpacity>
+                            :
+                            null
+                        }
 
                         <View style={{
                             display:'flex',
@@ -238,7 +316,7 @@ export default function Cart(){
                             </View>
                         </View>
                         <View style={{height:responsiveSize(60), width:'90%', justifyContent:'center', alignSelf:'center'}}>
-                            <TouchableOpacity style={{width:'100%', height: responsiveSize(40), backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                            <TouchableOpacity onPress={()=> setOrderDetailDispaly(true)} style={{width:'100%', height: responsiveSize(40), backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
                                 <Text style={{color:'#008080', fontFamily: FONT.SoraMedium}}>View detail</Text>
                             </TouchableOpacity>
                         </View>
@@ -267,12 +345,7 @@ export default function Cart(){
             
             
             <DiscountBottomSheet publicCart={publicCart} submitCode={(discountData) => calculateDiscount(discountData)} display={displayDiscount} onclose={()=> setDisplayDiscount(false)}/>
-            
-            {displayOrderLoading ?
-                <OrderLoading store={publicCart.Store}/>
-                :
-                null
-            }
+           
            
         </Modal>
     )
@@ -349,8 +422,8 @@ const styles = StyleSheet.create({
     },
 
     optionButton1:{
-        width:15,
-        height:15,
+        width:'85%',
+        height:'85%',
         backgroundColor:'#008080',
         borderRadius:25,
         position:'absolute',

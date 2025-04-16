@@ -18,7 +18,7 @@ export default function Menu({item, socketIO, store}){
                     <Text style={styles.menu_Name}>{item.Menu_name}</Text>
                 </View>
             </TouchableOpacity>
-            <Food_List socketIO={socketIO} onclose={()=> setDisplay_food_list(false)} display_food_list={display_food_list} menu_name={item.Menu_name} menu_description={item.Menu_description} menu_id={item.Menu_id}/>
+            <Food_List socketIO={socketIO} store={store} onclose={()=> setDisplay_food_list(false)} display_food_list={display_food_list} menu_name={item.Menu_name} menu_description={item.Menu_description} menu_id={item.Menu_id}/>
         </>
     )
 }

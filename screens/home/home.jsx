@@ -54,12 +54,14 @@ export default function Home(){
 
     useEffect(() => {
         // Prevent multiple connections by checking if socket already exists
+        
         if (!socketIO.current) {
-            socketIO.current = io(SOCKET_SERVER, {
+            socketIO.current = io('http://192.168.137.1:3001', {
                 transports: ['websocket'], // Use WebSocket to avoid polling
                 forceNew: true, // Ensures a new connection is created
             });
-
+            setPublicSocketio(socketIO)
+        
             socketIO.current.on('connect', () => {
                 log.info('Connected to Socket.IO successfully.');
                 log.info(`Socket ID: ${socketIO.current.id}`);
@@ -69,14 +71,15 @@ export default function Home(){
                     Socket_id: socketIO.current.id,
                     User: publicUser
                 });
-                
-                setPublicSocketio(socketIO)
+            
             });
 
             // Listen for order status updates
             socketIO.current.on('update_order', (order) => {
                 setPublicPendingOrder(order);
             });
+
+            
 
         }
 
@@ -90,6 +93,7 @@ export default function Home(){
         };
         */
     },[])
+    
 
     ////////////////////////////////////////////////
     // Animation ///

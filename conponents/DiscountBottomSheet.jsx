@@ -86,6 +86,7 @@ export default function DiscountBottomSheet({publicCart, submitCode, onclose, di
     
     async function AppyingCodeHandler() {
         try{
+            console.log('-------------- Checking discount code --------------------')
             const applyCode = await axios.post(`${SERVER_IP}/ApplyDiscountCode/api`,{
                 User: publicCart.User,
                 Store: publicCart.Store,

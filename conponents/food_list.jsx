@@ -5,17 +5,20 @@ import { useContext } from "react";
 import { useState, useEffect } from "react";
 import {SERVER_IP} from '@env';
 import Food from "./food";
-import {FONT} from '../fontConfig'
+import {FONT} from '../fontConfig';
+import { useNavigation } from "@react-navigation/native";
+import { responsiveSize } from "../utils/responsive";
 
 
-export default function Food_List({display_food_list, menu_name, menu_description,menu_id, onclose, socketIO, display_payment}){
+export default function Food_List({store, display_food_list, menu_name, menu_description,menu_id, onclose, socketIO}){
 
+    const navigate = useNavigation()
     const [food_list, setFood_List]                         = useState([])
     const [no_food_list, setno_food_list]                   = useState('')
     const {publicCart, setPublicCart}                       = useContext(UserContext)
 
     const renderItem =({item}) =>(
-        <Food item={item} socketIO={socketIO}/>
+        <Food item={item} socketIO={socketIO} store={store}/>
     );
 
     useEffect(()=>{
@@ -56,7 +59,7 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
             Handle_Get_Food_List(data)
         }
 
-    },[display_food_list])
+    },[display_food_list]);
 
 
 
@@ -89,21 +92,22 @@ export default function Food_List({display_food_list, menu_name, menu_descriptio
                     </View>
                 </View>
             </View>
-            <View style={{position:'absolute', bottom:25, right:25}}>
-                { Object.keys(publicCart).length > 0 &&
-                    <TouchableOpacity style={styles.cart_Container} onPress={()=> display_payment()}>
+            <View style={{position:'absolute', bottom:responsiveSize(25), right: responsiveSize(20)}}>
+                {Object.keys(publicCart).length !== 0 ?
+                    <TouchableOpacity style={styles.cart_Container} onPress={()=> {navigate.navigate('Cart')}}>
                         <LottieView
                             autoPlay
                             source={require('../assets/lottie/cart.json')}
                             style={{width:'100%', height:'100%'}}
                         />
                         <View style={{backgroundColor:'#008080', width:22, borderRadius:10, position:'absolute', right:-8,top:0}}>
-                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{Object.keys(publicCart).length}</Text>
+                            <Text style={{fontSize:15,color:'#FFFFFF', textAlign:'center'}}>{Object.keys(publicCart.Food_item).length}</Text>
                         </View>
                         <View style={{width:'100%', borderRadius:10, position:'absolute', bottom:7}}>
                             <Text style={{fontSize:13,color:'#008080', textAlign:'center', fontWeight:500}}>Cart</Text>
                         </View>
                     </TouchableOpacity>
+                    : null
                 }
             </View>
         </Modal>

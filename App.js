@@ -19,7 +19,8 @@ import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
 import { StripeProvider } from "@stripe/stripe-react-native";
-import {StripepublishableKey} from '@env'
+import {StripepublishableKey} from '@env';
+import OrderLoading from "./conponents/OrderLoading";
 
 
 
@@ -117,6 +118,16 @@ export default function App() {
           <Stack.Screen
             name='paymentHistory'
             component={PaymentHistory}
+            options={{
+              headerTitleAlign: 'center',
+              headerTitle: '',
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name='OrderLoading'
+            component={OrderLoading}
             options={{
               headerTitleAlign: 'center',
               headerTitle: '',

@@ -2,7 +2,6 @@ import { StyleSheet, View, Text , ScrollView, TouchableOpacity, Button, Touchabl
 import axios from "axios";
 import {SERVER_IP} from '@env';
 import { useContext, useState, useRef, useEffect } from "react";
-import { StoreContext } from "../../../contextApi/store_context";
 import { UserContext } from "../../../contextApi/user_context";
 import PopUpMessage from '../../../conponents/popUpMessage'
 import log from "minhluanlu-color-log";
@@ -25,10 +24,11 @@ export default function Store_Description({store}){
 
     const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false);
     const [discount_value, setDiscountValue] = useState()
-    const [discount_code, setDiscount_Code] = useState()
+    const [discount_code, setDiscount_Code] = useState();
+    
 
     useEffect(()=>{
-        Check_Purchase_Log()
+        Check_Purchase_Log();
     },[store])
 
     async function HandleClickButton(){

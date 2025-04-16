@@ -36,17 +36,16 @@ export default function Maps({socketIO, display_sideBar}){
           
           let { status } = await Location.requestForegroundPermissionsAsync();
           if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
+          console.log('Permission denied');
+          return;
           }
-    
-          let getlocation = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.High,
-          });
+
+          let location = await Location.getCurrentPositionAsync({});
+          console.log(location.coords.latitude, location.coords.longitude);
           
-          if(getlocation){     
-            setLocation(getlocation)
-          }
+          if(location){     
+            setLocation(location)
+          } 
         }
 
         async function StoreList() {
@@ -61,6 +60,9 @@ export default function Maps({socketIO, display_sideBar}){
         getCurrentLocation();
         StoreList()
       }, []);
+
+
+      
 
       
     // Handle listening to get the location.
@@ -109,7 +111,7 @@ export default function Maps({socketIO, display_sideBar}){
           <MapView 
             ref={mapRef}
             style={styles.map}
-            //showsUserLocation={true}
+            showsUserLocation={true}
             //provider={PROVIDER_GOOGLE}
             customMapStyle={Map_Style_Light}
             showsCompass={false}
@@ -121,8 +123,8 @@ export default function Maps({socketIO, display_sideBar}){
             }}
             
             initialRegion={{
-                latitude: latitude || 56.157798767089844,
-                longitude: longitude || 10.201899528503418,
+                latitude: latitude || location?.coords?.latitude,
+                longitude: longitude || location?.coords?.longitude,
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005,
             }}

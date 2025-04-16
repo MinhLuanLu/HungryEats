@@ -36,17 +36,12 @@ export default function Store_Detail({route}){
     
     const { publicSocketio, setPublicSocketio}   = useContext(SocketioContext)
     const {publicCart, setPublicCart} = useContext(UserContext)
-    const {publicUser, setPublicUser} = useContext(UserContext)
+    const {publicUser, setPublicUser} = useContext(UserContext);
 
     const [menu, setMenu] = useState([])
     const [food_list, setFood_list]= useState([])
     const [store_favorite, setStore_Favorite] = useState(false);
-
-    useEffect(()=>{
-        console.log(store.Store_name)
-    },[store])
-    
-    
+  
     const renderItem = ({item}) => (
         <Menu item={item} store={store} />
     );
@@ -54,13 +49,17 @@ export default function Store_Detail({route}){
     const renderFood = ({item}) =>(
         <Food item={item} store={store}/>
     );
+
+    useEffect(()=>{
+        checkStoreFavorite()
+    },[store])
     
     useEffect(()=>{
         async function getMenu(){
             try{
                 const menuResponse = await axios.post(`${SERVER_IP}/menu/api`,{
-                    "Store_name": store.Store_name, 
-                    "Store_id": store.Store_id
+                    Store: store,
+                    User: publicUser,
                 })
                 log.info(menuResponse)
                 if(menuResponse.data.success){
@@ -71,16 +70,14 @@ export default function Store_Detail({route}){
                 }
             }catch(error){
                 log.warn('store_Detaie: Failed to recived menu.')
+                console.log(error)
             }
         }
 
-        if(store){
-            getMenu()
-            storeFavoriteHandler()
-        }else{
-            alert('ERROR: failed to recived menu')
-        }
+        Object.keys(store).length > 0 ? getMenu() : alert('ERROR: failed to recived menu')
+    
     },[store])
+
 
     useEffect(()=>{
         async function getFoodListHandler() {
@@ -100,7 +97,8 @@ export default function Store_Detail({route}){
         if(store){
             getFoodListHandler()
         }else{
-            alert('ERROR: failed to recived Food list.')
+            alert('ERROR: failed to recived Food list.');
+            console.log(error)
         }
     },[menu, store])
 
@@ -108,27 +106,61 @@ export default function Store_Detail({route}){
 ////// Handle Store Favorite //////////////////////// ***************************** need to check ***********************
     
     async function storeFavoriteHandler(){
-        if(store_favorite){
-            setStore_Favorite(false)
-        }if(!store_favorite){
-            setStore_Favorite(true)
+        let favorite;
+
+        switch (true) {
+          case store_favorite:
+            favorite = 0;
+            setStore_Favorite(false);
+            break;
+          case !store_favorite:
+            favorite = 1;
+            setStore_Favorite(true);
         }
+       
         try{
             const fetchStoreFavorite = await axios.post(`${SERVER_IP}/storeFavorite/api`,{
-                Email: publicUser.Email,
-                Store_name: store.Store_name,
-                Request: store_favorite
+                User: publicUser,
+                Store: store, 
+                Favorite: favorite
             })
             if(fetchStoreFavorite.data.success){
                 log.info(fetchStoreFavorite.data.message);
-                setStore_Favorite(fetchStoreFavorite.data.data);
-                log.debug(`get favorite store: ${store.Store_name} is ${fetchStoreFavorite.data.data} `)
             }
         }catch(error){
             log.warn('store_Detail: fialed to fetch store favorite.')
         }
         
-      
+    }
+
+    async function checkStoreFavorite() {
+        try{
+            const checkStore = await axios.post(`${SERVER_IP}/storeFavorite/api`,{
+                User: publicUser,
+                Store: store,
+                Check: true
+            })
+
+            if(checkStore.data.success){
+                log.debug(checkStore.data.message);
+                
+                let favorite = checkStore.data.data.Favorite;
+                switch(true){
+                    case favorite == 1:
+                        favorite = true
+                        break;
+                    case favorite == 0:
+                        favorite = false;
+                        break
+                }
+                setStore_Favorite(favorite)
+            }
+        }
+        catch(error){
+            log.warn({
+                message: "failed to check current store data"
+            })
+        }
     }
 
 // Update food quantity ////
@@ -191,7 +223,7 @@ if(publicSocketio.current){
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={()=> storeFavoriteHandler()} style={{backgroundColor:'#F9F9F9', width:responsiveSize(35), height:responsiveSize(35), alignItems:'center', justifyContent:'center', position:'absolute', top:responsiveSize(30), right:responsiveSize(20), borderWidth:0.2, borderRadius:35}}>
-                        { store_favorite == false
+                        { store_favorite == 0
                             ? <Image style={styles.icon} source={favorite}/>
                             : <Image style={styles.icon} source={favorite_active}/>
                         }
@@ -251,7 +283,7 @@ if(publicSocketio.current){
 
                 <View style={{position:'absolute', bottom:responsiveSize(25), right: responsiveSize(20)}}>
                     {Object.keys(publicCart).length !== 0 ?
-                        <TouchableOpacity style={styles.cart_Container} onPress={()=> {navigate.navigate('Cart')}}>
+                        <TouchableOpacity style={styles.cart_Container} onPress={()=> navigate.navigate('Cart')}>
                             <LottieView
                                 autoPlay
                                 source={require('../../assets/lottie/cart.json')}
