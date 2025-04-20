@@ -19,10 +19,12 @@ import Payment from "./screens/payment/payment";
 import Cart from "./screens/cart/cart";
 import { SocketioProvider } from "./contextApi/socketio_context";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {StripepublishableKey} from '@env';
 import OrderLoading from "./conponents/OrderLoading";
+import OrderDetail from "./screens/orderDetail/orderDetail";
 
-
+import Example from "./test";
 
 export default function App() {
 
@@ -41,7 +43,7 @@ export default function App() {
               headerShown: false,
             }}
           />
-          
+        
           <Stack.Screen
             name='register'
             component={Register}
@@ -140,22 +142,24 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}> 
-      {/*<NotificatonAlert top={50}/>*/}
-      <StripeProvider publishableKey={StripepublishableKey} merchantIdentifier="merchant.identifier">
-        <SocketioProvider>
-          <UserProvider>
-            <StoreProvider>
-
-              <NavigationContainer>
-                <StackNav/>
-              </NavigationContainer>
-
-            </StoreProvider>
-          </UserProvider>
-        </SocketioProvider>  
-      </StripeProvider>
-    </SafeAreaView>
+    <GestureHandlerRootView>
+      <SafeAreaView style={styles.container}> 
+        {/*<NotificatonAlert top={50}/>*/}
+        <StripeProvider publishableKey={StripepublishableKey} merchantIdentifier="merchant.identifier">
+          <SocketioProvider>
+            <UserProvider>
+              <StoreProvider>
+              
+                  <NavigationContainer>
+                    <StackNav/>
+                  </NavigationContainer>
+                
+              </StoreProvider>
+            </UserProvider>
+          </SocketioProvider>  
+        </StripeProvider>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 

@@ -44,7 +44,8 @@ export default function Cart(){
     const [subTotal, setSubtotal] = useState()
     const [totalPrice, setTotalPrice] = useState()
 
-    const [order, setOrder] = useState([])
+    const [order, setOrder] = useState([]);
+
 
     useEffect(() => {
         if (!publicSocketio.current) return;
@@ -96,8 +97,16 @@ export default function Cart(){
     },[displayOrderLoading])
       
     ////////////////////////////////////////////////////////////////////
+    // Calculate the order price when cart open //
 
     useEffect(()=>{
+        calculateOrderPrice() // run calculate price function //
+        setDisplayDiscount(false); // set discount bottomSheet to false as default //
+        setApplyDiscount(false) // set apply discount to false as default //
+        
+    },[]);
+
+    function calculateOrderPrice(){
         let listPrice = [];
 
         if(Object.keys(publicCart).length !== 0){
@@ -112,20 +121,19 @@ export default function Cart(){
                 const quantity = drink.Drink_quantity;
                 listPrice.push(price * quantity)
             }
-            const total = listPrice.reduce((acc, curr) => acc + curr, 0);
+
+            console.log('List Price', listPrice)
+            const total = listPrice.reduce((acc, curr) => acc + curr, 0); // sum price
+            publicCart.Total_price = total; // update the order total Price
             setSubtotal(total)
 
             setAfterMonsPrice(publicCart.Total_price + publicCart.Total_price * 0.25);
             setMomPrice(publicCart.Total_price * 0.25); // calculate mom value as 25% af total price
-
+          
             publicCart.Total_price = total; // it is total price of order without mom as 25%
             setTotalPrice(publicCart.Total_price)
         }
-
-        setDisplayDiscount(false);
-        setApplyDiscount(false)
-        
-    },[])
+    }
 
 
     function calculateDiscount(discountData){
@@ -228,14 +236,23 @@ export default function Cart(){
         selectOption ? setSelectOption(false) : setSelectOption(true)
     }
 
-    
-      
-      
+    // when the OrderDetail close, calculate the order price again ///
+    function oncloseHandler(){
+        setOrderDetailDispaly(false);
+
+        console.log('---- Update order ------')
+        calculateOrderPrice()
+        
+        if(publicCart.Food_item.length === 0 && publicCart.Drink_item.length === 0){
+            setPublicCart({})
+        }
+    }
 
     
+    
     if(displayOrderLoading) return <OrderLoading order={order} store={publicCart.Store} failedClose={()=> setDisplayOrderLoading(false)} confirmClose={()=> { setDisplayOrderLoading(false), setPublicCart({}) }}/>
-    if(Object.keys(publicCart).length === 0) return <EmtyCart/>
-    if(orderDetailDisplay) return <OrderDetail onclose={()=> setOrderDetailDispaly(false)}/>
+    if(Object.keys(publicCart).length === 0 ) return <EmtyCart/>
+    if(orderDetailDisplay) return <OrderDetail onclose={()=> oncloseHandler()} order={publicCart}/>
 
 
     return(
@@ -267,7 +284,7 @@ export default function Cart(){
 
                 <ScrollView style={styles.middelContainer}>
                     <View style={styles.orderContainer}>
-                        {edit ?
+                        {!edit ?
                             <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton}>
                                 {selectOption && <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton1}></TouchableOpacity>}
                             </TouchableOpacity>
@@ -291,15 +308,16 @@ export default function Cart(){
                         </View>
 
                         <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
-                            <View style={{display:'flex', flexDirection:'row', marginTop:10}}>
+                            <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
                                 {publicCart.Food_item.map((item, index)=>(
-                                    <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                                    <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10, marginBottom:5}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
                                 ))}
                                 {publicCart.Drink_item.map((item, index)=>(
                                     <Image key={index} resizeMode="cover" style={{width:65, height:45,  borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>
                                 ))}
+                                
                             </View>
-                            
+
                             <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%', alignSelf:'center', marginTop:10}}>
                                 <View>
                                     <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Subtotal</Text>
@@ -310,8 +328,8 @@ export default function Cart(){
                                 <View style={{paddingRight:10}}>
                                     <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{subTotal}Kr</Text>
                                     <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(momPrice) : 0}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(publicCart.Total_price + momPrice) : 0}Kr</Text>
-                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(publicCart.Total_price * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
+                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(totalPrice + momPrice) : 0}Kr</Text>
+                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(totalPrice * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
                                 </View>
                             </View>
                         </View>

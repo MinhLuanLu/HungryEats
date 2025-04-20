@@ -56,7 +56,7 @@ export default function Home(){
         // Prevent multiple connections by checking if socket already exists
         
         if (!socketIO.current) {
-            socketIO.current = io('http://192.168.137.1:3001', {
+            socketIO.current = io(SOCKET_SERVER, {
                 transports: ['websocket'], // Use WebSocket to avoid polling
                 forceNew: true, // Ensures a new connection is created
             });
