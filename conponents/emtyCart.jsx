@@ -27,7 +27,7 @@ export default function EmtyCart(){
                         </View>
                         <View style={styles.editContainer}>
                             <TouchableOpacity>
-                                <Text style={{fontFamily:FONT.SoraRegular}}>Edit</Text>
+                                <Text style={{fontFamily:FONT.SoraRegular}}>----</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

@@ -1,10 +1,12 @@
 import { StyleSheet, Text, TouchableOpacity, View, Modal, Image } from "react-native";
 import { useState, useEffect } from "react";
+import { responsiveSize } from "../utils/responsive";
+import { FONT } from "../fontConfig";
 
 const checkedIcon = require('../assets/icons/checkedIcon.png')
 const discountIcon = require('../assets/icons/discount.png')
 
-export default function PopUpMessage ({displayPopUpMessage, title, message, onclose, type}){
+export default function PopUpMessage ({displayPopUpMessage, title, message, onclose, type, data = undefined}){
 
     return(
         <Modal
@@ -22,6 +24,13 @@ export default function PopUpMessage ({displayPopUpMessage, title, message, oncl
                         <Text style={{fontSize:30, fontWeight:'bold', textAlign:'center'}}>{title}</Text>
                         <Text style={{fontSize:14, fontWeight:'regular', textAlign:'center', width:'90%', alignSelf:'center'}}>{message}</Text>
                     </View>
+                {data != undefined &&
+                    <View>
+                        {data.map((item, index)=>(
+                            <Text style={{fontSize:14, fontWeight:'regular', textAlign:'center', width:'90%', alignSelf:'center'}} key={index}>{item.Discount_code} ({item.Discount_value}{item.Discount_type == "percentage" && "% Off"})</Text>
+                        ))}
+                    </View>
+                }
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.button} onPress={()=> onclose()}>
                             <Text style={{fontSize:18, fontWeight:'semibold', color:'#fff', textAlign:'center'}}>Go Back</Text>

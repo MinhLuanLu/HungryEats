@@ -10,8 +10,11 @@ import LoadingMap from "../../../conponents/loadingMap";
 import Store_Description from "../storeDescription/storeDescription";
 import {SERVER_IP} from '@env';
 import { StoreContext } from "../../../contextApi/store_context";
+import { UserContext } from "../../../contextApi/user_context";
 import axios from "axios";
 import { config } from "../../../config";
+import PopUpMessage from "../../../conponents/popUpMessage";
+import NotificatonAlert from "../../../conponents/notificationAlert";
 
 
 const marker_Icon_open = require('../../../assets/icons/location_open_icon.png')
@@ -28,7 +31,11 @@ export default function Maps({socketIO, display_sideBar}){
     const [display_tabBar, setDisplay_TabBar]                     = useState(false)
     const [selectStore, setSelectStore]                           = useState();
 
-    const {publicStore, setPublicStore} = useContext(StoreContext)
+    const [unlockDiscount, setUnLockDiscount] = useState(false);
+    const [discountsCode, setDiscoutsCode] = useState([])
+
+    const {publicStore, setPublicStore} = useContext(StoreContext);
+    const {publicUser, setPublicUser} = useContext(UserContext)
 
     // Handle fetching necessary data that is used in the map.
     useEffect(() => {
@@ -85,10 +92,31 @@ export default function Maps({socketIO, display_sideBar}){
     function handle_Marker_Select(store) {
       setSelectStore(store);
       setPublicStore(store);
+
+      lookingForDiscoutHandler(store)
       log.debug({message: 'User select store', store: store})
     }
 
-    /// Handle update storeStatus [close or open] live //
+    async function lookingForDiscoutHandler(store) {
+      try{
+
+        const findDiscount = await axios.post(`${SERVER_IP}/find/discounts/api`,{
+          User: publicUser,
+          Store: store
+        })
+
+        if(findDiscount.data.success){
+          log.debug(findDiscount.data.message);
+          setUnLockDiscount(true);
+          setDiscoutsCode(findDiscount.data.data)
+        }
+
+      }catch(error){
+        console.log(error)
+      }
+    }
+
+    /// Handle update storeStatus [close or open] real time //
     if(socketIO.current){
       socketIO.current.on(config.updateStoreState , (storeStatusList)=>{
         log.info('Update stores Status successfully..')
@@ -99,7 +127,6 @@ export default function Maps({socketIO, display_sideBar}){
 
     if(location == null || marker_list.length === 0) return <LoadingMap/>
     
- 
 
     return(
         <View style={styles.Container}>
@@ -157,7 +184,10 @@ export default function Maps({socketIO, display_sideBar}){
               />
             </View>
           }
-        </View>
+
+        <PopUpMessage displayPopUpMessage={unlockDiscount} title="Unlock Discount" message="Discount code is available." data={discountsCode} onclose={()=> setUnLockDiscount(false)}/>
+          <NotificatonAlert/>
+      </View>
     );
 }
 

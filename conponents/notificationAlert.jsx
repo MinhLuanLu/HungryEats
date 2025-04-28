@@ -4,7 +4,7 @@ import Animated,{withSpring, withTiming, useSharedValue, useAnimatedStyle} from 
 import { useEffect } from "react";
 
 
-export default function NotificatonAlert({success, failed}){
+export default function NotificatonAlert({success, failed, titile, message}){
     const height = 50
 
     const moveDown = useSharedValue(-50)
@@ -50,16 +50,16 @@ export default function NotificatonAlert({success, failed}){
 
             { success ?
                 <>
-                    <Text style={{color:'#22bb33', fontSize:15, fontFamily: FONT.SoraMedium}}>Successfully Order</Text>
-                    <Text style={{color:"#22bb33", fontSize:12, fontFamily: FONT.SoraRegular}}>Order confirmed</Text>
+                    <Text style={{color:'#22bb33', fontSize:15, fontFamily: FONT.SoraMedium}}>{titile}</Text>
+                    <Text style={{color:"#22bb33", fontSize:12, fontFamily: FONT.SoraRegular}}>{message}</Text>
                 </>
                 :
                 null      
             }
             {failed ?
                 <>
-                    <Text style={{color:'#f8f8f8', fontSize:15, fontFamily: FONT.SoraMedium}}>Failed Sending Order</Text>
-                    <Text style={{color:"#e0e0e0", fontSize:12, fontFamily: FONT.SoraRegular}}>Order Failed</Text>
+                    <Text style={{color:'#f8f8f8', fontSize:15, fontFamily: FONT.SoraMedium}}>{titile}</Text>
+                    <Text style={{color:"#e0e0e0", fontSize:12, fontFamily: FONT.SoraRegular}}>{message}</Text>
                 </>
                 :
                 null
