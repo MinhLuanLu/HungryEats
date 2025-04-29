@@ -15,22 +15,33 @@ export default function PendingOrders() {
   const [tab, setTab]                                 = useState(false)
   const [order_history, setOrder_history]             = useState([]);
   const navigate = useNavigation()
-  const {publicPendingOrder, setPublicPendingOrder}                 = useContext(UserContext)
+  const {publicPendingOrder, setPublicPendingOrder}    = useContext(UserContext);
+  const {publicUser, setPublicUser} = useContext(UserContext)
 
-  const [order_status_list, setorder_status_list] = useState([])
+
   useEffect(()=>{
-    async function Handel_Get_Order_History() {
+    //console.log(publicPendingOrder);
+  },[])
+
+
+  const orderHistoryHandler = async () => {
+    setTab(true);
+    try{
       const orderHistory = await axios.post(`${SERVER_IP}/orderHistory/api`,{
-        Email: email
+        User: publicUser
       })
+
       if(orderHistory?.data?.success){
         console.log(orderHistory?.data?.message);
-        setOrder_history(orderHistory?.data?.data)
+        setOrder_history(orderHistory?.data?.data);
+        return
       }
-    }
-    
-  },[tab])
 
+    }
+    catch(error){
+      log.warn(error)
+    }
+  }
   
   return (
     <Modal
@@ -57,7 +68,7 @@ export default function PendingOrders() {
                   </View>
                 </TouchableWithoutFeedback>
 
-                <TouchableWithoutFeedback  onPress={()=> setTab(true)}>
+                <TouchableWithoutFeedback  onPress={()=> orderHistoryHandler()}>
                   <View style={{backgroundColor: tab ? '#d7d7d7' : '#333333', width:'50%', borderRadius:40, height:29, justifyContent:'center'}}>
                     <Text style={{textAlign:'center'}}>History</Text>
                   </View>
@@ -68,7 +79,7 @@ export default function PendingOrders() {
         </TouchableWithoutFeedback>
         { !tab ?
           <ScrollView style={styles.bottom_layer}>
-            {publicPendingOrder.map((item, index) => (
+            {publicPendingOrder.length != 0 && publicPendingOrder.map((item, index) => (
               <View key={index} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
                     <LottieView
@@ -79,9 +90,9 @@ export default function PendingOrders() {
                 </View>
                 <View style={styles.order_detail}>
               
-                    { /*JSON.parse(item.Food_item).map((food, id) =>(
+                    {typeof(item.Food_item) === 'string' ? JSON.parse(item.Food_item).map((food, id)) : item.Food_item.map((food, id)  =>(
                       <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
-                    ))*/}
+                    ))}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status: 
                       {item.Order_status === orderStatusConfig.procesing
@@ -106,14 +117,14 @@ export default function PendingOrders() {
         :
           <ScrollView style={styles.bottom_layer}>
             {order_history.map((item, index)=>(
-              <View key={item.Order_id} style={styles.order_Container}>
+              <View key={index} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
                   <Image style={{width:'60%', height:'60%'}} resizeMode="cover" source={require('../../../assets/icons/history.png')}/>
                 </View>
 
                 <View style={styles.order_detail}>
-                    {JSON.parse(item.Food_item).map((food, id) =>(
-                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
+                    {typeof(item.Food_item) == "string" ? JSON.parse(item.Food_item).map((food, id)) : item.Food_item.map((food, id)=>(
+                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{/*food.Food_name}. ({food.Food_Quantity*/}x</Text>
                     ))}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
@@ -123,10 +134,10 @@ export default function PendingOrders() {
                       */}
                     </Text>
                     <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
-                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>
+                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {/*item.Pickup_time*/}</Text>
                     </Text>
 
-                    <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {item.Total_price}Kr</Text>
+                    <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {/*item.Total_price*/}Kr</Text>
 
                     <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}}>
                       <Text style={{textAlign:'center', color:'#d7d7d7'}}>View Order</Text>

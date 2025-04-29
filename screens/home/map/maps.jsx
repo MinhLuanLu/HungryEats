@@ -14,7 +14,7 @@ import { UserContext } from "../../../contextApi/user_context";
 import axios from "axios";
 import { config } from "../../../config";
 import PopUpMessage from "../../../conponents/popUpMessage";
-import NotificatonAlert from "../../../conponents/notificationAlert";
+
 
 
 const marker_Icon_open = require('../../../assets/icons/location_open_icon.png')
@@ -185,8 +185,8 @@ export default function Maps({socketIO, display_sideBar}){
             </View>
           }
 
-        <PopUpMessage displayPopUpMessage={unlockDiscount} title="Unlock Discount" message="Discount code is available." data={discountsCode} onclose={()=> setUnLockDiscount(false)}/>
-          <NotificatonAlert/>
+        <PopUpMessage displayPopUpMessage={unlockDiscount} title="Unlock Discount" message="Discount code is available." data={discountsCode} onclose={()=> setUnLockDiscount(false)} type="discount"/>
+
       </View>
     );
 }

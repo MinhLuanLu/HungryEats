@@ -2,19 +2,21 @@ import { FONT } from "../fontConfig";
 import { StyleSheet, Text, View } from "react-native";
 import Animated,{withSpring, withTiming, useSharedValue, useAnimatedStyle} from "react-native-reanimated";
 import { useEffect } from "react";
+import { responsiveSize } from "../utils/responsive";
 
 
-export default function NotificatonAlert({success, failed, titile, message}){
+
+export default function NotificatonAlert({success, failed, title, message}){
     const height = 50
 
     const moveDown = useSharedValue(-50)
 
     useEffect(()=>{
-        moveDown.value = withSpring(30)
+        moveDown.value = withSpring(responsiveSize(35))
 
         setTimeout(() => {
-            if(moveDown.value === 30){
-                moveDown.value = withTiming(-60, {duration:500})
+            if(moveDown.value === responsiveSize(35)){
+                moveDown.value = withTiming(responsiveSize(-60), {duration:500})
 
             }
         }, 2500); 
@@ -50,7 +52,7 @@ export default function NotificatonAlert({success, failed, titile, message}){
 
             { success ?
                 <>
-                    <Text style={{color:'#22bb33', fontSize:15, fontFamily: FONT.SoraMedium}}>{titile}</Text>
+                    <Text style={{color:'#22bb33', fontSize:15, fontFamily: FONT.SoraMedium}}>{title}</Text>
                     <Text style={{color:"#22bb33", fontSize:12, fontFamily: FONT.SoraRegular}}>{message}</Text>
                 </>
                 :
@@ -58,7 +60,7 @@ export default function NotificatonAlert({success, failed, titile, message}){
             }
             {failed ?
                 <>
-                    <Text style={{color:'#f8f8f8', fontSize:15, fontFamily: FONT.SoraMedium}}>{titile}</Text>
+                    <Text style={{color:'#f8f8f8', fontSize:15, fontFamily: FONT.SoraMedium}}>{title}</Text>
                     <Text style={{color:"#e0e0e0", fontSize:12, fontFamily: FONT.SoraRegular}}>{message}</Text>
                 </>
                 :

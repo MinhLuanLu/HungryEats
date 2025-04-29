@@ -17,6 +17,7 @@ import { config } from "../../config";
 import EmtyCart from "../../conponents/emtyCart";
 import OrderDetail from "../orderDetail/orderDetail";
 
+
 const downArrow = require('../../assets/icons/down_arrow.png')
 const rightArrow = require('../../assets/icons/right_arrow.png')
 
@@ -55,7 +56,7 @@ export default function Cart(){
             message: 'Received order unprocessing status from socketIO',
             order: order
           });
-          setPublicPendingOrder((prevOrder) => [...prevOrder, order[0]]);
+          setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);
           publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
         };

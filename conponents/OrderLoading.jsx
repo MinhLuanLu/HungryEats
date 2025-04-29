@@ -13,13 +13,14 @@ import { UserContext } from '../contextApi/user_context';
 import { orderStatusConfig } from '../config';
 import { useNavigation } from '@react-navigation/native';
 import log from 'minhluanlu-color-log';
+import NotificatonAlert from './notificationAlert';
 
 
 
 const callIcon = require('../assets/icons/telephone_icon.png');
 
 
-export default function OrderLoading({store,order,  failedClose, confirmClose}) {
+export default function OrderLoading({store, order,  failedClose, confirmClose}) {
     const mapRef = useRef(null);
     const screenWidth = Dimensions.get('window').width;
     const navigate = useNavigation();
@@ -71,7 +72,8 @@ export default function OrderLoading({store,order,  failedClose, confirmClose}) 
             setOrderFailed(true)
             setTimeout(() => {
                 failedClose()
-                setOrderFailed(false)
+                setOrderFailed(false);
+                refundHandler()
             }, 5000);
         }
 
@@ -112,7 +114,11 @@ export default function OrderLoading({store,order,  failedClose, confirmClose}) 
             transform: [{scale: pendingAnimationScale.value}]
         }
     })
-    
+    ///////////////////////////////////////////////////////
+
+    const refundHandler = async () => {
+        log.warn("--------- Order failed, start refund process --------------");
+    }
 
     return (
         <Modal animationType="fade" visible={true}>
@@ -225,6 +231,18 @@ export default function OrderLoading({store,order,  failedClose, confirmClose}) 
                     </>}
                 </View>
             </View>
+            
+            {order.Order_status == orderStatusConfig.failed ?
+                <NotificatonAlert failed={true} title="Order failed" message="Failed to send order"/>
+                :
+                null
+            }
+
+            {order.Order_status == orderStatusConfig.pending ?
+                <NotificatonAlert failed={true} title="Order success" message="Send order successfully."/>
+                :
+                null
+            }
         </Modal>
     );
 }

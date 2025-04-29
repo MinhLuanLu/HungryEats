@@ -1,12 +1,20 @@
-import { StyleSheet, Text, TouchableOpacity, View, Modal, Image } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Modal, Image, Cl } from "react-native";
 import { useState, useEffect } from "react";
 import { responsiveSize } from "../utils/responsive";
 import { FONT } from "../fontConfig";
+
 
 const checkedIcon = require('../assets/icons/checkedIcon.png')
 const discountIcon = require('../assets/icons/discount.png')
 
 export default function PopUpMessage ({displayPopUpMessage, title, message, onclose, type, data = undefined}){
+
+
+    
+    const buttonHandler = () =>{
+        onclose()
+    };
+
 
     return(
         <Modal
@@ -21,19 +29,19 @@ export default function PopUpMessage ({displayPopUpMessage, title, message, oncl
                         <Image resizeMode="cover" style={{width:70, height:70}} source={type == "discount" ? discountIcon : checkedIcon}/>
                     </View>
                     <View style={styles.textConatiner}>
-                        <Text style={{fontSize:30, fontWeight:'bold', textAlign:'center'}}>{title}</Text>
-                        <Text style={{fontSize:14, fontWeight:'regular', textAlign:'center', width:'90%', alignSelf:'center'}}>{message}</Text>
+                        <Text style={{fontSize:30, fontFamily: FONT.SoraBold, textAlign:'center'}}>{title}</Text>
+                        <Text style={{fontSize:15, fontFamily: FONT.SoraMedium, textAlign:'center', width:'90%', alignSelf:'center'}}>{message}</Text>
                     </View>
                 {data != undefined &&
                     <View>
                         {data.map((item, index)=>(
-                            <Text style={{fontSize:14, fontWeight:'regular', textAlign:'center', width:'90%', alignSelf:'center'}} key={index}>{item.Discount_code} ({item.Discount_value}{item.Discount_type == "percentage" && "% Off"})</Text>
+                            <Text style={{fontFamily: FONT.SoraMedium, fontWeight:'regular', textAlign:'center', width:'90%', alignSelf:'center', color:'#008080'}} key={index}>{item.Discount_code} ({item.Discount_value}{item.Discount_type == "percentage" && "% Off"})</Text>
                         ))}
                     </View>
                 }
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.button} onPress={()=> onclose()}>
-                            <Text style={{fontSize:18, fontWeight:'semibold', color:'#fff', textAlign:'center'}}>Go Back</Text>
+                        <TouchableOpacity style={styles.button} onPress={()=> buttonHandler()}>
+                            <Text style={{fontFamily: FONT.SoraMedium,fontSize: responsiveSize(15) , fontWeight:'semibold', color:'#fff', textAlign:'center'}}>Go Back</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
