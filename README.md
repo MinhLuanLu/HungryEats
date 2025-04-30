@@ -7,4 +7,6 @@ Run:
   - npm start
     
 .Env:
-  - change the SERVER_ID and The SOCKET_IP to you local address
+  - Change the SERVER_IP and The SOCKET_SERVER to your Ip address run on you backend server:
+    SERVER_IP:http://<youip>:3000
+    SOCKET_SERVER:http://<youip>:3001
