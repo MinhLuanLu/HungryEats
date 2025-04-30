@@ -28,7 +28,7 @@ export default function Store_Description({store}){
     
 
     useEffect(()=>{
-        Check_Purchase_Log();
+       
     },[store])
 
     async function HandleClickButton(){
@@ -56,7 +56,7 @@ export default function Store_Description({store}){
             <TouchableWithoutFeedback onPress={()=> HandleClickButton()}>
                 <View style={styles.Container}>  
                     <View style={{flex:2, height:'100%',backgroundColor:'#333333', width:'100%', borderWidth:1,marginBottom: responsiveSize(10),borderRadius:5, justifyContent:'center'}}>
-                        { store.Status == 1
+                        { store.Active == 1
                             ? 
                                 <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
                                     <View style={{flex:0.5, marginLeft:8}}>
@@ -73,7 +73,7 @@ export default function Store_Description({store}){
                                     </View>
                                 </View>
                             : 
-                                <Text style={{fontSize:18, textAlign:'center', fontWeight:'600'}}>Status: <Text  style={{fontSize:15, color:'red'}}>Close</Text></Text>
+                                null
                         }
                     </View>
                 </View>

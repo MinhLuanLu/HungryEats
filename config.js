@@ -34,5 +34,9 @@ export const discountType = {
     percentage: "percentage"
 }
 
+export const storeStatus = {
+    customer: 1
+}
+
 
 export default AUTHENTICATION;

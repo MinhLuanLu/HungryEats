@@ -7,21 +7,28 @@ import { config, orderStatusConfig } from "../../../config";
 import {SERVER_IP} from'@env';
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../../contextApi/user_context";
+import OrderDetail from "../../orderDetail/orderDetail"
 
 const down_arrow = require('../../../assets/icons/down_arrow.png')
 
-export default function PendingOrders() {
+export default function PendingOrders({route}) {
   
   const [tab, setTab]                                 = useState(false)
   const [order_history, setOrder_history]             = useState([]);
+  const [selectOrder, setSelectOrder] = useState({})
+  const [viewOrder, setViewOrder] = useState(false)
   const navigate = useNavigation()
   const {publicPendingOrder, setPublicPendingOrder}    = useContext(UserContext);
-  const {publicUser, setPublicUser} = useContext(UserContext)
+  const {publicUser, setPublicUser} = useContext(UserContext);
 
+  const {data} = route.params
+ 
 
   useEffect(()=>{
-    //console.log(publicPendingOrder);
-  },[])
+    if(data){
+      orderHistoryHandler()
+    }
+  },[data])
 
 
   const orderHistoryHandler = async () => {
@@ -42,6 +49,15 @@ export default function PendingOrders() {
       log.warn(error)
     }
   }
+
+
+  function viewOrderHandler(order){
+    let orderObject = {...order}
+    setSelectOrder(orderObject);
+    setViewOrder(true)
+  }
+
+  if(viewOrder) return <OrderDetail onclose={()=> setViewOrder(false)} order={selectOrder}/>
   
   return (
     <Modal
@@ -91,7 +107,7 @@ export default function PendingOrders() {
                 <View style={styles.order_detail}>
               
                     {typeof(item.Food_item) === 'string' ? JSON.parse(item.Food_item).map((food, id)) : item.Food_item.map((food, id)  =>(
-                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_Quantity}x)</Text>
+                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_quantity}x)</Text>
                     ))}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status: 
@@ -106,7 +122,7 @@ export default function PendingOrders() {
 
                     <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {item.Total_price}Kr</Text>
 
-                    <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}}>
+                    <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}} onPress={()=> viewOrderHandler(item)}>
                       <Text style={{textAlign:'center', color:'#d7d7d7'}}>View Order</Text>
                     </TouchableOpacity>
                   
@@ -116,7 +132,7 @@ export default function PendingOrders() {
           </ScrollView>
         :
           <ScrollView style={styles.bottom_layer}>
-            {order_history.map((item, index)=>(
+            {order_history.length > 0 && order_history.map((item, index)=>(
               <View key={index} style={styles.order_Container}>
                 <View style={styles.image_Conatiner}>
                   <Image style={{width:'60%', height:'60%'}} resizeMode="cover" source={require('../../../assets/icons/history.png')}/>
@@ -124,22 +140,22 @@ export default function PendingOrders() {
 
                 <View style={styles.order_detail}>
                     {typeof(item.Food_item) == "string" ? JSON.parse(item.Food_item).map((food, id)) : item.Food_item.map((food, id)=>(
-                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{/*food.Food_name}. ({food.Food_Quantity*/}x</Text>
+                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_quantity}x)</Text>
                     ))}
                     
                     <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
-                      {/*item.Order_status === "Accept"
-                        ?<Text style={{fontSize:12, fontWeight:500, color:'#008080'}}> {item.Order_status}</Text>
-                        :<Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
-                      */}
+                      {item.Order_status == orderStatusConfig.failed
+                        ? <Text style={{fontSize:12, fontWeight:500, color:'red'}}> {item.Order_status}</Text>
+                        : <Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
+                      }
                     </Text>
                     <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
-                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {/*item.Pickup_time*/}</Text>
+                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>
                     </Text>
 
-                    <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {/*item.Total_price*/}Kr</Text>
+                    <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {item.Total_price}Kr</Text>
 
-                    <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}}>
+                    <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}} onPress={()=> viewOrderHandler(item)}>
                       <Text style={{textAlign:'center', color:'#d7d7d7'}}>View Order</Text>
                     </TouchableOpacity>
                 </View>

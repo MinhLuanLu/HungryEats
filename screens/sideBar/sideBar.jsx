@@ -69,7 +69,7 @@ export default function SideBar({ display_sideBar, onclose, display_Pending_Orde
                   <Text style={styles.containerButtonText}>Activity</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.containerButton} onPress={()=> displayOrderHistory()}>
+                <TouchableOpacity style={styles.containerButton} onPress={()=> navigate.navigate("PendingOrders", {data: true})}>
                   <Image resizeMode='cover' style={styles.icon} source={history}/>
                   <Text style={styles.containerButtonText}>History</Text>
                 </TouchableOpacity>

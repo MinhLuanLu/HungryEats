@@ -98,21 +98,23 @@ export default function Maps({socketIO, display_sideBar}){
     }
 
     async function lookingForDiscoutHandler(store) {
-      try{
+      if(store.Active == 1){
+        try{
 
-        const findDiscount = await axios.post(`${SERVER_IP}/find/discounts/api`,{
-          User: publicUser,
-          Store: store
-        })
-
-        if(findDiscount.data.success){
-          log.debug(findDiscount.data.message);
-          setUnLockDiscount(true);
-          setDiscoutsCode(findDiscount.data.data)
+          const findDiscount = await axios.post(`${SERVER_IP}/find/discounts/api`,{
+            User: publicUser,
+            Store: store
+          })
+  
+          if(findDiscount.data.success){
+            log.debug(findDiscount.data.message);
+            setUnLockDiscount(true);
+            setDiscoutsCode(findDiscount.data.data)
+          }
+  
+        }catch(error){
+          console.log(error)
         }
-
-      }catch(error){
-        console.log(error)
       }
     }
 
@@ -171,13 +173,13 @@ export default function Maps({socketIO, display_sideBar}){
                     
                     // handle image marker close and open
                     
-                    image={marker_list.Status === 1 ? marker_Icon_open : marker_Icon_close}
+                    image={marker_list.Active == 1 ? marker_Icon_open : marker_Icon_close}
                   />           
                 ))}
 
           </MapView>
           {/* Only Display when Store is Open .*/}
-          { selectStore && selectStore.Status == 1 && 
+          { selectStore && selectStore.Active == 1 && 
             <View style={{position:'absolute', bottom:30, width:'100%'}}>
               <Store_Description 
                 store={selectStore}
