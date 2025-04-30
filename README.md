@@ -8,5 +8,6 @@ Run:
     
 .Env:
   - Change the SERVER_IP and The SOCKET_SERVER to your Ip address run on you backend server:
-    SERVER_IP:http://<youip>:3000
-    SOCKET_SERVER:http://<youip>:3001
+    
+    - SERVER_IP:http://<youip>:3000
+    - SOCKET_SERVER:http://<youip>:3001
