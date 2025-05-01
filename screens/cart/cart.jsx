@@ -17,6 +17,7 @@ import { config } from "../../config";
 import EmtyCart from "../../conponents/emtyCart";
 import OrderDetail from "../orderDetail/orderDetail";
 import OrderHeader from "../../conponents/orderHeader";
+import Orders from "../../conponents/orders";
 
 
 const downArrow = require('../../assets/icons/down_arrow.png')
@@ -36,7 +37,8 @@ export default function Cart(){
     const [displayOrderLoading, setDisplayOrderLoading] =useState(false);
     const [orderDetailDisplay, setOrderDetailDispaly] = useState(false)
     const [edit, setEdit] = useState(false);
-    const [selectOption, setSelectOption] = useState(false)
+    const [selectOption, setSelectOption] = useState(false);
+    const [orderAgain, setOrderAgain] = useState(false)
     
     const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
@@ -105,6 +107,7 @@ export default function Cart(){
         calculateOrderPrice() // run calculate price function //
         setDisplayDiscount(false); // set discount bottomSheet to false as default //
         setApplyDiscount(false) // set apply discount to false as default //
+        setOrder(false)
         
     },[]);
 
@@ -262,85 +265,94 @@ export default function Cart(){
             animationType="slide"
         >
             <SafeAreaView style={styles.Container}>
-                <OrderHeader/>
+                <OrderHeader orderAgain={()=> setOrderAgain(true)} onclose={()=> setOrderAgain(false)}/>
+                { !orderAgain ?
+                    <ScrollView style={styles.middelContainer}>
+                        <View style={styles.orderContainer}>
+                            {edit ?
+                                <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton}>
+                                    {selectOption && <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton1}></TouchableOpacity>}
+                                </TouchableOpacity>
+                                :
+                                null
+                            }
 
-                <ScrollView style={styles.middelContainer}>
-                    <View style={styles.orderContainer}>
-                        {edit ?
-                            <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton}>
-                                {selectOption && <TouchableOpacity onPress={()=> selectButtonHandler()} style={styles.optionButton1}></TouchableOpacity>}
-                            </TouchableOpacity>
-                            :
-                            null
-                        }
+                            <View style={{
+                                display:'flex',
+                                flexDirection:'row',
+                                borderBottomWidth:0.5,
+                                borderColor:'#C0C0C0',
+                                borderStyle:'dashed',
+                                height:80,
+                                alignItems:'center',
+                                width:'90%',
+                                alignSelf:'center'
+                            }}>
+                                <Image resizeMode="cover" style={{width:60, height:60, borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${publicCart.Store.Store_image}`}}/>
+                                <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{publicCart.Store.Store_name} - {publicCart.Store.Address} </Text>
+                            </View>
 
-                        <View style={{
-                            display:'flex',
-                            flexDirection:'row',
-                            borderBottomWidth:0.5,
-                            borderColor:'#C0C0C0',
-                            borderStyle:'dashed',
-                            height:80,
-                            alignItems:'center',
-                            width:'90%',
-                            alignSelf:'center'
-                        }}>
-                            <Image resizeMode="cover" style={{width:60, height:60, borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${publicCart.Store.Store_image}`}}/>
-                            <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{publicCart.Store.Store_name} - {publicCart.Store.Address} </Text>
+                            <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
+                                <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
+                                    {publicCart.Food_item.map((item, index)=>(
+                                        <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10, marginBottom:5}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                                    ))}
+                                    {publicCart.Drink_item.map((item, index)=>(
+                                        <Image key={index} resizeMode="cover" style={{width:65, height:45,  borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>
+                                    ))}
+                                    
+                                </View>
+
+                                <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%', alignSelf:'center', marginTop:10}}>
+                                    <View>
+                                        <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Subtotal</Text>
+                                        <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Moms</Text>
+                                        <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Total</Text>
+                                        {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Discount</Animated.Text>}
+                                    </View>
+                                    <View style={{paddingRight:10}}>
+                                        <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{subTotal}Kr</Text>
+                                        <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(momPrice) : 0}Kr</Text>
+                                        <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(totalPrice + momPrice) : 0}Kr</Text>
+                                        {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(totalPrice * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
+                                    </View>
+                                </View>
+                            </View>
+                            <View style={{height:responsiveSize(60), width:'90%', justifyContent:'center', alignSelf:'center'}}>
+                                <TouchableOpacity onPress={()=> setOrderDetailDispaly(true)} style={{width:'100%', height: responsiveSize(40), backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
+                                    <Text style={{color:'#008080', fontFamily: FONT.SoraMedium}}>View detail</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
+                    </ScrollView>
+                    :
+                    <Orders display={orderAgain} onclose={()=> setOrderAgain(false)}/>
+                }
 
-                        <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
-                            <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
-                                {publicCart.Food_item.map((item, index)=>(
-                                    <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10, marginBottom:5}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
-                                ))}
-                                {publicCart.Drink_item.map((item, index)=>(
-                                    <Image key={index} resizeMode="cover" style={{width:65, height:45,  borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>
-                                ))}
+                {!orderAgain ?
+                    <>
+                        <View style={{flex:0.4}}>
+                            <TouchableOpacity style={{display:'flex', flexDirection:'row',alignItems:'center', width:'90%', height:50,alignSelf:'centers', alignSelf:'center', justifyContent:'space-between'}} onPress={()=> {setDisplayDiscount(true)}}>
+                                <View style={{width:50, justifyContent:'center', alignItems:'center'}}>
+                                    <Text style={{width:25, height:20, backgroundColor:'#008080', borderRadius:5, textAlign:'center', color:'#ffffff', fontWeight:500}}>%</Text>
+                                </View>
+                                <View style={{flex:1}}>
+                                    <Text style={{fontFamily:FONT.SoraMedium}}>Redeem code</Text>
+                                    <Text style={{fontFamily:FONT.SoraRegular, fontSize:13}}>Enter promo code here</Text>
+                                </View>
                                 
-                            </View>
-
-                            <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%', alignSelf:'center', marginTop:10}}>
-                                <View>
-                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Subtotal</Text>
-                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Moms</Text>
-                                    <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Total</Text>
-                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Discount</Animated.Text>}
-                                </View>
-                                <View style={{paddingRight:10}}>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{subTotal}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(momPrice) : 0}Kr</Text>
-                                    <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{Object.keys(publicCart).length > 0 ? Math.round(totalPrice + momPrice) : 0}Kr</Text>
-                                    {applyDiscount && <Animated.Text entering={FadeInDown.springify().mass(2).stiffness(100).duration(2000)} style={{fontSize:14, color:"green", fontFamily:FONT.Sora}}>- {Object.keys(discountInfo).length !== 0 ? Math.round(totalPrice * (discountInfo.Discount_value / 100)) : 0}Kr</Animated.Text>}
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{height:responsiveSize(60), width:'90%', justifyContent:'center', alignSelf:'center'}}>
-                            <TouchableOpacity onPress={()=> setOrderDetailDispaly(true)} style={{width:'100%', height: responsiveSize(40), backgroundColor:'#c0c0c0', borderRadius:10, justifyContent:'center', alignItems:'center'}}>
-                                <Text style={{color:'#008080', fontFamily: FONT.SoraMedium}}>View detail</Text>
+                                <Image resizeMode="cover" source={rightArrow} style={{width:25, height:25, position:'absolute', right:10}}/>
+                                
                             </TouchableOpacity>
                         </View>
-                    </View>
-                </ScrollView>
 
-                <View style={{flex:0.4}}>
-                    <TouchableOpacity style={{display:'flex', flexDirection:'row',alignItems:'center', width:'90%', height:50,alignSelf:'centers', alignSelf:'center', justifyContent:'space-between'}} onPress={()=> {setDisplayDiscount(true)}}>
-                        <View style={{width:50, justifyContent:'center', alignItems:'center'}}>
-                            <Text style={{width:25, height:20, backgroundColor:'#008080', borderRadius:5, textAlign:'center', color:'#ffffff', fontWeight:500}}>%</Text>
-                        </View>
-                        <View style={{flex:1}}>
-                            <Text style={{fontFamily:FONT.SoraMedium}}>Redeem code</Text>
-                            <Text style={{fontFamily:FONT.SoraRegular, fontSize:13}}>Enter promo code here</Text>
-                        </View>
-                        
-                        <Image resizeMode="cover" source={rightArrow} style={{width:25, height:25, position:'absolute', right:10}}/>
-                        
-                    </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity style={styles.checkoutButton} onPress={()=> CheckoutHandler()}>
-                    <Text style={{color:'#ffffff', fontFamily:FONT.SoraMedium}}>Go to checkout</Text>
-                </TouchableOpacity>
+                        <TouchableOpacity style={styles.checkoutButton} onPress={()=> CheckoutHandler()}>
+                            <Text style={{color:'#ffffff', fontFamily:FONT.SoraMedium}}>Go to checkout</Text>
+                        </TouchableOpacity>
+                    </>
+                    : 
+                    null
+                }
             </SafeAreaView>
             
             

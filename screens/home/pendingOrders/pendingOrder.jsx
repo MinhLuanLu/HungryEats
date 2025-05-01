@@ -7,7 +7,10 @@ import { config, orderStatusConfig } from "../../../config";
 import {SERVER_IP} from'@env';
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../../../contextApi/user_context";
-import OrderDetail from "../../orderDetail/orderDetail"
+import OrderDetail from "../../orderDetail/orderDetail";
+import Orders from "../../../conponents/orders";
+import OrderHeader from "../../../conponents/orderHeader";
+import { responsiveSize } from "../../../utils/responsive";
 
 const down_arrow = require('../../../assets/icons/down_arrow.png')
 
@@ -131,38 +134,11 @@ export default function PendingOrders({route}) {
             ))}
           </ScrollView>
         :
-          <ScrollView style={styles.bottom_layer}>
-            {order_history.length > 0 && order_history.map((item, index)=>(
-              <View key={index} style={styles.order_Container}>
-                <View style={styles.image_Conatiner}>
-                  <Image style={{width:'60%', height:'60%'}} resizeMode="cover" source={require('../../../assets/icons/history.png')}/>
-                </View>
-
-                <View style={styles.order_detail}>
-                    {typeof(item.Food_item) == "string" ? JSON.parse(item.Food_item).map((food, id)) : item.Food_item.map((food, id)=>(
-                      <Text key={id} style={{fontSize:15, fontWeight:500, color:'#FFFFFF'}}>{food.Food_name}. ({food.Food_quantity}x)</Text>
-                    ))}
-                    
-                    <Text style={{fontSize:13, fontWeight:500, color:'#D7D7D7'}}>Status:
-                      {item.Order_status == orderStatusConfig.failed
-                        ? <Text style={{fontSize:12, fontWeight:500, color:'red'}}> {item.Order_status}</Text>
-                        : <Text style={{fontSize:12, fontWeight:500, color:'#FF9F0D'}}> {item.Order_status}</Text>
-                      }
-                    </Text>
-                    <Text style={{fontSize:12, fontWeight:500,color:'#D7D7D7'}}>Pickup time:
-                      <Text style={{fontSize:12, fontWeight:500, color:'#D7D7D7'}}> {item.Pickup_time}</Text>
-                    </Text>
-
-                    <Text style={{fontSize:14, fontWeight:500, color:'#D7D7D7'}}>Total: {item.Total_price}Kr</Text>
-
-                    <TouchableOpacity style={{backgroundColor:'#008080', height:30, width:200,justifyContent:'center', borderRadius:3, marginTop:5}} onPress={()=> viewOrderHandler(item)}>
-                      <Text style={{textAlign:'center', color:'#d7d7d7'}}>View Order</Text>
-                    </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        }
+        <View style={{flex:1, backgroundColor:'#333333'}}>
+          <Orders backgroundColor="grey"/>
+        </View>
+      }
+        
       </SafeAreaView>
     </Modal>
   );
