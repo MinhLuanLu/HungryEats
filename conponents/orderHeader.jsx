@@ -11,7 +11,8 @@ const downArrow = require('../assets/icons/down_arrow.png')
 
 export default function OrderHeader({orderAgain, onclose, status}){
 
-    const [orderAgainStatus, setOrderAgainStatus] = useState(false)
+    const [orderAgainStatus, setOrderAgainStatus] = useState(false);
+    const [edit, setEdit] = useState(false)
 
     const navigate = useNavigation()
 
@@ -32,6 +33,10 @@ export default function OrderHeader({orderAgain, onclose, status}){
     function oncloseHandler(){
         setOrderAgainStatus(false)
         onclose()
+    }
+
+    function editButtonHandler(){
+        edit ? setEdit(false) : setEdit(true);
     }
 
     return(

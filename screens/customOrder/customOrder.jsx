@@ -17,7 +17,7 @@ const {width} = Dimensions.get('window')
 //const order = {"Store":{"Store_id":1,"User_id":11,"Store_name":"Sota Sushi","Address":"Vestergade 48, Aarhus C","PostCode":8000,"Latitude":56.1578,"Longitude":10.2019,"Location":"Midtjylland","Status":1,"Store_description":"Smag på japan. Siden 2009 har vi haft vores japanske restaurant her i Vestergade 48 i Aarhus.","Phone_number":86474788,"Store_image":"Sota-Sushi.jpg","Created_at":"2024-12-09T07:06:28.000Z"},"User":{"User_id":12,"Email":"minhlu14206@gmail.com","Username":"minhlu142","Phone_number":"none","Password":"111111","Created_at":"2024-12-19T10:48:44.000Z","Role":"private"},"Food_item":[{"Food_id":1,"Menu_id":1,"Food_name":"Sushi Deluxe Platter","Food_description":" 5x Nigiri, 4x Sashimi, 8x California Roll, 4x Salmon Roll, served with soy sauce, pickled ginger, and wasabi","Quantity":-458,"Price":250,"Food_image":"Sushi_Deluxe_Platter.jpg","Created_at":"2024-12-10T10:41:29.000Z","Food_quantity":1}],"Drink_item":[{"Drink_id":1,"Drink_name":"Coca-Cola","Drink_price":15,"Drink_image":"coca_cola.jpg","Created_at":"2025-01-17T14:14:02.000Z","Drink_size":"1.5L","Store_Drink_id":1,"Store_id":1,"Drink_quantity":1}],"Total_price":265}
 
 
-export default function OrderDetail({onclose, order}){
+export default function CustomOrder({onclose, order}){
 
     const navigate = useNavigation()
     const {publicCart, setPublicCart} = useContext(UserContext);

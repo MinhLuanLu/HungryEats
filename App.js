@@ -22,7 +22,7 @@ import { StripeProvider } from "@stripe/stripe-react-native";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {StripepublishableKey} from '@env';
 import OrderLoading from "./conponents/OrderLoading";
-import OrderDetail from "./screens/orderDetail/orderDetail";
+
 
 import Example from "./test";
 

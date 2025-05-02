@@ -15,7 +15,7 @@ import { responsiveSize } from "../../utils/responsive";
 import OrderLoading from "../../conponents/OrderLoading";
 import { config } from "../../config";
 import EmtyCart from "../../conponents/emtyCart";
-import OrderDetail from "../orderDetail/orderDetail";
+import CustomOrder from "../customOrder/customOrder";
 import OrderHeader from "../../conponents/orderHeader";
 import Orders from "../../conponents/orders";
 
@@ -39,6 +39,7 @@ export default function Cart(){
     const [edit, setEdit] = useState(false);
     const [selectOption, setSelectOption] = useState(false);
     const [orderAgain, setOrderAgain] = useState(false)
+    const [orderAgainList, setOrderAgainList] = useState([])
     
     const [applyDiscount, setApplyDiscount] = useState(false);
     const [afterMonsPrice, setAfterMonsPrice] = useState(null);
@@ -232,16 +233,12 @@ export default function Cart(){
         }
       };
 
-      
-    function editButtonHandler(){
-        edit ? setEdit(false) : setEdit(true);
-    }
 
     function selectButtonHandler(){
         selectOption ? setSelectOption(false) : setSelectOption(true)
     }
 
-    // when the OrderDetail close, calculate the order price again ///
+    // when the CustomOrder close, calculate the order price again ///
     function oncloseHandler(){
         setOrderDetailDispaly(false);
 
@@ -253,11 +250,37 @@ export default function Cart(){
         }
     }
 
+    // listen to order again to display orders //
+    useEffect(()=>{
+        if(orderAgain){
+            const orderHistoryHandler = async () => {
+            try{
+                const orderHistory = await axios.post(`${SERVER_IP}/orderHistory/api`,{
+                User: publicUser
+                })
+        
+                if(orderHistory?.data?.success){
+                console.log(orderHistory?.data?.message);
+                setOrderAgainList(orderHistory?.data?.data);
+                console.log(orderHistory?.data?.data)
+                return
+                }
+        
+            }
+            catch(error){
+                log.warn(error)
+            }
+            }
+            
+            orderHistoryHandler()
+        }
+    },[orderAgain])
+
     
     
     if(displayOrderLoading) return <OrderLoading order={order} store={publicCart.Store} failedClose={()=> setDisplayOrderLoading(false)} confirmClose={()=> { setDisplayOrderLoading(false), setPublicCart({}) }}/>
     if(Object.keys(publicCart).length === 0 ) return <EmtyCart/>
-    if(orderDetailDisplay) return <OrderDetail onclose={()=> oncloseHandler()} order={publicCart}/>
+    if(orderDetailDisplay) return <CustomOrder onclose={()=> oncloseHandler()} order={publicCart}/>
 
 
     return(
@@ -326,7 +349,7 @@ export default function Cart(){
                         </View>
                     </ScrollView>
                     :
-                    <Orders display={orderAgain} onclose={()=> setOrderAgain(false)}/>
+                    <Orders display={orderAgain} onclose={()=> setOrderAgain(false)} orderList={orderAgainList} />
                 }
 
                 {!orderAgain ?

@@ -9,52 +9,28 @@ import OrderHeader from "./orderHeader";
 
 
 
-export default function Orders({backgroundColor}){
-    const [orderList, setOrderList] = useState([])
-    const {publicUser, setPublicUser} = useContext(UserContext);
-
-    useEffect(()=>{
-        const orderHistoryHandler = async () => {
-            try{
-              const orderHistory = await axios.post(`${SERVER_IP}/orderHistory/api`,{
-                User: publicUser
-              })
-        
-              if(orderHistory?.data?.success){
-                console.log(orderHistory?.data?.message);
-                setOrderList(orderHistory?.data?.data);
-                console.log(orderHistory?.data?.data)
-                return
-              }
-        
-            }
-            catch(error){
-              log.warn(error)
-            }
-          }
-
-          orderHistoryHandler()
-    },[])
+export default function Orders({orderList, backgroundColor}){
 
     return(
         <ScrollView style={styles.middelContainer}>
             { orderList.length != 0 && orderList.map((orders, index)=>(
                 <View key={index} style={[styles.orderContainer,{backgroundColor:backgroundColor}]}>
-                    <View style={{
-                        display:'flex',
-                        flexDirection:'row',
-                        borderBottomWidth:0.5,
-                        borderColor:'#C0C0C0',
-                        borderStyle:'dashed',
-                        height:80,
-                        alignItems:'center',
-                        width:'90%',
-                        alignSelf:'center'
-                    }}>
-                        <Image resizeMode="cover" style={{width:60, height:60, borderRadius:10, marginRight:10}}/>
-                        <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{/*orders.Store.Store_name*/} - {/*orders.Store.Address*/} </Text>
-                    </View>
-
+                    { orders.Store &&
+                        <View style={{
+                            display:'flex',
+                            flexDirection:'row',
+                            borderBottomWidth:0.5,
+                            borderColor:'#C0C0C0',
+                            borderStyle:'dashed',
+                            height:80,
+                            alignItems:'center',
+                            width:'90%',
+                            alignSelf:'center'
+                        }}>
+                            <Image resizeMode="cover" style={{width:60, height:60, borderRadius:10, marginRight:10}}/>
+                            <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{/*orders.Store.Store_name*/} - {/*orders.Store.Address*/} </Text>
+                        </View>
+                    }
                     <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
                         <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
                             {orders.Food_item.map((item, index)=>(
@@ -69,11 +45,13 @@ export default function Orders({backgroundColor}){
                         <View style={{display:'flex', flexDirection:'row', justifyContent:'space-between', width:'100%', alignSelf:'center', marginTop:10}}>
                             <View>
         
-                                <Text style={{fontSize:14, color:"grey", fontFamily:FONT.Sora}}>Total</Text>
+                                <Text style={{fontSize:14, color:backgroundColor == undefined ? "grey" : "#e0e0e0e", fontFamily:FONT.Sora}}>Total</Text>
+                                {orders.Order_status && <Text style={{fontSize:14, color:backgroundColor == undefined ? "grey" : "#e0e0e0e", fontFamily:FONT.Sora}}>Status</Text>}
     
                             </View>
                             <View style={{paddingRight:10}}>
                                 <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{orders.Total_price}Kr</Text>
+                                {orders.Order_status && <Text style={{fontSize:14, color:"#000000", fontFamily:FONT.SoraMedium}}>{orders.Order_status}</Text>}
                             </View>
                         </View>
                     </View>
