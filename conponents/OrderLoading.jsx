@@ -224,11 +224,8 @@ export default function OrderLoading({store, order,  failedClose, confirmClose})
                 
                 <View style={{padding: responsiveSize(15)}}>
                     {order.Order_status == orderStatusConfig.unprocessing && 
-                        <>
-                        <Text>Sending order</Text>
-                        <Flow color='grey' size={40} />
-
-                    </>}
+                        <Flow color='grey' size={43} />
+                    }
                 </View>
             </View>
             

@@ -2,7 +2,6 @@ import { StyleSheet, View, Text, ScrollView , TouchableOpacity, BackHandler} fro
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import LottieView from "lottie-react-native";
 import { UserContext } from "../../contextApi/user_context";
-import { StoreContext } from "../../contextApi/store_context";
 import { SocketioContext } from "../../contextApi/socketio_context";
 import Maps from "./map/maps";
 import SideBar from "../sideBar/sideBar";
@@ -75,8 +74,9 @@ export default function Home(){
             });
 
             // Listen for order status updates
-            socketIO.current.on('update_order', (order) => {
-                setPublicPendingOrder(order);
+            socketIO.current.on(config.updateOrderStatus, (order) => {
+                //setPublicPendingOrder(order);
+                alert('get order status message')
             });
 
             
@@ -155,7 +155,7 @@ export default function Home(){
                         shadowOpacity: 0.5, 
                         shadowRadius: 10, 
                         elevation: 10
-                    }} onPress={()=> navigate.navigate('PendingOrders')}>
+                    }} onPress={()=> navigate.navigate('PendingOrders', {data: false})}>
                         <LottieView
                             autoPlay
                             source={require('../../assets/lottie/food.json')}

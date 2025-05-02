@@ -11,7 +11,8 @@ export const config = {
     orderUnprocessing: "order.unprocessing.1",
     confirmRecivedOrder: "store.confirmRecivedOrder.1",
     failedRecivedOrder: 'order.failedRecivedOrder.1',
-    newOrderHandler: "user.newOrderHandler.1"
+    newOrderHandler: "user.newOrderHandler.1",
+    updateOrderStatus: 'store.updateOrderStatus.1'
 }
 
 export const orderStatusConfig = {

@@ -60,8 +60,10 @@ export default function Cart(){
             message: 'Received order unprocessing status from socketIO',
             order: order
           });
+          /*
           setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);
+          */
           publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
         };
       
@@ -70,7 +72,7 @@ export default function Cart(){
             message:'Received order confirm status from socketIO',
             order: order
           });
-          
+          setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);
           publicSocketio.current.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
         };

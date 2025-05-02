@@ -8,7 +8,7 @@ import Food from "./food";
 import {FONT} from '../fontConfig';
 import { useNavigation } from "@react-navigation/native";
 import { responsiveSize } from "../utils/responsive";
-
+import axios from "axios";
 
 export default function Food_List({store, display_food_list, menu_name, menu_description,menu_id, onclose, socketIO}){
 
@@ -22,42 +22,26 @@ export default function Food_List({store, display_food_list, menu_name, menu_des
     );
 
     useEffect(()=>{
-        async function Handle_Get_Food_List(data) {
-            await fetch(`${SERVER_IP}/foodList/api`,{
-                method:'POST',
-                headers:{
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res=>{
-                if(res.ok){
-                    return res.json().then(data=>{
-                        if(data.success){
-                            console.info(data?.message);
-                            setFood_List(data?.data)
-                            if (data?.data.length === 0) {
-                                setno_food_list("Menu has no Food yet");
-                            }                            
-                        }
-                    })
+        async function Handle_Get_Food_List() {
+            try{
+
+                const getFoodByMenu = await axios.post(`${SERVER_IP}/foodList/api`,{
+                    Menu_id: menu_id,
+                    Menu_name: menu_name
+                })
+                if(getFoodByMenu.data.success){
+                    console.log(getFoodByMenu.data.message);
+                    setFood_List(getFoodByMenu.data.data);
+                    return
                 }
-                if(res === 400){
-                    return res.json()
-                }
-            })
-            .catch(error=>{
-                console.debug(error)
-            })
+                setno_food_list("Menu has no Food yet");
+
+            }catch(err){
+                console.log(err)
+            }
         }
 
-        let data = {
-            "Menu_id": menu_id,
-            "Menu_name": menu_name
-        }
-        if(menu_id && menu_name){
-            Handle_Get_Food_List(data)
-        }
+        Handle_Get_Food_List()
 
     },[display_food_list]);
 
