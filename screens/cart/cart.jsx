@@ -51,6 +51,8 @@ export default function Cart(){
 
     const [order, setOrder] = useState([]);
 
+    const [paymentIntentId, setPaymentIntentId] = useState()
+
 
     useEffect(() => {
         if (!publicSocketio.current) return;
@@ -83,6 +85,7 @@ export default function Cart(){
             order: order
           });
           setOrder(order);
+          refundHandler()
           publicSocketio.current.off(config.failedRecivedOrder, handleFailedReceivedOrder);
         };
       
@@ -194,10 +197,11 @@ export default function Cart(){
       
         // 1. Create payment intent
         const createPayment = await createPaymentIntent();
-        const { customer, ephemeralKey, paymentIntent, publishableKey } = createPayment;
+        const { customer, ephemeralKey, paymentIntent, publishableKey,paymentIntentId } = createPayment;
       
         // 2. Save publishable key
         setPublishableKey(publishableKey); // <- fixed this line
+        setPaymentIntentId(paymentIntentId)
       
         // 3. Initialize payment sheet
         const { error } = await initPaymentSheet({
@@ -276,11 +280,28 @@ export default function Cart(){
             
             orderHistoryHandler()
         }
-    },[orderAgain])
+    },[orderAgain]);
+
+    // handle refund when orderfailed
+    const refundHandler = async () => {
+        log.warn("--------- Order failed, start refund process --------------");
+
+        const refund = await axios.get(`${SERVER_IP}/payments/refund/${paymentIntentId}`)
+        if(refund.data.success){
+            log.debug(refund.data.message);
+            alert('Refund your order payemnt successfully')
+            /// it should crate a notification ///
+            return
+        }
+
+        alert("Failed to refund order payment")
+        /// it should crate a notification ///
+        
+    }
 
     
     
-    if(displayOrderLoading) return <OrderLoading order={order} store={publicCart.Store} failedClose={()=> setDisplayOrderLoading(false)} confirmClose={()=> { setDisplayOrderLoading(false), setPublicCart({}) }}/>
+    if(displayOrderLoading) return <OrderLoading order={order} store={publicCart.Store} failedClose={()=> setDisplayOrderLoading(false)} confirmClose={()=> { setDisplayOrderLoading(false), setPublicCart({}) }} paymentIntentId={paymentIntentId}/>
     if(Object.keys(publicCart).length === 0 ) return <EmtyCart/>
     if(orderDetailDisplay) return <CustomOrder onclose={()=> oncloseHandler()} order={publicCart}/>
 

@@ -20,7 +20,7 @@ import NotificatonAlert from './notificationAlert';
 const callIcon = require('../assets/icons/telephone_icon.png');
 
 
-export default function OrderLoading({store, order,  failedClose, confirmClose}) {
+export default function OrderLoading({store, order,  failedClose, confirmClose, paymentIntentId}) {
     const mapRef = useRef(null);
     const screenWidth = Dimensions.get('window').width;
     const navigate = useNavigation();
@@ -73,8 +73,7 @@ export default function OrderLoading({store, order,  failedClose, confirmClose})
             setTimeout(() => {
                 failedClose()
                 setOrderFailed(false);
-                refundHandler()
-            }, 5000);
+            }, 4000);
         }
 
         if(order.Order_status == orderStatusConfig.pending){
@@ -115,10 +114,6 @@ export default function OrderLoading({store, order,  failedClose, confirmClose})
         }
     })
     ///////////////////////////////////////////////////////
-
-    const refundHandler = async () => {
-        log.warn("--------- Order failed, start refund process --------------");
-    }
 
     return (
         <Modal animationType="fade" visible={true}>
