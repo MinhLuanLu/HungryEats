@@ -62,6 +62,7 @@ export default function Cart(){
             message: 'Received order unprocessing status from socketIO',
             order: order
           });
+          setOrder(order);
           /*
           setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);

@@ -1,7 +1,13 @@
 export const AUTHENTICATION = {
     business: "business",
     private: "private"
+};
+
+export const ADMIN = {
+    business: "business",
+    private: "private"
 }
+
 
 export const config = {
     // socket names //
