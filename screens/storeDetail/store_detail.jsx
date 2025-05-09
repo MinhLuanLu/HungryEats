@@ -21,6 +21,7 @@ import Animated,{
     interpolate
 } from "react-native-reanimated";
 import { responsiveSize } from "../../utils/responsive";
+import { config } from "../../config";
 
 
 const left_arrow = require('../../assets/icons/left_arrow.png')
@@ -166,11 +167,13 @@ export default function Store_Detail({route}){
 // Update food quantity ////
 // Listen for food quantity updates
 if(publicSocketio.current){
-    publicSocketio.current.on('update_food_quantity', (food_list) => {
-        console.log('Updated food quantity successfully.');
-        setFood_list(food_list)
+    publicSocketio.current.on(config.updateFoodData, (food) => {
+        console.log('Updated food quantity successfully.', food);
+        setFood_list(prevItems => prevItems.filter(item => item.Food_id !== food.Food_id));
+        setFood_list(prev => [food, ...prev]);  
     });
 }
+
     
 
 /////// Animation ///

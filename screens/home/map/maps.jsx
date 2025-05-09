@@ -120,9 +120,10 @@ export default function Maps({socketIO, display_sideBar}){
 
     /// Handle update storeStatus [close or open] real time //
     if(socketIO.current){
-      socketIO.current.on(config.updateStoreState , (storeStatusList)=>{
-        log.info('Update stores Status successfully..')
-        setMarker_list(storeStatusList)
+      socketIO.current.on(config.updateStoreState , (newStoreStatus)=>{
+        log.debug("--------- get store update ststus event --------------")
+        setMarker_list(prevData => prevData.filter(item => item.Store_id !== newStoreStatus.Store_id));
+        setMarker_list(prevStore => [...prevStore, newStoreStatus])
       })
     }
     

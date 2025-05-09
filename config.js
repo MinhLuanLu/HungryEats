@@ -18,7 +18,8 @@ export const config = {
     confirmRecivedOrder: "store.confirmRecivedOrder.1",
     failedRecivedOrder: 'order.failedRecivedOrder.1',
     newOrderHandler: "user.newOrderHandler.1",
-    updateOrderStatus: 'store.updateOrderStatus.1'
+    updateOrderStatus: 'store.updateOrderStatus.1',
+    updateFoodData: 'store.updateFoodData.1'
 }
 
 export const orderStatusConfig = {

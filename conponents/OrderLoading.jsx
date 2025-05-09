@@ -231,7 +231,7 @@ export default function OrderLoading({store, order,  failedClose, confirmClose, 
             }
 
             {order.Order_status == orderStatusConfig.pending ?
-                <NotificatonAlert failed={true} title="Order success" message="Send order successfully."/>
+                <NotificatonAlert success={true} title="Order success" message="Send order successfully."/>
                 :
                 null
             }
