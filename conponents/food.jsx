@@ -36,7 +36,7 @@ export default function Food({item, store}){
                 <View style={styles.Container}>
                     <TouchableOpacity style={styles.food_box} onPress={()=> selectFoodHandler()}>
                         <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
-                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: item.Food_image}}/>
                         </View>
                         
                         <View style={{flex:1.3, paddingLeft:5}}>
@@ -56,10 +56,10 @@ export default function Food({item, store}){
                     <AddToCart displayAddToCart={display_addToCart} item={item} onclose={()=> setDisplay_AddToCart(false)} store={store}/>
                 </View>
                 :
-                <View>
+                <View style={styles.Container}>
                     <TouchableOpacity style={[styles.food_box_2]}>
                         <View style={{flex:1, backgroundColor:'#E0E0E0', borderTopRightRadius:10, borderTopLeftRadius:10}}>
-                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                            <Image style={{width:'100%', height:'100%', borderTopLeftRadius:10, borderTopRightRadius:10}} resizeMode="cover" source={{uri: item.Food_image}}/>
                         </View>
                         <View style={{flex:1.3, paddingLeft:5}}>
                             <Text style={{fontSize:17, fontFamily:FONT.SoraMedium}}>{item.Food_name}</Text>
