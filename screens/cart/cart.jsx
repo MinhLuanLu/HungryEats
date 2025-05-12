@@ -342,7 +342,7 @@ export default function Cart(){
                             <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
                                 <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
                                     {publicCart.Food_item.map((item, index)=>(
-                                        <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10, marginBottom:5}}  source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                                        <Image key={index} resizeMode="cover" style={{width:65, height:45, borderRadius:10, marginRight:10, marginBottom:5}}  source={{uri: item.Food_image}}/>
                                     ))}
                                     {publicCart.Drink_item.map((item, index)=>(
                                         <Image key={index} resizeMode="cover" style={{width:65, height:45,  borderRadius:10, marginRight:10}} source={{uri: `${SERVER_IP}/${item.Drink_image}`}}/>

@@ -167,7 +167,7 @@ export default function AddToCart({displayAddToCart, onclose, item, store}){
                 <TouchableOpacity onPress={()=> {onclose();}} style={{backgroundColor:'#F8F8F8', width: responsiveSize(35), height: responsiveSize(35), borderRadius:40, justifyContent:'center', position:'absolute', zIndex:1111, left: responsiveSize(10), top: Platform.OS === 'ios' ? responsiveSize(45) : 10}}>
                     <Image style={{width:18, height:18, alignSelf:'center'}} resizeMode="cover" source={left_arrow}/>
                 </TouchableOpacity>
-                <Image resizeMode="cover" style={styles.storeImage} source={{uri: `${SERVER_IP}/${item.Food_image}`}}/>
+                <Image resizeMode="cover" style={styles.storeImage} source={{uri: item.Food_image}}/>
 
                 <View style={styles.middleContainer}>
                     <View style={{flex:1, display:'flex', flexDirection:'row'}}>
