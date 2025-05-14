@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "HungryEats",
-    "slug": "HungryEats",
+    "slug": "hungryeats",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -29,7 +29,11 @@
         "googleMaps": {
           "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,6 +46,12 @@
         }
       ],
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9102fa58-b34c-4b47-8c4b-64969f6c302d"
+      }
+    },
+    "owner": "minhlu14206"
   }
 }

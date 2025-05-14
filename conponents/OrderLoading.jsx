@@ -93,7 +93,7 @@ export default function OrderLoading({store, order,  failedClose, confirmClose, 
             setTimeout(() => {
                 confirmClose();
                 setOrderConfirm(false)
-            }, 5000);
+            }, 4000);
             
         }
     },[order])

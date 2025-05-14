@@ -14,6 +14,9 @@ import { useNavigation } from "@react-navigation/native";
 import log from "minhluanlu-color-log";
 import {config, orderStatusConfig } from "../../config";
 import Animated,{withTiming, withSpring, useSharedValue, useAnimatedStyle, withSequence} from "react-native-reanimated";
+import * as Notifications from 'expo-notifications';
+import { CreateNotification } from "../../expo-Notification";
+
 
 
 export default function Home(){
@@ -25,9 +28,8 @@ export default function Home(){
     const socketIO                                                      = useRef(null)
     const [pendingOrderTab, setPendingOrderTab]                           = useState(false)
     const navigate = useNavigation()
-
+    const {expoPushToken, setExpoPushToken} = useContext(UserContext)
     const publicPendingOrderRef = useRef(publicPendingOrder);
-
 
     // setDisplay_SideBar to false to be able to display side bar again after navigate back from orther screen.
     useFocusEffect(
@@ -51,7 +53,7 @@ export default function Home(){
                 setPublicPendingOrder(pendingOrder?.data?.data)
             }
         }, 3000);
-
+        
     },[])
 
     useEffect(() => {
@@ -78,26 +80,15 @@ export default function Home(){
 
             // Listen for order status updates
             socketIO.current.on(config.updateOrderStatus, (order) => {
-                let searchOrder;
-                alert(`get update order status event: ${order?.Order_status}`)
-                for(const item of publicPendingOrderRef.current){
-                    const orderID = item.Order_id;
-                    
-                    log.debug("------- searching for the order in publicPendingOrder ------------");
-                    if(orderID == order?.Order_id){
-                        item.Order_status = order?.Order_status;
-                        searchOrder = item;
-                        log.debug({
-                            message: "Update order status successfully.",
-                            order: orderID
-                        })
-                        break
-                    }
-                }
-                if(searchOrder == undefined){
-                    log.debug("No order was found in publicPendingOrder");
-                    return
-                };
+                //alert(`get update order status event: ${order?.Order_status}`)
+                setPublicPendingOrder(prevData => prevData.filter(item => item.Order_id !== order.Order_id));
+                setPublicPendingOrder(preOrder => [order, ...preOrder] );
+
+                // create notification //
+                CreateNotification({
+                    title: "Update order Status",
+                    body: `You order is now ${order?.Order_status}`
+                })
                 return
             });
 
@@ -148,7 +139,7 @@ export default function Home(){
         }
     })
 
-    
+
 
     return(
         <>

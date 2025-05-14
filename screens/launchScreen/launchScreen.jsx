@@ -1,4 +1,4 @@
-import { StyleSheet,View,Text, TouchableOpacity, Image, Pressable, TouchableWithoutFeedback, Dimensions } from "react-native";
+import { StyleSheet,View,Text, TouchableOpacity, Image, Pressable, TouchableWithoutFeedback, Dimensions , Platform} from "react-native";
 import { useEffect, useState, useContext, useCallback } from "react";
 import { UserContext } from "../../contextApi/user_context";
 import { useNavigation } from "@react-navigation/native";
@@ -22,28 +22,42 @@ import Animated,{
 } from "react-native-reanimated";
 const background = require('../../assets/images/launch_image_background.png');
 import { responsiveSize } from "../../utils/responsive";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
+import {registerForPushNotificationsAsync} from "../../expo-Notification";
+
 
 
 export default function Launch_Screen(){
     const navigate = useNavigation()
     const {publicPendingOrder, setPublicPendingOrder}         = useContext(UserContext);
+    const {expoPushToken, setExpoPushToken} = useContext(UserContext)
     const [displayLogin, setDisplayLogin] = useState(false)
 
     const imageSize = useSharedValue('75%');
     const opacity = useSharedValue(1)
     const scrollDown = useSharedValue(0);
 
-    const [loadFonts] = useFonts(listFonts)
+    const [loadFonts] = useFonts(listFonts);
+
+    useEffect(()=>{
+        registerForPushNotificationsAsync().then(token => {
+            setExpoPushToken(token)
+        }).catch(error => console.log(error))
+    },[])
 
     useFocusEffect(
         useCallback(() => {
             setPublicPendingOrder([])
-        }, []) 
+        }, [])
     );
 
     useEffect(()=>{
-        imageSize.value = withSpring('90%', {duration:3000, easing: Easing.ease, mass:1})
-    },[])
+        imageSize.value = withSpring('90%', {duration:3000, easing: Easing.ease, mass:1});        
+    },[]);
+
+    
     
     const imageAnimation = useAnimatedStyle(()=>{
         return{
