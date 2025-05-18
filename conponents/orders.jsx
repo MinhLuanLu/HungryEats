@@ -31,6 +31,7 @@ export default function Orders({orderList, backgroundColor}){
                             <Text style={{fontFamily:FONT.SoraMedium, fontSize:14, flex:1}}>{/*orders.Store.Store_name*/} - {/*orders.Store.Address*/} </Text>
                         </View>
                     }
+                    <Text style={{position:'absolute', right:15, top:10, fontFamily: FONT.SoraMedium, fontSize: responsiveSize(12)}}>#{orders.Order_id}</Text>
                     <View style={{width:'90%', height:'auto', minHeight:80, width:'90%', alignSelf:'center', justifyContent:'center'}}>
                         <View style={{flex:1, flexDirection:'row', marginTop:10,flexWrap: 'wrap'}}>
                             {orders.Food_item.map((item, index)=>(

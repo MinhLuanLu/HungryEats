@@ -234,7 +234,7 @@ export default function Cart(){
           log.warn(error);
         } else {
         
-          log.debug('Payment successfully.');
+          log.debug('Payment successfully, sending order.');
           publicSocketio.current.emit( config.newOrderHandler, publicCart); // send order
           setDisplayOrderLoading(true)
         }

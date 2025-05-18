@@ -170,7 +170,7 @@ if(publicSocketio.current){
     publicSocketio.current.on(config.updateFoodData, (food) => {
         console.log('Updated food quantity successfully.', food);
         setFood_list(prevItems => prevItems.filter(item => item.Food_id !== food.Food_id));
-        setFood_list(prev => [food, ...prev]);  
+        setFood_list(prev => [...prev, food]);  
     });
 }
 

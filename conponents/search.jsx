@@ -13,18 +13,26 @@ export default function Search({display_Payment, display_sideBar}){
     const navigate = useNavigation()
     const [search_value, setSearch_value]                   = useState('')
     const [search_Result, setSearch_Result]                 = useState([])
-    const {publicCart, setPublicCart} = useContext(UserContext)
+    const {publicCart, setPublicCart} = useContext(UserContext);
 
     useEffect(()=>{
         console.log('Update publicCart')
     },[publicCart])
 
     const renderItem  = ({item }) =>(
-        <View style={styles.result_list_Container}>
+        <TouchableOpacity  style={styles.result_list_Container} onPress={() => HandleSelectStore(item)}>
             <Text style={{paddingLeft:5, fontSize:16, fontWeight:'500'}}>{item.Store_name}</Text>
             <Text style={{paddingLeft:5, fontSize:14, fontWeight:'200'}}>Adrress: {item.Address}</Text>
-        </View>
+        </TouchableOpacity>
     )
+
+    async function HandleSelectStore(store){
+        if(store.Active == 1){
+            navigate.navigate('StoreDetail', {store: store});
+            return;
+        }
+        alert('Store is close')
+    }
 
     useEffect(()=>{
         if (!isNaN(search_value) && search_value.trim() !== ''){

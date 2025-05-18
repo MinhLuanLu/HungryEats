@@ -16,6 +16,7 @@ import {config, orderStatusConfig } from "../../config";
 import Animated,{withTiming, withSpring, useSharedValue, useAnimatedStyle, withSequence} from "react-native-reanimated";
 import * as Notifications from 'expo-notifications';
 import { CreateNotification } from "../../expo-Notification";
+import PopUpMessage from "../../conponents/popUpMessage";
 
 
 
@@ -30,6 +31,8 @@ export default function Home(){
     const navigate = useNavigation()
     const {expoPushToken, setExpoPushToken} = useContext(UserContext)
     const publicPendingOrderRef = useRef(publicPendingOrder);
+    const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false);
+    const [orderStatus, setOrderStatus] = useState(null)
 
     // setDisplay_SideBar to false to be able to display side bar again after navigate back from orther screen.
     useFocusEffect(
@@ -78,15 +81,18 @@ export default function Home(){
             
             });
 
-            // Listen for order status updates
+            // Listen for order status updates //
             socketIO.current.on(config.updateOrderStatus, (order) => {
                 //alert(`get update order status event: ${order?.Order_status}`)
                 setPublicPendingOrder(prevData => prevData.filter(item => item.Order_id !== order.Order_id));
                 setPublicPendingOrder(preOrder => [order, ...preOrder] );
+                //////////////////////////////////////////
+                setOrderStatus(order);
+                setDisplayPopUpMessage(true)
 
                 // create notification //
                 CreateNotification({
-                    title: "Update order Status",
+                    title: `Update order Status #${order.Order_id}`,
                     body: `You order is now ${order?.Order_status}`
                 })
                 return
@@ -148,6 +154,7 @@ export default function Home(){
                     socketIO={socketIO}  
                     display_sideBar={()=> {setDisplay_SideBar(true)}} 
                 />
+                <PopUpMessage displayPopUpMessage={displayPopUpMessage} title={`Order #${orderStatus != null && orderStatus.Order_id}`} message={`Your order is ${orderStatus != null && orderStatus.Order_status}`} onclose={() => setDisplayPopUpMessage(false)}/>
             </View>
             
             {/*Handle display order status*/}
@@ -186,7 +193,7 @@ export default function Home(){
                 display_Pending_Order={()=> {setDisplay_Pending_Order(true), setPendingOrderTab(false)}} 
                 displayOrderHistory={()=> {setDisplay_Pending_Order(true), setPendingOrderTab(true)}}
             />
-            
+
         </>
     );
 }

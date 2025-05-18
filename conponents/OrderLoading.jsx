@@ -14,7 +14,7 @@ import { orderStatusConfig } from '../config';
 import { useNavigation } from '@react-navigation/native';
 import log from 'minhluanlu-color-log';
 import NotificatonAlert from './notificationAlert';
-
+import { CreateNotification } from '../expo-Notification';
 
 
 const callIcon = require('../assets/icons/telephone_icon.png');
@@ -73,7 +73,13 @@ export default function OrderLoading({store, order,  failedClose, confirmClose, 
             setTimeout(() => {
                 failedClose()
                 setOrderFailed(false);
-            }, 4000);
+                
+                // create notification //
+                CreateNotification({
+                    title: `Order Status ${order.Order_status}`,
+                    body: `You order is failed confirm to recived by store`
+                })
+            }, 3000);
         }
 
         if(order.Order_status == orderStatusConfig.pending){
@@ -88,12 +94,17 @@ export default function OrderLoading({store, order,  failedClose, confirmClose, 
 
             // remove pending animation //
             pendingAnimationOpacity.value = withTiming(0, {duration:1000});
-            pendingAnimationScale.value = withSpring(0)
+            pendingAnimationScale.value = withSpring(0);
             
             setTimeout(() => {
                 confirmClose();
-                setOrderConfirm(false)
-            }, 4000);
+                setOrderConfirm(false);
+                // create notification //
+                CreateNotification({
+                    title: `Order Status ${order.Order_status}`,
+                    body: `You order is confirm to recived by store`
+                })
+            }, 3000);
             
         }
     },[order])
