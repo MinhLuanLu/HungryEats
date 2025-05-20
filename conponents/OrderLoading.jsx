@@ -25,21 +25,13 @@ export default function OrderLoading({store, order,  failedClose, confirmClose, 
     const screenWidth = Dimensions.get('window').width;
     const navigate = useNavigation();
 
-    
-    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
-    const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
-    
-
     const [latitude, setLatitude] = useState(store.Latitude);
     const [longitude, setLongitude] = useState( store.Longitude);
 
     const [orderConfirm, setOrderConfirm] = useState(false); // status as pending
     const [orderFailed, setOrderFailed] = useState(false)
     const [orderUnprocessing, setOrderUnprocessing] = useState(false)
-
     const [undefined, setUndefined] = useState(false)
-
-
 
     const confirmAnimationOpacity = useSharedValue(0);
     const confirmAnimationScale = useSharedValue(0)

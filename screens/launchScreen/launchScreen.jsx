@@ -22,9 +22,6 @@ import Animated,{
 } from "react-native-reanimated";
 const background = require('../../assets/images/launch_image_background.png');
 import { responsiveSize } from "../../utils/responsive";
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
 import {registerForPushNotificationsAsync} from "../../expo-Notification";
 
 
@@ -32,13 +29,12 @@ import {registerForPushNotificationsAsync} from "../../expo-Notification";
 export default function Launch_Screen(){
     const navigate = useNavigation()
     const {publicPendingOrder, setPublicPendingOrder}         = useContext(UserContext);
-    const {expoPushToken, setExpoPushToken} = useContext(UserContext)
-    const [displayLogin, setDisplayLogin] = useState(false)
+    const {expoPushToken, setExpoPushToken}                   = useContext(UserContext)
+    const [displayLogin, setDisplayLogin]                     = useState(false)
 
     const imageSize = useSharedValue('75%');
     const opacity = useSharedValue(1)
     const scrollDown = useSharedValue(0);
-
     const [loadFonts] = useFonts(listFonts);
 
     useEffect(()=>{

@@ -119,13 +119,17 @@ export default function Maps({socketIO, display_sideBar}){
     }
 
     /// Handle update storeStatus [close or open] real time //
-    if(socketIO.current){
-      socketIO.current.on(config.updateStoreState , (newStoreStatus)=>{
-        log.debug("--------- get store update ststus event --------------")
+    if(socketIO){
+      const handleUpdateStoreState = (newStoreStatus)=>{
+        log.debug("--------- get store update status event --------------")
         setMarker_list(prevData => prevData.filter(item => item.Store_id !== newStoreStatus.Store_id));
         setMarker_list(prevStore => [...prevStore, newStoreStatus])
-      })
+      };
+
+      socketIO.on(config.updateStoreState ,handleUpdateStoreState);
     }
+
+    
     
 
     if(location == null || marker_list.length === 0) return <LoadingMap/>

@@ -17,22 +17,21 @@ import Animated,{withTiming, withSpring, useSharedValue, useAnimatedStyle, withS
 import * as Notifications from 'expo-notifications';
 import { CreateNotification } from "../../expo-Notification";
 import PopUpMessage from "../../conponents/popUpMessage";
+import { useSocketio } from "../../contextApi/socketio_context";
 
 
 
 export default function Home(){
+    const {connectSocketIO, socket} = useSocketio();
     const [display_sideBar, setDisplay_SideBar]                         = useState(false)
     const {publicPendingOrder, setPublicPendingOrder}                 = useContext(UserContext)
     const [display_Pending_Order, setDisplay_Pending_Order]               = useState(false)
     const {publicUser, setPublicUser}                                       = useContext(UserContext)
-    const { publicSocketio, setPublicSocketio}                           = useContext(SocketioContext)
-    const socketIO                                                      = useRef(null)
     const [pendingOrderTab, setPendingOrderTab]                           = useState(false)
     const navigate = useNavigation()
-    const {expoPushToken, setExpoPushToken} = useContext(UserContext)
     const publicPendingOrderRef = useRef(publicPendingOrder);
     const [displayPopUpMessage, setDisplayPopUpMessage] = useState(false);
-    const [orderStatus, setOrderStatus] = useState(null)
+    const [orderStatus, setOrderStatus] = useState(null);
 
     // setDisplay_SideBar to false to be able to display side bar again after navigate back from orther screen.
     useFocusEffect(
@@ -42,6 +41,11 @@ export default function Home(){
     );
 
     useEffect(()=>{
+        // connect to SocketIO //
+        if(!socket){
+            connectSocketIO()
+        }
+        
         BackHandler.addEventListener('hardwareBackPress', () => {
             setDisplay_SideBar(false)
         })
@@ -52,58 +56,31 @@ export default function Home(){
             })
             if(pendingOrder?.data?.success){
                 log.info(pendingOrder?.data?.message);
-                log.info(pendingOrder?.data)
+                //log.info(pendingOrder?.data)
                 setPublicPendingOrder(pendingOrder?.data?.data)
             }
         }, 3000);
         
     },[])
 
-    useEffect(() => {
-        // Prevent multiple connections by checking if socket already exists
-        
-        if (!socketIO.current) {
-            socketIO.current = io(SOCKET_SERVER, {
-                transports: ['websocket'], // Use WebSocket to avoid polling
-                forceNew: true, // Ensures a new connection is created
-            });
-            setPublicSocketio(socketIO)
-        
-            socketIO.current.on('connect', () => {
-                log.info('Connected to Socket.IO successfully.');
-                log.info(`Socket ID: ${socketIO.current.id}`);
 
-                // Emit connection event with user details
-                socketIO.current.emit('connection', {
-                    Socket_id: socketIO.current.id,
-                    User: publicUser
-                });
-            
-            });
+    if(socket){
+        const handleUpdateOrder = (order) => {
+            //alert(`get update order status event: ${order?.Order_status}`)
+            setPublicPendingOrder(prevData => prevData.filter(item => item.Order_id !== order.Order_id));
+            setPublicPendingOrder(preOrder => [order, ...preOrder] );
+            //////////////////////////////////////////
+            setOrderStatus(order);
+            setDisplayPopUpMessage(true)
 
-            // Listen for order status updates //
-            socketIO.current.on(config.updateOrderStatus, (order) => {
-                //alert(`get update order status event: ${order?.Order_status}`)
-                setPublicPendingOrder(prevData => prevData.filter(item => item.Order_id !== order.Order_id));
-                setPublicPendingOrder(preOrder => [order, ...preOrder] );
-                //////////////////////////////////////////
-                setOrderStatus(order);
-                setDisplayPopUpMessage(true)
-
-                // create notification //
-                CreateNotification({
-                    title: `Update order Status #${order.Order_id}`,
-                    body: `You order is now ${order?.Order_status}`
-                })
-                return
-            });
-
-
-         
-            
-
+            // create notification //
+            CreateNotification({
+                title: `Update order Status #${order.Order_id}`,
+                body: `You order is now ${order?.Order_status}`
+            })
         }
-    },[])
+        socket.on(config.updateOrderStatus, handleUpdateOrder);
+    }
 
 
     useEffect(() => {
@@ -151,7 +128,7 @@ export default function Home(){
         <>
             <View>
                 <Maps 
-                    socketIO={socketIO}  
+                    socketIO={socket}  
                     display_sideBar={()=> {setDisplay_SideBar(true)}} 
                 />
                 <PopUpMessage displayPopUpMessage={displayPopUpMessage} title={`Order #${orderStatus != null && orderStatus.Order_id}`} message={`Your order is ${orderStatus != null && orderStatus.Order_status}`} onclose={() => setDisplayPopUpMessage(false)}/>

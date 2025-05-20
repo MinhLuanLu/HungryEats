@@ -1,7 +1,8 @@
 import { StyleSheet, SafeAreaView,View, Text, TouchableOpacity, Image, ScrollView, Modal} from "react-native";
 import Animated,{useSharedValue, useAnimatedStyle, withTiming, withSpring,FadeInDown} from "react-native-reanimated";
 import { useEffect, useState, useContext } from "react";
-import {SERVER_IP} from "@env"
+import {SERVER_IP} from "@env";
+import { useSocketio } from "../../contextApi/socketio_context";
 import { FONT } from "../../fontConfig";
 import { UserContext } from "../../contextApi/user_context";
 import { SocketioContext } from "../../contextApi/socketio_context";
@@ -30,7 +31,7 @@ export default function Cart(){
 
     const {publicCart, setPublicCart} = useContext(UserContext);
     const {publicUser, setPublicUser} = useContext(UserContext);
-    const {publicSocketio, setPublicSocketio} = useContext(SocketioContext);
+    const {socket} = useSocketio()
     const {publishableKey, setPublishableKey} = useContext(UserContext);
     const {publicPendingOrder, setPublicPendingOrder} = useContext(UserContext);
 
@@ -55,8 +56,8 @@ export default function Cart(){
 
 
     useEffect(() => {
-        if (!publicSocketio.current) return;
-      
+        if (!socket) return;
+
         const handleOrderUnprocessing = (order) => {
           log.debug({
             message: 'Received order unprocessing status from socketIO',
@@ -67,7 +68,7 @@ export default function Cart(){
           setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);
           */
-          publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
+          socket.off(config.orderUnprocessing, handleOrderUnprocessing);
         };
       
         const handleConfirmReceivedOrder = (order) => {
@@ -77,7 +78,7 @@ export default function Cart(){
           });
           setPublicPendingOrder((prevOrder) => [...prevOrder, order]);
           setOrder(order);
-          publicSocketio.current.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+          socket.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
         };
       
         const handleFailedReceivedOrder = (order) => {
@@ -87,17 +88,17 @@ export default function Cart(){
           });
           setOrder(order);
           refundHandler()
-          publicSocketio.current.off(config.failedRecivedOrder, handleFailedReceivedOrder);
+          socket.off(config.failedRecivedOrder, handleFailedReceivedOrder);
         };
       
-        publicSocketio.current.on(config.orderUnprocessing, handleOrderUnprocessing);
-        publicSocketio.current.on(config.confirmRecivedOrder, handleConfirmReceivedOrder);
-        publicSocketio.current.on(config.failedRecivedOrder, handleFailedReceivedOrder);
+        socket.on(config.orderUnprocessing, handleOrderUnprocessing);
+        socket.on(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+        socket.on(config.failedRecivedOrder, handleFailedReceivedOrder);
       
         return () => {
-            publicSocketio.current.off(config.orderUnprocessing, handleOrderUnprocessing);
-            publicSocketio.current.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
-            publicSocketio.current.off(config.failedRecivedOrder, handleFailedReceivedOrder);
+            socket.off(config.orderUnprocessing, handleOrderUnprocessing);
+            socket.off(config.confirmRecivedOrder, handleConfirmReceivedOrder);
+            socket.off(config.failedRecivedOrder, handleFailedReceivedOrder);
           };
     
       }, [displayOrderLoading]);
@@ -235,7 +236,7 @@ export default function Cart(){
         } else {
         
           log.debug('Payment successfully, sending order.');
-          publicSocketio.current.emit( config.newOrderHandler, publicCart); // send order
+          socket.emit( config.newOrderHandler, publicCart); // send order
           setDisplayOrderLoading(true)
         }
       };

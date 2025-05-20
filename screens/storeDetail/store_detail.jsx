@@ -22,6 +22,7 @@ import Animated,{
 } from "react-native-reanimated";
 import { responsiveSize } from "../../utils/responsive";
 import { config } from "../../config";
+import { useSocketio } from "../../contextApi/socketio_context";
 
 
 const left_arrow = require('../../assets/icons/left_arrow.png')
@@ -34,8 +35,7 @@ const telefon_number = require('../../assets/icons/telephone_icon.png')
 export default function Store_Detail({route}){
     const navigate = useNavigation();
     const {store} = route.params;
-    
-    const { publicSocketio, setPublicSocketio}   = useContext(SocketioContext)
+    const {socket} = useSocketio();
     const {publicCart, setPublicCart} = useContext(UserContext)
     const {publicUser, setPublicUser} = useContext(UserContext);
 
@@ -166,11 +166,11 @@ export default function Store_Detail({route}){
 
 // Update food quantity ////
 // Listen for food quantity updates
-if(publicSocketio.current){
-    publicSocketio.current.on(config.updateFoodData, (food) => {
+if(socket){
+    socket.on(config.updateFoodData, (food) => {
         console.log('Updated food quantity successfully.', food);
         setFood_list(prevItems => prevItems.filter(item => item.Food_id !== food.Food_id));
-        setFood_list(prev => [...prev, food]);  
+        setFood_list(prev => [food, ...prev]);  
     });
 }
 
