@@ -146,17 +146,17 @@ export default function App() {
       <SafeAreaView style={styles.container}> 
         {/*<NotificatonAlert top={50}/>*/}
         <StripeProvider publishableKey={StripepublishableKey} merchantIdentifier="merchant.identifier">
-          <SocketioProvider>
             <UserProvider>
-              <StoreProvider>
-              
-                  <NavigationContainer>
-                    <StackNav/>
-                  </NavigationContainer>
+              <SocketioProvider>
+                <StoreProvider>
                 
-              </StoreProvider>
+                    <NavigationContainer>
+                      <StackNav/>
+                    </NavigationContainer>
+                  
+                </StoreProvider>
+              </SocketioProvider>  
             </UserProvider>
-          </SocketioProvider>  
         </StripeProvider>
       </SafeAreaView>
     </GestureHandlerRootView>

@@ -66,7 +66,7 @@ export default function Home(){
 
     if(socket){
         const handleUpdateOrder = (order) => {
-            //alert(`get update order status event: ${order?.Order_status}`)
+            //alert(`get update order status event: ${order?.Order_status}`);
             setPublicPendingOrder(prevData => prevData.filter(item => item.Order_id !== order.Order_id));
             setPublicPendingOrder(preOrder => [order, ...preOrder] );
             //////////////////////////////////////////
@@ -81,7 +81,6 @@ export default function Home(){
         }
         socket.on(config.updateOrderStatus, handleUpdateOrder);
     }
-
 
     useEffect(() => {
         publicPendingOrderRef.current = publicPendingOrder;

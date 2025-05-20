@@ -1,8 +1,7 @@
-import { createContext, useState, useRef, useContext } from "react";
+import { createContext, useState, useRef, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
 import { UserContext } from "./user_context";
 import {SOCKET_SERVER} from '@env';
-import { config } from "../config";
 
 export const SocketioContext = createContext({})
 
@@ -18,39 +17,25 @@ export const SocketioProvider = ({children}) =>{
                 forceNew: true, // Ensures a new connection is created
                 reconnection: true
             });
-            
-            setConnected(true)
+
             socketIO.current.on('connect', () => {
-                log.info('Connected to Socket.IO successfully.');
-                log.info(`Socket ID: ${socketIO.current.id}`);
+                console.log('save socket to database:', socketIO.current.id);
+                // Now it's safe to use socketIO.current.id
+                socketIO.current.emit('connection', {
+                    Socket_id: socketIO.current.id,
+                    User: { User_id: 12 }
+                });
 
-            // Emit connection event with user details
-            socketIO.current.emit('connection', {
-                Socket_id: socketIO.current.id,
-                User: publicUser
+                setConnected(true);
             });
-
-            socketIO.current.on('disconnect', () => {
-                setConnected(false);
-                console.log('Socket disconnected');
-            });
-            
-            });
-
             return socketIO.current
         };
         return socketIO.current
     }
 
-    const disconnectSocketIO = () => {
-        socketIO.current?.disconnect();
-        setConnected(false);
-    };
-
     return(
         <SocketioContext.Provider value={{
             connectSocketIO,
-            disconnectSocketIO,
             socket: socketIO.current,
             socketConnection: connected
             

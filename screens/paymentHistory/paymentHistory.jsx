@@ -10,13 +10,13 @@ const PaymentHistory = () =>{
     socket.on('test', (order) => {
         alert(4454)
     })
-
+    }
     return(
         <View>
             <Text>Payment History</Text>
         </View>
     )
-}
+
 }
 
 export default PaymentHistory;
